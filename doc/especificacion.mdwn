@@ -1,0 +1,62 @@
+# Especificacion de Lenguaje Sin Nombre
+Fernández, K. & Gyomrey, A.
+
+- - -
+
+El presente documento muestra la especificación del lenguaje BLA. BLA
+es un lenguaje imperativo fuertemente tipado. Su sintáxis y operaciones
+tiene elementos inspirados en C y de otros lenguajes tales como Haskell,
+Python y R.
+
+## Consideraciones Léxicas
+
+Las siguientes palabras son reservadas del lenguaje:
+
+> `none` `int` `float` `boolean` `char` `string` `fun` `for` `fill`
+> `if` `elif` `else` `return` `continue` `break` `map` `foldr` `foldr`
+
+Estas palabras corresponden con las funciones nativas de BLA explicadas
+más adelante.
+
+Un idenficador es una secuencia de letras, dígitos y guiones
+bajos (_), empezando por una letra. BLA es sensitivo a capitalización,
+es decir, el uso de de mayúsculas y minúsculas hace variar un identificador.
+Por ejemplo, `foo` y `Foo` son identificadores distintos.
+
+En BLA es posible escribir comentarios en bloque y de línea basados en
+la sintáxis de Haskell. Un comentario de linea empieza con dos guiones
+consecutivos `--` y finaliza con un fin de línea. Los comentarios de
+bloque empiezan con `{-` y terminan con `-}`. Cualquier símbolo es
+permitido en un comentario excepuanto la secuencia `-}`, la cual tiene
+la función única de finalizar el comentario actual.
+
+Las constantes booleanas son `true` y `false` correspondientes respectivamente
+a los valores de verdadero y falso.
+
+Un entero puede ser especificado con o sin su base. Un entero con base
+es una secuencia de dígitos decimales (0-9) y caracteres (a-zA-z), seguido
+de un guión bajo (_) y de la base especificada en formato decimal. Los
+carácteres son válidos siempre que la base lo requiera. La base es un
+valor entre 1 y 36, ambos inclusive.
+
+En caso de no indicar la base, se considera que el entero está expresado en
+base decimal. Los siguientes son ejemplos válidos de enteros:
+
+> 10_2, 124_7, 2A_16, 2br_20
+
+Un número flotante es una secuencia de dígitos, un punto, seguido de
+cualquier secuencia de dígitos. Ambas secuencias pueden estar posiblemente
+vacías. Adicionalmente, se pueden escribir en notación científica.
+El signo del exponente es opcional, en caso de no especificarse se asume
+positivo y `E` puede estar expresado en mayúsculas o minúsculas.
+
+Son ejemplo de flotantes válidos:
+
+> 4.67, 0.42, .37, 37.0, 23.4E+2, 42.8e-6
+
+Un `string` es una secuencia de caracteres delimitados por comillas
+dobles. Los strings pueden contener cualquier caracter. Una cadena
+de caracteres puede empezar y terminar en líneas diferentes. Si se
+expresan dos secuencias de caracteres consecutivas se concatenarán
+en una.
+
