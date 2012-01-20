@@ -9,45 +9,41 @@ void yyerror (char const *);
 
 %}
 
-/*
-%union
-{
-    int line;
-    int col;
-}*/
+%union{
+    token *tk;
+}
 
 /* Bison declarations.  */
-%token NUM
-%token IDENT
-
-%left '-' '+'
-%left '*' '/'
-%left NEG     /* negation--unary minus */
-%right '^'    /* exponentiation */
+%token TK_INT TK_IDENT TK_TYPE TK_TYPE_FLOAT TK_FUNCTION
 
 %% /* The grammar follows.  */
-input :    /* empty */
-      | input declaration
+input : global_declaration 
+      | global_declaration input
       ;
 
-declaration : IDENT {  }
+global_declaration : function_declaration
+                   | declaration
+                   ;
+
+declaration : TK_TYPE TK_IDENT ';'               {printf("hey");}
+            | TK_TYPE TK_IDENT '=' EXPR ';'      {printf("hey con init");}
             ;
 
-/*
-line  :     '\n'
-      | exp '\n'  { printf ("\t%.10g\n", $1); }
-      ;
-     
-exp   : NUM                { $$ = $1;         }
-      | exp '+' exp        { $$ = $1 + $3;    }
-      | exp '-' exp        { $$ = $1 - $3;    }
-      | exp '*' exp        { $$ = $1 * $3;    }
-      | exp '/' exp        { $$ = $1 / $3;    }
-      | '-' exp  %prec NEG { $$ = -$2;        }
-      | exp '^' exp        { $$ = pow ($1, $3); }
-      | '(' exp ')'        { $$ = $2;         }
-      ;
-*/
+function_declaration : TK_FUNCTION TK_TYPE TK_IDENT 
+                            '(' argument_list ')'
+                            '{'    '}' {printf("function");}
+
+argument_list : /*empty */
+              | non_empty_argument_list
+              ;
+
+non_empty_argument_list : TK_TYPE TK_IDENT
+                        | TK_TYPE TK_IDENT ',' non_empty_argument_list
+
+EXPR : TK_INT           { ; }
+     | TK_IDENT         { ; }
+     ;
+
 %%
 
 void yyerror (char const *s)
@@ -58,6 +54,5 @@ void yyerror (char const *s)
 int main (int argc,char **argv)
 {
   yyparse ();
-  
   return 0;
 }

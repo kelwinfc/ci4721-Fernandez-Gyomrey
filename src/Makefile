@@ -1,18 +1,15 @@
 LEX    = flex
 BISON  = bison
 BFLAGS = --defines=y.tab.h --output=y.tab.c
-FILES  = token
 
-all: lexer y.tab.cc lex.yy.cc
+test1:	lex.yy.c y.tab.c
+		g++ $^ -o $@
 
-lexer:	lex.yy.cc y.tab.cc $(FILES:%=%.h)
-		g++ $^ -o $@ -lm -ly
+y.tab.c:	parser.y
+		bison -dy $<
 
-y.tab.cc:	parser.y $(FILES:%=%.h)
-		bison --skeleton="lalr1.cc" -dy $<
-
-lex.yy.cc:	lexer.l $(FILES:%=%.h)
-		flex -+ $<
+lex.yy.c:	lexer.l
+		flex $<
 
 clean:
-		rm lexer y.tab.h lex.yy.cc y.tab.c
+		rm test1 y.tab.h lex.yy.c y.tab.c
