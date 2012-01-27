@@ -16,7 +16,7 @@ Las siguientes palabras son reservadas del lenguaje:
 
 > `none`, `int`, `float`, `boolean`, `char`, `string`, `fun`,
 > `for`, `fill`, `if`, `elif`, `else`, `return`, `continue`, `break`,
-> `map`, `foldr`, `foldr`, `const`
+> `map`, `foldr`, `foldr`, `const`, `alias`
 
 Estas palabras corresponden con las funciones nativas de *BLA* explicadas
 más adelante.
@@ -75,8 +75,8 @@ siguientes:
 
 ## Gramática de *BLA*
 
-TODO: DEFINIR LA GRAMATICA. IDEA: IR DEFINIENDOLA A MEDIDA DE QUE VAYAMOS
-ESTABLECIENDO LOS ELEMENTOS DE ABAJO
+TODO: definir la gramática. Idea: ir definiéndola a medida que vayamos
+estableciendo los elementos de abajo
 
 ## Estructura de un Programa
 
@@ -135,7 +135,7 @@ internos.
 ## Tipos
 
 Los tipos escalares nativos del lenguaje son `int`, `float`, `boolean`,
-`fuzzy_boolean` `string` y `none`.
+ `string` y `none`.
 
 Los arreglos pueden ser multi-dimensionales y de cualquier tipo
 distinto a `none`.
@@ -144,7 +144,7 @@ distinto a `none`.
 
 ## Variables
 
-Las variables pueden ser declaradas de cualquiter tipo no vacío, es decir,
+Las variables pueden ser declaradas de cualquier tipo no vacío, es decir,
 de cualquier tipo distinto a `none`. Esto incluye arreglos y tipos definidos
 por el usuario. Las variables declaradas fuera de alcances locales tienen
 por defecto alcance global.
@@ -158,33 +158,25 @@ En *BLA* los arreglos son homogéneos, indexados linealmente y de tamaño
 constante.
 
 * Los arreglos pueden ser de cualquier tipo primitivo distinto a `none` o
-tipo declarado por el usuario.
-
+  tipo declarado por el usuario.
 * Pueden establecerse arreglos de varias dimensiones.
-
 * Los arreglos son inicializados por defecto con el valor 0 para los tipos `int`
-y `float` y `false` para los `boolean`. Los arreglos de registros son
-inicializados rellenando con ceros los bytes que esta contenga.
+  y `float`, y `false` para los `boolean`. Los arreglos de registros son
+  inicializados rellenando con ceros los bytes que esta contenga.
 
-* El número de elementos en el arreglo no puede cambiarse una vez declarado. Sin
-embargo, el tamaño de estos puede ser conocido a tiempo de ejecución.
-
+* El número de elementos en el arreglo no puede cambiarse una vez declarado.
 * Los arreglos son indexados desde cero hasta una posición antes de su longitud,
-a menos que es especifique lo contrario. Es decir, si el rango de un arreglo va
-de `a` a `b`, se puede acceder a cualquier posición mayor o igual a `a` y
-estrictamente inferior a `b`.
-
+  a menos que es especifique lo contrario. Es decir, si el rango de un arreglo va
+  de `a` a `b`, se puede acceder a cualquier posición mayor o igual a `a` y
+  estrictamente inferior a `b`.
 * El índice utilizado en la selección debe ser de tipo entero.
-
 * Ocurre un error a tiempo de ejecución si se intenta acceder a una posición
-fuera de los límites de un arreglo.
-
+  fuera de los límites de un arreglo.
 * Los arreglos pueden ser pasados a las funciones por referencia.
-
 * La asignación de arreglos es profunda, es decir, se copia elemento a elemento.
-Pueden especificarse que segmentos de arreglo se desean copiar (`slice`). Sin
-embargo, ambos segmentos deben tener el mismo tamaño. Si no se indica el
-segmento de arreglo a copiar se considera que debe ser el arreglo completo.
+  Pueden especificarse que segmentos de arreglo se desean copiar (`slice`). Sin
+  embargo, ambos segmentos deben tener el mismo tamaño. Si no se indica el
+  segmento de arreglo a copiar se considera que debe ser el arreglo completo.
 
 ## Strings
 
@@ -193,11 +185,9 @@ como cadenas de caracteres, por lo que se puede modificar partes de este,
 siempre que no su tamaño no varíe.
 
 * La asignación de strings es profunda, dado que se manejan como arreglos.
-
 * Los strings pueden ser pasados como parámetros a las funciones por referencia.
-
 * La comparación de strings con `==` y `!=` compara las secuencias caracter
-por caracter.
+  por caracter.
 
 ## Funciones
 
@@ -207,20 +197,22 @@ es decir, tipo de retorno y número y tipo de parámetros formales.
 * Las funciones tienen alcance global, no se permiten funciones anidadas.
 * Las funciones pueden tener cero o más parámetros.
 * Los parámetros formales pueden ser de cualquier tipo distinto a `none`,
-arreglos o tipos definidos por el usuario.
+  arreglos o tipos definidos por el usuario.
 * Los identificadores utilizados en los parámetros formales deben ser distintos.
 * Los arreglos y tipos estructurados se pasan por referencia.
 * Los parámetros formales se encuentran en alcance local, por lo que no es
-posible definir una variable con el mismo identificador que un parámetro formal.
+  posible definir una variable con el mismo identificador que un parámetro formal.
 * Los tipos de retorno pueden ser únicamente tipos primitivos del lenguaje.
-En caso de querer retornar un tipo compuesto, este debe ser pasado por
-referencia a la función.
+  En caso de querer retornar un tipo compuesto, este debe ser pasado por
+  referencia a la función.
 * Se permite la sobrecarga de funciones siempre que las firmas de éstas no
-coincidan (en número de argumentos o en sus tipos).
+  coincidan (en número de argumentos o en sus tipos).
 * Si el tipo de retorno de una función es `none`, no es posible colocar en su
-cuerpo retornos con parámetros, es decir, sólo es posible colocar `return` de
-vacíos.
+  cuerpo retornos con parámetros, es decir, sólo es posible colocar `return` de
+  vacíos.
 * Se permiten funciones recursivas directa o indirectamente.
+* El cuerpo de las funciones sólo puede una instrucción de tipo bloque la cuál
+  es obligatoria. La instrucción bloque puede a su vez contener otras instrucciones
 
 ## Invocación de funciones
 
@@ -242,7 +234,12 @@ identificador en el parámetro formal el caracter `&`.
 
 ## Tipos compuestos
 
-FALTA ESTO
+Los tipos compuestos se declaran usando `alias` *nombre* *tipo*. *nombre* es la
+representación corta que se puede usar en declaraciones de variables que se deseen
+de tipo *tipo*.
+
+* Los tipos compuestos sólo son declarables en alcance global.
+* Un tipo compuesto puede ser usado en cualquier lugar donde se declare una variable.
 
 ## Equivalencia de Tipos, Compatibilidad
 
@@ -262,12 +259,12 @@ compuestos. La instrucción `LValue = `RValue` copia el valor del lado derecho
 en la dirección indicada en el lado izquierdo.
 
 * La asignación de tipos no primitivos es profunda.
-* Un `LValue` debe ser una variable, no es permitido utilizar constantes,
-excepuanto en la asignación de inicialización.
+* Un `LValue` debe ser una variable o una posición de arreglo. No es permitido
+  utilizar constantes, exceptuanto en la asignación de inicialización.
 * Ambos lados de la asignación deben tener el mismo tipo.
 * Los parámetros formales de una función son considerados variables a menos
-que se especifique lo contrario con el uso de la palabra reservada `const`
-previo a su tipo.
+  que se especifique lo contrario con el uso de la palabra reservada `const`
+  previo a su tipo.
 
 ## Estructuras de Control
 
@@ -280,15 +277,67 @@ Las estructuras de control de *BLA* están basadas en las de *Python*.
 * Una declaración de tipo `break` o `continue` sólo pueden aparecer en el
   cuerpo de ciclos `while` o `for`.
 * La variable de iteración en un ciclo acotado `for` no puede ser utilizada como
-`Lvalue`, así como no puede ser pasada por referencia en funciones que se
-encuentren en el cuerpo del ciclo.
+  `Lvalue`, así como no puede ser pasada por referencia en funciones que se
+  encuentren en el cuerpo del ciclo.
 * El valor de una declaración `return` (en caso de ser funciones que retornen
-algún tipo no vacío) deben ser del mismo tipo especificado en la firma de la
-función.
+  algún tipo no vacío) deben ser del mismo tipo especificado en la firma de la
+  función.
+* Las cláusulas `if`, `elif`, `else` deben ser precedidas por una instrucción
+  de tipo bloque. Esta puede contener a su vez más instrucciones
 
 ## Expresiones
 
+Por simplicidad, *BLA* no permite la conversión automática de tipos. Esto significa
+que aún cuando la expresión equivalga entre los tipos, no es posible la interacción
+entre ellos.
+
+* Las constantes evalúan a su valor interno (true, false, enteros, flotantes,
+  cadenas, etc.).
+* Ambos operandos en las operaciones aritméticas (**+**, **-**, *****, **/** y **%**)
+  deben ser ambos enteros o flotantes, pero del mismo tipo.
+* El operador unario **-** aplica sobre enteros y flotantes y devuelve el mismo tipo
+  del operando.
+* Ambos operandos en las comparaciones aritméticas (**<**, **>**, **<=** y **>=**)
+  deben ser enteros o flotantes, pero del mismo tipo. El resultado de la operación
+  es `boolean`.
+* Ambos operandos deben ser del mismo tipo para las operaciones de igualdad (**==**,
+  **!=**). Al comparar dos arreglos, se hará de forma profunda. El resultado de la
+  operación será de tipo `boolean`.
+* Los operandos para las expresiones booleanas (**!**, **&&**, **||**, **==>** y
+  **<==**) aceptan sólo argumentos de tipo `boolean` y devuelven `boolean`.
+* Las operaciones booleanas **||** y **&&** se evalúan completamente.
+  No se hace corto circuito.
+
 ## Librería de Funciones
+
+Algunas funciones van a estar predefinidas y van a poder usarse sin necesidad de
+declararlas o de importar alguna librería explícitamente.
 
 ## Verificaciones a Tiempo de Ejecución
 
+Algunas verificaciones no pueden conocerse estáticamente y deben esperar hasta la
+ejecución para indicar la falla:
+
+1. El acceso a índices fuera de la definición de un arreglo terminará la ejecución
+   del programa.
+
+## TODO
+
+* conversión automática de strings a enteros (por ejemplo leídos de entrada)
+* tamaño de arreglo conocido en tiempo de ejecución
+* comenzar con una sóla firma por función y luego expandirla a múltiples
+* agregar parámetros opcionasles al final de la firma. esto implica que la firma
+  quedaría definida por los parámetros obligatorios
+* las instrucciones if/elif deberían comenzarse usando llaves y luego dar la opción de no
+* la función debe ser un tipo de bloque. esto para que la declaración de variables
+  no se pueda sobrescribir
+* implementar `fuzzy_boolean`
+* implementar expresiones booleanas con corto circuito.
+* asignación de subconjuntos de arreglos
+* foreach
+* las referencias se van a tratar originalmente como si fueran la misma variable
+  luego se van a hacer apuntadores
+* se permiten instrucciones vacías
+* ejemplo de instrucción vacía
+* definir tipo unión y registro en 143
+* cuál va a ser el ancho máximo de este documento?
