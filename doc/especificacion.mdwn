@@ -48,14 +48,14 @@ base decimal. Los siguientes son ejemplos válidos de enteros:
 > 10_2, 124_7, 2A_16, 2br_20
 
 Un número flotante es una secuencia de dígitos, un punto, seguido de
-cualquier secuencia de dígitos. Ambas secuencias pueden estar posiblemente
-vacías. Adicionalmente, se pueden escribir en notación científica.
+cualquier secuencia de dígitos. La segunda secuencia puede estar vacía.
+Adicionalmente, se pueden escribir en notación científica.
 El signo del exponente es opcional, en caso de no especificarse se asume
 positivo y `E` puede estar expresado en mayúsculas o minúsculas.
 
 Son ejemplo de flotantes válidos:
 
-> 4.67, 0.42, .37, 37.0, 23.4E+2, 42.8e-6
+> 4.67, 0.42, 3., 37.0, 23.4E+2, 42.8e-6
 
 Una constante `string` es una secuencia de caracteres delimitados por comillas
 dobles. Los strings pueden contener cualquier caracter. Una cadena
