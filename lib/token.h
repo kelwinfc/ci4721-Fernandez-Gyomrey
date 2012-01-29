@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
+#include "utils.h"
 
 using namespace std;
 
@@ -36,86 +37,39 @@ class tokenType : public token {
     public:
         TYPE ident;
         
-        tokenType(int l, char* id){
-            line = l;
-            
-            if ( strcmp(id, "int") == 0 ){
-                ident = INT;
-            } else if ( strcmp(id, "float") == 0 ){
-                ident = FLOAT;
-            } else if ( strcmp(id, "char") == 0 ){
-                ident = CHAR;
-            } else if ( strcmp(id, "boolean") == 0 ){
-                ident = BOOLEAN;
-            } else {
-                
-            }
-        }
+        tokenType(int l, char* id);
+        
+        void print();
 };
 
 class tokenInt : public token {
     public:
         int number;
         
-        tokenInt(int l, char* num){
+        tokenInt(int l, char* num);
+};
+
+class tokenFloat : public token {
+    public:
+        float number;
+        
+        tokenFloat(int l, char* num){
+            line = l;
+            number = atof(num);
+        }
+};
+
+class tokenBoolean : public token {
+    public:
+        bool value;
+        
+        tokenBoolean(int l, char* val){
             line = l;
             
-            int length = strlen(num);
-            bool has_underscore = false;
-            for (int i=0; i<length; i++){
-                if ( num[i] == '_' ){
-                    has_underscore = true;
-                    break;
-                }
-            }
-            
-            if ( has_underscore ){
-                int i=length-1;
-                int base = 0;
-                int pow = 1;
-                
-                while( num[i] != '_' ){
-                    base += pow*(num[i] - '0');
-                    pow *= 10;
-                    i--;
-                }
-                
-                number = 0;
-                pow = 1;
-                
-                if ( base > 36 || base == 0 ){
-                    number = -1;
-                } else if ( base != 1 ){
-                    i--;
-                    while( i >= 0 ){
-                        int diff = 0;
-                        if ( '0' <= num[i] && num[i] <= '9' ){
-                            diff = num[i] - '0';
-                        } else if ( 'A' <= num[i] && num[i] <= 'Z' ){
-                            diff = num[i] - 'A';
-                        } else {
-                            diff = num[i] - 'a';
-                        }
-                        
-                        if ( diff >= base ){
-                            number = -1;
-                            break;
-                        } else {
-                            number += pow*diff;
-                        }
-                        pow *= base;
-                        i--;
-                    }
-                } else {
-                    bool check = true;
-                    for (int j=0; j<i; j++){
-                        check = check && ( num[j] == '0' );
-                    }
-                    number = i;
-                }
-                
+            if ( strcmp(val,"true") == 0 ){
+                value = 1;
             } else {
-                number = atoi (num);
+                value = 0;
             }
         }
 };

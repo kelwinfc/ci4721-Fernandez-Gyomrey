@@ -5,10 +5,8 @@ Fernández, K. & Gyomrey, A.
 
 El presente documento muestra la especificación del lenguaje *BLA*. *BLA*
 es un lenguaje imperativo fuertemente tipado. Su sintáxis y operaciones
-tiene elementos inspirados en C y de otros lenguajes tales como Haskell,
-Python y R. *BLA* es un lenguaje especialmente diseñado para facilitar la
-labor de los programadores en problemas de programación dinámica, donde sea
-de gran utilidad la memorización de valores de retorno de funciones.
+tiene elementos inspirados en C y otros lenguajes tales como Haskell,
+Python y R.
 
 ## Consideraciones Léxicas
 
@@ -27,7 +25,7 @@ es decir, el uso de de mayúsculas y minúsculas hace variar un identificador.
 Por ejemplo, `foo` y `Foo` son identificadores distintos.
 
 En *BLA* es posible escribir comentarios en bloque y de línea basados en
-la sintáxis de Haskell. Un comentario de linea empieza con dos guiones
+la sintáxis de Haskell. Un comentario de línea empieza con dos guiones
 consecutivos `--` y finaliza con un fin de línea. Los comentarios de
 bloque empiezan con `{-` y terminan con `-}`. Cualquier símbolo es
 permitido en un comentario excepuanto la secuencia `-}`, la cual tiene
@@ -37,7 +35,7 @@ Las constantes booleanas son `true` y `false` correspondientes respectivamente
 a los valores de verdadero y falso.
 
 Un entero puede ser especificado con o sin su base. Un entero con base
-es una secuencia de dígitos decimales (0-9) y caracteres (a-zA-z), seguido
+es una secuencia de dígitos decimales (0-9) y caracteres (a-zA-Z), seguido
 de un guión bajo (_) y de la base especificada en formato decimal. Los
 carácteres son válidos siempre que la base lo requiera. La base es un
 valor entre 1 y 36, ambos inclusive.
@@ -45,7 +43,7 @@ valor entre 1 y 36, ambos inclusive.
 En caso de no indicar la base, se considera que el entero está expresado en
 base decimal. Los siguientes son ejemplos válidos de enteros:
 
-> 10_2, 124_7, 2A_16, 2br_20
+> 10_2, 124_7, 2A_16, 2br_20, 00000_1
 
 Un número flotante es una secuencia de dígitos, un punto, seguido de
 cualquier secuencia de dígitos. La segunda secuencia puede estar vacía.
@@ -82,10 +80,10 @@ estableciendo los elementos de abajo
 
 Un programa en *BLA* consiste en una secuencia de declaraciones, donde
 cada declaración establece una variable o función. En el caso de las funciones,
-las declaraciones deben incluir el cuerpo de estas. Para las variables, puede
+las declaraciones deben incluir el cuerpo de éstas. Para las variables, puede
 o no incluir su inicialización.
 
-Todo programa debe tener una función denominada `main` y retorne `none`. Esta
+Todo programa debe tener una función denominada `main` con retorno `none`. Esta
 función sirve de punto de entrada a la ejecución del programa. `main` puede no
 tomar argumentos o recibir un arreglo de cadena de caracteres, correspondiente
 a los parámetros con los que se invocó al programa.
@@ -127,14 +125,15 @@ mientras que las dos últimas se consideran iguales:
     * `fun int foo(int b, int a)`
 
 * Las declaraciones en alcance global son accesibles a lo largo de todo el
-programa, a menos que sean ocultadas por variables del mismo nombre en alcances
+programa para funciones y posterior a su declaración para variables, a menos
+que sean ocultadas por variables del mismo nombre en alcances
 internos.
 
 * Las declaraciones en alcances cerrados no son accesibles.
 
 ## Tipos
 
-Los tipos escalares nativos del lenguaje son `int`, `float`, `boolean`,
+Los tipos nativos del lenguaje son `int`, `float`, `boolean`,
  `string` y `none`.
 
 Los arreglos pueden ser multi-dimensionales y de cualquier tipo
@@ -151,6 +150,9 @@ por defecto alcance global.
 
 Las variables declaradas en la lista de parámetros formales o cuerpo de la
 función tienen alcance local.
+
+Las variables globales pueden ser inicializadas con expresiones complejas
+siempre que éstas no incluyan llamadas a funciones definidas por el usuario.
 
 ## Arreglos
 
@@ -202,7 +204,7 @@ es decir, tipo de retorno y número y tipo de parámetros formales.
 * Los arreglos y tipos estructurados se pasan por referencia.
 * Los parámetros formales se encuentran en alcance local, por lo que no es
   posible definir una variable con el mismo identificador que un parámetro formal.
-* Los tipos de retorno pueden ser únicamente tipos primitivos del lenguaje.
+* Los tipos de retorno pueden ser únicamente tipos primitivos escalares del lenguaje.
   En caso de querer retornar un tipo compuesto, este debe ser pasado por
   referencia a la función.
 * Se permite la sobrecarga de funciones siempre que las firmas de éstas no
@@ -211,8 +213,9 @@ es decir, tipo de retorno y número y tipo de parámetros formales.
   cuerpo retornos con parámetros, es decir, sólo es posible colocar `return` de
   vacíos.
 * Se permiten funciones recursivas directa o indirectamente.
-* El cuerpo de las funciones sólo puede una instrucción de tipo bloque la cuál
-  es obligatoria. La instrucción bloque puede a su vez contener otras instrucciones
+* El cuerpo de las funciones debe estar contenido en un bloque de anidamiento
+`{ ... }`. Dicho bloque puede a su vez contener un número arbitrario de instrucciones,
+así como nuevos niveles de anidamiento.
 
 ## Invocación de funciones
 
@@ -225,7 +228,7 @@ identificador en el parámetro formal el caracter `&`.
 
 * El número de argumentos pasados a una función en su invocación debe coincidir
   con el número de parámetros formales.
-* El tipo de cada argumento real debe en la invocación de una función debe
+* El tipo de cada argumento real en la invocación de una función debe
   coincidir con el tipo de cada parámetro formal.
 * Los parámetros son evaluados de izquierda a derecha.
 * Una función retorna el control al llamador una vez alcanzado el final de su
@@ -323,6 +326,11 @@ ejecución para indicar la falla:
 
 ## TODO
 
+* Agregar a la definición del lenguaje:
+*BLA* es un lenguaje especialmente diseñado para facilitar la
+labor de los programadores en problemas de programación dinámica, donde sea
+de gran utilidad la memorización de valores de retorno de funciones.
+
 * conversión automática de strings a enteros (por ejemplo leídos de entrada)
 * tamaño de arreglo conocido en tiempo de ejecución
 * comenzar con una sóla firma por función y luego expandirla a múltiples
@@ -341,3 +349,5 @@ ejecución para indicar la falla:
 * ejemplo de instrucción vacía
 * definir tipo unión y registro en 143
 * cuál va a ser el ancho máximo de este documento?
+* agregar memorizacion
+
