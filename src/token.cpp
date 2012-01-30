@@ -1,7 +1,27 @@
 #include "token.h"
 
-tokenId::tokenId(int l, char* id)
-{
+using namespace std;
+
+token::token(int l){
+	line = l;
+}
+
+tokenFloat::tokenFloat(int l, char* num){
+	line = l;
+	number = atof(num);
+}
+
+tokenBoolean::tokenBoolean(int l, char* val){
+	line = l;
+	
+	if ( strcmp(val,"true") == 0 ){
+		value = 1;
+	} else {
+		value = 0;
+	}
+}
+
+tokenId::tokenId(int l, char* id){
     line = l;
     
     ident = (char*)malloc( (strlen(id)+1)*sizeof(char) );
@@ -21,20 +41,6 @@ tokenType::tokenType(int l, char* id){
         ident = tokenType::CHAR;
     } else if ( strcmp(id, "boolean") == 0 ){
         ident = tokenType::BOOLEAN;
-    } else {
-        
-    }
-}
-
-void tokenType::print(){
-    if ( ident == tokenType::INT ){
-        cout << "int";
-    } else if ( ident == tokenType::FLOAT ){
-        cout << "float";
-    } else if ( ident == tokenType::BOOLEAN ){
-        cout << "boolean";
-    } else if ( ident == tokenType::CHAR ){
-        cout << "char";
     } else {
         
     }
@@ -99,5 +105,19 @@ tokenInt::tokenInt(int l, char* num){
         
     } else {
         number = atoi (num);
+    }
+}
+
+void tokenType::print(){
+    if ( ident == tokenType::INT ){
+        cout << "int";
+    } else if ( ident == tokenType::FLOAT ){
+        cout << "float";
+    } else if ( ident == tokenType::BOOLEAN ){
+        cout << "boolean";
+    } else if ( ident == tokenType::CHAR ){
+        cout << "char";
+    } else {
+        
     }
 }

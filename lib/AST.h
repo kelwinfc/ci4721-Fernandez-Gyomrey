@@ -15,7 +15,7 @@ class AST_node{
 		
 		AST_node(int l = 0);
 		
-		virtual void print(int indentation = 0);
+		void print(int indentation = 0);
 };
 
 class AST_statement : public AST_node{
@@ -23,7 +23,7 @@ class AST_statement : public AST_node{
 
 		AST_statement();
 
-		virtual void print(int indentation);
+		void print(int indentation);
 };
 
 class AST_type : public AST_node {
@@ -37,7 +37,7 @@ class AST_type : public AST_node {
         
         AST_type(int l, char* t);
         
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_expression : public AST_node{
@@ -46,7 +46,7 @@ class AST_expression : public AST_node{
 
         AST_expression();
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_parenthesis : public AST_expression {
@@ -59,7 +59,7 @@ class AST_parenthesis : public AST_expression {
 
         AST_parenthesis(token* l, AST_expression* e, token* r);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_op : public AST_expression {
@@ -72,7 +72,7 @@ class AST_op : public AST_expression {
 
         AST_op(AST_expression* l, tokenId* o, AST_expression* r);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_un_op : public AST_expression {
@@ -85,7 +85,7 @@ class AST_un_op : public AST_expression {
 
         AST_un_op(tokenId* o, AST_expression* e);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_int : public AST_expression{
@@ -96,7 +96,7 @@ class AST_int : public AST_expression{
 
         AST_int(tokenInt* tk);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_float : public AST_expression{
@@ -107,7 +107,7 @@ class AST_float : public AST_expression{
 
         AST_float(tokenFloat* tk);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_boolean : public AST_expression{
@@ -118,7 +118,7 @@ class AST_boolean : public AST_expression{
 
         AST_boolean(tokenBoolean* tk);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_ident : public AST_expression {
@@ -129,7 +129,7 @@ class AST_ident : public AST_expression {
 
         AST_ident(tokenId* tk);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_char : public AST_expression {
@@ -140,7 +140,7 @@ class AST_char : public AST_expression {
 
         AST_char(tokenId* tk);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_parameters_list : public AST_node {
@@ -153,7 +153,7 @@ class AST_parameters_list : public AST_node {
 
         void add_element(AST_expression* e);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_function_call : public AST_expression {
@@ -166,7 +166,7 @@ class AST_function_call : public AST_expression {
 
         AST_function_call(tokenId* tk, AST_parameters_list* p);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_declaration : public AST_statement {
@@ -181,7 +181,7 @@ class AST_declaration : public AST_statement {
 
         AST_declaration( tokenType* t, tokenId* id );
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_variable_declaration : public AST_declaration {
@@ -194,7 +194,7 @@ class AST_variable_declaration : public AST_declaration {
                                  AST_expression* v = 0
                                 );
         
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_block : public AST_node {
@@ -207,7 +207,7 @@ class AST_block : public AST_node {
 
         void add_statement(AST_statement* s);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_arg_list : public AST_node {
@@ -220,7 +220,7 @@ class AST_arg_list : public AST_node {
 
         void add_argument( tokenType* t, tokenId* id );
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_function : public AST_declaration {
@@ -234,7 +234,7 @@ class AST_function : public AST_declaration {
         AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
                      AST_block* code);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_program : public AST_node {
@@ -247,7 +247,7 @@ class AST_program : public AST_node {
 
         void add_declaration(AST_declaration* d);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_assignment : public AST_statement {
@@ -260,7 +260,7 @@ class AST_assignment : public AST_statement {
 
         AST_assignment(tokenId* i, AST_expression* e);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_return : public AST_statement {
@@ -273,7 +273,7 @@ class AST_return : public AST_statement {
 
         AST_return(token* tk, AST_expression* e);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_conditional : public AST_statement {
@@ -293,7 +293,7 @@ class AST_conditional : public AST_statement {
 
         void print(int indentation);
 
-        virtual void print(int indentation, bool first);
+        void print(int indentation, bool first);
 };
 
 class AST_loop : public AST_statement {
@@ -308,7 +308,7 @@ class AST_loop : public AST_statement {
 
         AST_loop(token* tk, AST_expression* e, AST_block* b);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 
@@ -333,7 +333,7 @@ class AST_bounded_loop : public AST_statement {
                          AST_expression* r,
                          AST_block* b);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_break : public AST_statement {
@@ -344,7 +344,7 @@ class AST_break : public AST_statement {
 
         AST_break(token* t);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 class AST_continue: public AST_statement {
@@ -355,7 +355,7 @@ class AST_continue: public AST_statement {
 
         AST_continue(token* t);
 
-        virtual void print(int indentation);
+        void print(int indentation);
 };
 
 
