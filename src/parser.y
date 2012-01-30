@@ -9,7 +9,7 @@ void yyerror (char const *);
 
 extern FILE *yyin;
 
-AST_program* p;
+AST_program * p;
 bool error = false;
 
 %}

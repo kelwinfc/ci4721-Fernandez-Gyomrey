@@ -34,4 +34,4 @@ bin/utils.o: $(DEP_utils:%=src/%.cpp) $(DEP_utils:%=lib/%.h)
 doc:
 	markdown2pdf doc/especificacion.mdwn -o doc/especificacion.pdf
 clean:
-		rm -f bin/*.o *~ bin/*~ src/*~ lib/*~ test/*~ bla y.tab.h lex.yy.c y.tab.c
+		rm -f bin/*.o *~ bin/*~ src/*~ lib/*~ test/*~ bla src/y.tab.h src/lex.yy.c src/y.tab.c
