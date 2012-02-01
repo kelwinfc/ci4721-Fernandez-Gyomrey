@@ -3,6 +3,8 @@
 #include <math.h>
 #include <stdio.h>
 #include "lib/AST.h"
+#include "lib/symbol.h"
+#include "lib/symbol_table.h"
 
 int yylex (void);
 void yyerror (char const *);
@@ -91,7 +93,7 @@ variable_declaration : TK_TYPE TK_IDENT ';'
                                                               (tokenId*)$2
                                                              );
                           }
-                     
+
                      | TK_TYPE TK_IDENT '=' expression ';'
                          { $$ = new AST_variable_declaration((tokenType*)$1,
                                                              (tokenId*)$2,
@@ -417,6 +419,14 @@ int main (int argc,char **argv)
 {
     p = new AST_program();
     error = false;
+
+	symbol_int* i = new symbol_int("entero", 1);
+	symbol_double* d = new symbol_double("doble", 1.0);
+	symbol_char* c = new symbol_char("caracter", 'c');
+	symbol_table* t = new symbol_table();
+	t->insert(i);
+	t->insert(d);
+	t->insert(c);
     
     if (argc == 1){
         yyparse();

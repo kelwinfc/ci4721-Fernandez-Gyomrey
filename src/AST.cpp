@@ -183,7 +183,7 @@ AST_type::AST_type(int l, char* t){
     } else if ( strcmp(t, "boolean") == 0 ){
         type = BOOLEAN;
     } else {
-        
+        //TODO qué pasa aquí
     }
 }
 
