@@ -26,9 +26,9 @@ class tokenId : public token{
 };
 
 class tokenType : public token {
-	private:
+    private:
 
-		enum TYPE { INT, FLOAT, CHAR, BOOLEAN };
+        enum TYPE { INT, FLOAT, CHAR, BOOLEAN };
 
     public:
 
@@ -37,6 +37,21 @@ class tokenType : public token {
         tokenType(int l, char* id);
 
         void print();
+        
+        char* type(){
+            switch ( ident ) {
+                case INT:
+                    return (char*)"int";
+                case FLOAT:
+                    return (char*)"float";
+                case CHAR:
+                    return (char*)"char";
+                case BOOLEAN:
+                    return (char*)"boolean";
+            }
+            
+            return (char*)"";
+        }
 };
 
 class tokenInt : public token {

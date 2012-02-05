@@ -4,6 +4,7 @@
 #include<map>
 #include<string>
 #include "symbol.h"
+#include <typeinfo>
 
 using namespace std;
 
@@ -12,17 +13,19 @@ class symbol_table {
 
         map<string, symbol*> table;
 
-		symbol_table* parent;
+        symbol_table* parent;
 
-	public:
-
+    public:
+        
         symbol_table();
-
-		symbol_table getParent();
-
+        
+        symbol_table getParent();
+        
         symbol* lookup(string name);
-
-		void insert(symbol* s);
+        
+        void insert(symbol* s);
+        
+        bool fill_with(AST_node* a);
 };
 
 #endif

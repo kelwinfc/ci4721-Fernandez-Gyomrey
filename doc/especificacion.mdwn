@@ -207,8 +207,6 @@ es decir, tipo de retorno y número y tipo de parámetros formales.
 * Los tipos de retorno pueden ser únicamente tipos primitivos escalares del lenguaje.
   En caso de querer retornar un tipo compuesto, este debe ser pasado por
   referencia a la función.
-* Se permite la sobrecarga de funciones siempre que las firmas de éstas no
-  coincidan (en número de argumentos o en sus tipos).
 * Si el tipo de retorno de una función es `none`, no es posible colocar en su
   cuerpo retornos con parámetros, es decir, sólo es posible colocar `return` de
   vacíos.
@@ -350,4 +348,5 @@ de gran utilidad la memorización de valores de retorno de funciones.
 * definir tipo unión y registro en 143
 * cuál va a ser el ancho máximo de este documento?
 * agregar memorizacion
-
+* Se permite la sobrecarga de funciones siempre que las firmas de éstas no
+  coincidan (en número de argumentos o en sus tipos).

@@ -2,52 +2,49 @@
 #include "symbol.h"
 
 string symbol::getName(){
-	return name;
+    return name;
 }
 
 bool symbol::isConst(){
-	return constant;
+    return constant;
 }
 
 string symbol::getType(){
-	return type;
+    return type;
 }
 
 int symbol::getLine(){
-	return line;
+    return line;
 }
 
 int symbol::getColumn(){
-	return column;
+    return column;
 }
 
 bool symbol::isInitialized(){
-	return initialized;
+    return initialized;
 }
 
-symbol_int::symbol_int(string name, int value){
-	this->name = name;
-	this->value = value;
-}
-
-symbol_double::symbol_double(string name, double value){
-	this->name = name;
-	this->value = value;
-}
-
-symbol_char::symbol_char(string name, char value){
-	this->name = name;
-	this->value = value;
-}
-
-int symbol_int::getValue(){
-	return value;
-}
-
-double symbol_double::getValue(){
-	return value;
-}
-
-char symbol_char::getValue(){
-	return value;
+symbol_function::symbol_function(AST_function& f){
+    
+    this->name = f.identifier->ident;
+    
+    if ( f.type ){
+        this->type = f.type->type();
+    } else {
+        this->type = (char*)"none";
+    }
+    
+    this->params.clear();
+    
+    vector< pair<tokenType*, tokenId*> >::iterator it;
+    
+    for( it = f.formal_parameters->args.begin();
+         it != f.formal_parameters->args.end();
+         ++it
+       )
+    {
+        symbol next_arg( it->first->type(), it->second->ident );
+        params.push_back( next_arg );
+    }
 }

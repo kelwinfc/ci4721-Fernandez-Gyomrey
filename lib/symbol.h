@@ -1,78 +1,56 @@
 #ifndef __SYMBOL
 #define __SYMBOL
 
-#include<string>
+#include <string>
+#include <vector>
+#include "AST.h"
 
 using namespace std;
 
 class symbol{
 
-	protected:
+    protected:
 
-		string name;
+        string name;
 
-		bool constant;
+        bool constant;
 
-		string type;
+        string type;
 
-		int line;
+        int line;
 
-		int column;
+        int column;
 
-		bool initialized;
+        bool initialized;
 
-	public:
+    public:
 
-		string getName();
+        symbol(){}
+        
+        symbol(char* t, char* n){
+            name = n;
+            type = t;
+        }
+        
+        string getName();
 
-		bool isConst();
+        bool isConst();
 
-		string getType();
+        string getType();
 
-		int getLine();
+        int getLine();
 
-		int getColumn();
+        int getColumn();
 
-		bool isInitialized();
+        bool isInitialized();
 };
 
-class symbol_int : public symbol {
-
-	private:
-
-		int value;
-
-	public:
-
-		symbol_int(string name, int value);
-
-		int getValue();
-};
-
-class symbol_double : public symbol {
-
-	private:
-
-		double value;
-
-	public:
-
-		symbol_double(string name, double value);
-
-		double getValue();
-};
-
-class symbol_char : public symbol {
-
-	private:
-
-		char value;
-
-	public:
-
-		symbol_char(string name, char value);
-
-		char getValue();
+class symbol_function : public symbol {
+    public:
+        
+        vector<symbol> params;
+        
+        symbol_function(AST_function& f);
 };
 
 #endif

@@ -13,7 +13,7 @@ FILES=token\
 
 DEP_AST=token utils
 DEP_token=utils
-DEP_symbol_table=symbol
+DEP_symbol_table=symbol AST
 
 all: bla
 

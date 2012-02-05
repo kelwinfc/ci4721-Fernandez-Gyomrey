@@ -419,15 +419,16 @@ int main (int argc,char **argv)
 {
     p = new AST_program();
     error = false;
+/*
+    symbol_int* i = new symbol_int("entero", 1);
+    symbol_double* d = new symbol_double("doble", 1.0);
+    symbol_char* c = new symbol_char("caracter", 'c');
+    symbol_table* t = new symbol_table();
+    t->insert(i);
+    t->insert(d);
+    t->insert(c);
+    */
 
-	symbol_int* i = new symbol_int("entero", 1);
-	symbol_double* d = new symbol_double("doble", 1.0);
-	symbol_char* c = new symbol_char("caracter", 'c');
-	symbol_table* t = new symbol_table();
-	t->insert(i);
-	t->insert(d);
-	t->insert(c);
-    
     if (argc == 1){
         yyparse();
     } else if (argc == 2) {
@@ -440,7 +441,13 @@ int main (int argc,char **argv)
         fprintf (stderr, "Epic fail!\n");
     } else {
         p->print(0);
+        
         cout << "Like a boss!\n";
+        cout << "----------------------------------------------------------\n";
+        
+        symbol_table st;
+        st.fill_with(p);
     }
+    
     return 0;
 }

@@ -168,7 +168,7 @@ AST_break::AST_break(token* t){
 }
 
 AST_continue::AST_continue(token* t){
-	tk = t;
+    tk = t;
 }
 
 AST_type::AST_type(int l, char* t){
@@ -194,15 +194,15 @@ void AST_conditional::print(int indentation){
 }
 
 void AST_break::print(int indentation){
-	printf("%3d: ", tk->line);
-	print_indentation(indentation);
-	cout << "Break\n";
+    printf("%3d: ", tk->line);
+    print_indentation(indentation);
+    cout << "Break\n";
 }
 
 void AST_continue::print(int indentation){
-	printf("%3d: ", tk->line);
-	print_indentation(indentation);
-	cout << "Continue\n";
+    printf("%3d: ", tk->line);
+    print_indentation(indentation);
+    cout << "Continue\n";
 }
 
 void AST_declaration::print(int indentation){
