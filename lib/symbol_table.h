@@ -8,6 +8,8 @@
 
 using namespace std;
 
+extern bool error;
+
 class symbol_table {
     private:
 
@@ -26,6 +28,8 @@ class symbol_table {
         void insert(symbol* s);
         
         bool fill_with(AST_node* a);
+        
+        bool check(AST_node* a);
 };
 
 #endif

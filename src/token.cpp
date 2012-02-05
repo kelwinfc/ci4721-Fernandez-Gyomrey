@@ -3,22 +3,22 @@
 using namespace std;
 
 token::token(int l){
-	line = l;
+    line = l;
 }
 
 tokenFloat::tokenFloat(int l, char* num){
-	line = l;
-	number = atof(num);
+    line = l;
+    number = atof(num);
 }
 
 tokenBoolean::tokenBoolean(int l, char* val){
-	line = l;
-	
-	if ( strcmp(val,"true") == 0 ){
-		value = 1;
-	} else {
-		value = 0;
-	}
+    line = l;
+    
+    if ( strcmp(val,"true") == 0 ){
+        value = 1;
+    } else {
+        value = 0;
+    }
 }
 
 tokenId::tokenId(int l, char* id){
