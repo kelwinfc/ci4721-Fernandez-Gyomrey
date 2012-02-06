@@ -15,9 +15,9 @@ tokenBoolean::tokenBoolean(int l, char* val){
     line = l;
     
     if ( strcmp(val,"true") == 0 ){
-        value = 1;
+        value = true;
     } else {
-        value = 0;
+        value = false;
     }
 }
 
@@ -44,6 +44,21 @@ tokenType::tokenType(int l, char* id){
     } else {
         
     }
+}
+
+char* tokenType::type(){
+    switch ( ident ) {
+        case INT:
+            return (char*)"int";
+        case FLOAT:
+            return (char*)"float";
+        case CHAR:
+            return (char*)"char";
+        case BOOLEAN:
+            return (char*)"boolean";
+    }
+    
+    return (char*)"";
 }
 
 tokenInt::tokenInt(int l, char* num){

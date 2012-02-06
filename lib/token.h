@@ -14,6 +14,8 @@ class token{
 
         int line;
 
+        int column;
+
         token(int l = 0);
 };
 
@@ -38,20 +40,7 @@ class tokenType : public token {
 
         void print();
         
-        char* type(){
-            switch ( ident ) {
-                case INT:
-                    return (char*)"int";
-                case FLOAT:
-                    return (char*)"float";
-                case CHAR:
-                    return (char*)"char";
-                case BOOLEAN:
-                    return (char*)"boolean";
-            }
-            
-            return (char*)"";
-        }
+        char* type();
 };
 
 class tokenInt : public token {

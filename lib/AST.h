@@ -10,52 +10,41 @@
 /* Clase raiz de la jerarquia del AST */
 class AST_node{
     public:
-        
+
         int line;
-        
-        AST_node(int l = 0);
-        
+
+		int column;
+
         virtual void print(int indentation = 0);
 };
 
 class AST_statement : public AST_node{
     public:
 
-        AST_statement();
-
-        virtual void print(int indentation);
-};
-
-class AST_type : public AST_node {
-    private:
-
-        enum TYPE { INT, FLOAT, CHAR, BOOLEAN };
-
-    public:
-
-        TYPE type;
-        
-        AST_type(int l, char* t);
-        
         virtual void print(int indentation);
 };
 
 class AST_expression : public AST_node{
-
     public:
 
-        AST_expression();
+        enum TYPE { INT, FLOAT, CHAR, BOOLEAN };
+
+        TYPE type;
 
         virtual void print(int indentation);
 };
 
 class AST_op : public AST_expression {
-
     public:
+
+        enum TYPE { PLUS, MINUS, PROD, DIV, AND, OR, IMP, CONSEQ,
+                    EQ, UNEQ, LESS, LESS_EQ, GREAT, GREAT_EQ     };
+
+        int line_op, column_op, line_rop, column_rop;
 
         AST_expression *left, *right;
 
-        tokenId *op;
+        TYPE type;
 
         AST_op(AST_expression* l, tokenId* o, AST_expression* r);
 
@@ -63,12 +52,14 @@ class AST_op : public AST_expression {
 };
 
 class AST_un_op : public AST_expression {
-    
+
     public:
 
-        AST_expression *expr;
+        enum TYPE { NEG, NOT };
 
-        tokenId *op;
+        TYPE type;
+
+        AST_expression *expr;
 
         AST_un_op(tokenId* o, AST_expression* e);
 
@@ -79,7 +70,7 @@ class AST_int : public AST_expression{
     
     public:
 
-        tokenInt* value;
+        int value;
 
         AST_int(tokenInt* tk);
 
@@ -90,7 +81,7 @@ class AST_float : public AST_expression{
 
     public:
 
-        tokenFloat* value;
+        float value;
 
         AST_float(tokenFloat* tk);
 
@@ -101,7 +92,7 @@ class AST_boolean : public AST_expression{
 
     public:
 
-        tokenBoolean* value;
+        bool value;
 
         AST_boolean(tokenBoolean* tk);
 
@@ -112,7 +103,7 @@ class AST_ident : public AST_expression {
 
     public:
 
-        tokenId* value;
+        string value;
 
         AST_ident(tokenId* tk);
 
@@ -123,7 +114,7 @@ class AST_char : public AST_expression {
 
     public:
 
-        tokenId* value;
+        char value;
 
         AST_char(tokenId* tk);
 
@@ -147,7 +138,7 @@ class AST_function_call : public AST_expression {
 
     public:
 
-        tokenId* ident;
+        string name;
 
         AST_parameters_list* params;
 
@@ -160,13 +151,7 @@ class AST_declaration : public AST_statement {
 
     public:
 
-        tokenType* type;
-
-        tokenId* identifier;
-
-        AST_declaration();
-
-        AST_declaration( tokenType* t, tokenId* id );
+        string identifier;
 
         virtual void print(int indentation);
 };
@@ -174,6 +159,12 @@ class AST_declaration : public AST_statement {
 class AST_variable_declaration : public AST_declaration {
 
     public:
+
+        enum TYPE { INT, FLOAT, CHAR, BOOLEAN };
+
+        TYPE type;
+
+        int line_id, column_id;
 
         AST_expression* value;
 
@@ -211,8 +202,13 @@ class AST_arg_list : public AST_node {
 };
 
 class AST_function : public AST_declaration {
-
     public:
+
+        enum TYPE { INT, FLOAT, CHAR, BOOLEAN, VOID };
+
+        int line_id, column_id;
+
+        TYPE type;
 
         AST_arg_list* formal_parameters;
 
@@ -241,7 +237,7 @@ class AST_assignment : public AST_statement {
 
     public:
 
-        tokenId* variable;
+        string variable;
 
         AST_expression* expr;
 
@@ -254,8 +250,6 @@ class AST_return : public AST_statement {
 
     public:
 
-        token* ret;
-
         AST_expression* expr;
 
         AST_return(token* tk, AST_expression* e);
@@ -266,8 +260,6 @@ class AST_return : public AST_statement {
 class AST_conditional : public AST_statement {
 
     public:
-
-        token* tk_if;
 
         AST_expression* expr;
 
@@ -287,8 +279,6 @@ class AST_loop : public AST_statement {
 
     public:
 
-        token* tk_while;
-
         AST_expression* expr;
 
         AST_block* block;
@@ -303,9 +293,9 @@ class AST_bounded_loop : public AST_statement {
 
     public:
 
-        token* tk_for;
+        string name;
 
-        tokenId* tk_ident;
+        int line_name, column_name;
 
         token* tk_in;
 
@@ -315,7 +305,7 @@ class AST_bounded_loop : public AST_statement {
 
         AST_block* block;
 
-        AST_bounded_loop(token* for_, tokenId* id, token* in,
+        AST_bounded_loop(token* for_, tokenId* id,
                          AST_expression* l,
                          AST_expression* r,
                          AST_block* b);
@@ -327,8 +317,6 @@ class AST_break : public AST_statement {
 
     public:
 
-        token* tk;
-
         AST_break(token* t);
 
         virtual void print(int indentation);
@@ -337,8 +325,6 @@ class AST_break : public AST_statement {
 class AST_continue: public AST_statement {
 
     public:
-
-        token* tk;
 
         AST_continue(token* t);
 

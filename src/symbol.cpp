@@ -27,10 +27,10 @@ bool symbol::isInitialized(){
 
 symbol_function::symbol_function(AST_function& f){
     
-    this->name = f.identifier->ident;
+    this->name = f.identifier;
     
     if ( f.type ){
-        this->type = f.type->type();
+        this->type = f.type;
     } else {
         this->type = (char*)"none";
     }

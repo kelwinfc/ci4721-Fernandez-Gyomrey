@@ -1,81 +1,155 @@
 #include "AST.h"
 #include "utils.h"
 #include "AST/print.cpp"
-        
-AST_node::AST_node(int l){
-    line = l;
-}
-
-AST_statement::AST_statement(){
-
-}
-
-AST_expression::AST_expression(){
-
-}
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
-    op = o;
+
+    line = l->line;
+    column = l->column;
+
+    if ( strcmp(o->ident, "+") == 0 ){
+        type = PLUS;
+    } else if ( strcmp(o->ident, "-") == 0 ){
+        type = MINUS;
+    } else if ( strcmp(o->ident, "*") == 0 ){
+        type = PROD;
+    } else if ( strcmp(o->ident, "/") == 0 ){
+        type = DIV;
+    } else if ( strcmp(o->ident, "&&") == 0 ){
+        type = AND;
+    } else if ( strcmp(o->ident, "||") == 0 ){
+        type = OR;
+    } else if ( strcmp(o->ident, "==>") == 0 ){
+        type = IMP;
+    } else if ( strcmp(o->ident, "<==") == 0 ){
+        type = CONSEQ;
+    } else if ( strcmp(o->ident, "==") == 0 ){
+        type = EQ;
+    } else if ( strcmp(o->ident, "!=") == 0 ){
+        type = UNEQ;
+    } else if ( strcmp(o->ident, "<") == 0 ){
+        type = LESS;
+    } else if ( strcmp(o->ident, "<=") == 0 ){
+        type = LESS_EQ;
+    } else if ( strcmp(o->ident, ">") == 0 ){
+        type = GREAT;
+    } else if ( strcmp(o->ident, ">=") == 0 ){
+        type = GREAT_EQ;
+    } else {
+        throw "Error de implementación en identificación de operador de expresión binaria";
+    }
+
+    line_op = o->line;
+    column_op = o->column;
+    free(o);
+
     left = l;
     right = r;
 }
 
 AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
-    op = o;
+
+    if ( strcmp(o->ident, "!") == 0 ){
+        type = NOT;
+    } else if ( strcmp(o->ident, "-") == 0 ){
+        type = NEG;
+    } else {
+        throw "Error de implementación en identificación de operador de expresión unaria";
+    }
+
+    line = o->line;
+    column = o->column;
+    free(o);
+
     expr = e;
 }
 
 AST_int::AST_int(tokenInt* tk){
-    value = tk;
+
+    line = tk->line;
+    column = tk->column;
+    value = tk->number;
+    free(tk);
 }
 
 AST_float::AST_float(tokenFloat* tk){
-    value = tk;
+
+    line = tk->line;
+    column = tk->column;
+    value = tk->number;
+    free(tk);
 }
 
 AST_boolean::AST_boolean(tokenBoolean* tk){
-    value = tk;
+
+    line = tk->line;
+    column = tk->column;
+    value = tk->value;
+    free(tk);
 }
 
 AST_ident::AST_ident(tokenId* tk){
-    value = tk;
+
+    line = tk->line;
+    column = tk->column;
+    value = string(tk->ident);
+    free(tk);
 }
 
-//TODO char recibe un id?
 AST_char::AST_char(tokenId* tk){
-    value = tk;
+
+    line = tk->line;
+    column = tk->column;
+    value = *tk->ident;
+    free(tk);
 }
 
 AST_parameters_list::AST_parameters_list(){
     elem.clear();
 }
 
-void AST_parameters_list::add_element(AST_expression* e){
+void AST_parameters_list::add_element( AST_expression* e ){
+    if ( elem.empty() ) {
+        line = e->line;
+        column = e->column;
+    }
+
     elem.push_back( e );
 }
 
 AST_function_call::AST_function_call(tokenId* tk, AST_parameters_list* p){
-    ident = tk;
+    line = tk->line;
+    column = tk->column;
+    name = string(tk->ident);
+    free(tk);
+
     params = p;
 }
-
-AST_declaration::AST_declaration(){
-    type = 0;
-    identifier = 0;
-}
-
-AST_declaration::AST_declaration( tokenType* t, tokenId* id ){
-    type = t;
-    identifier = id;
-}
-
 
 AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
                                                    AST_expression* v
                                                   )
 {
-    type = t;
-    identifier = id;
+    if ( strcmp(t->type(), "int") == 0 ){
+        type = INT;
+    } else if ( strcmp(t->type(), "float") == 0 ){
+        type = FLOAT;
+    } else if ( strcmp(t->type(), "char") == 0 ){
+        type = CHAR;
+    } else if ( strcmp(t->type(), "boolean") == 0 ){
+        type = BOOLEAN;
+    } else {
+        throw "Error en implementación de identificación de tipo de variable";
+    }
+    line = t->line;
+    column = t->column;
+    free(t);
+
+    line_id = id->line;
+    column_id = id->column;
+    identifier = string(id->ident);
+    free(id);
+
     value = v;
 }
 
@@ -99,8 +173,29 @@ void AST_arg_list::add_argument( tokenType* t, tokenId* id ){
 AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
              AST_block* code)
 {
-    type = t;
-    identifier = id;
+    if ( 0 == t ) {
+        type = VOID;
+    } else if ( strcmp(t->type(), "int") == 0 ){
+        type = INT;
+    } else if ( strcmp(t->type(), "float") == 0 ){
+        type = FLOAT;
+    } else if ( strcmp(t->type(), "char") == 0 ){
+        type = CHAR;
+    } else if ( strcmp(t->type(), "boolean") == 0 ){
+        type = BOOLEAN;
+    } else {
+        throw "Error en implementación de identificación de tipo de función";
+    }
+
+    line = t->line;
+    column = t->column;
+    free(t);
+
+    identifier = string(id->ident);
+    line_id = id->line;
+    column_id = id->column;
+    free(id);
+    
     formal_parameters = args;
     instructions = code;
 }
@@ -114,19 +209,31 @@ void AST_program::add_declaration(AST_declaration* d){
 }
 
 AST_assignment::AST_assignment(tokenId* i, AST_expression* e){
-    variable = i;
+    
+    variable = string(i->ident);
+    line = i->line;
+    column = i->column;
+    free(i);
+
     expr = e;
 }
 
 AST_return::AST_return(token* tk, AST_expression* e){
-    ret = tk;
+
+    line = tk->line;
+    column = tk->column;
+    free(tk);
+
     expr = e;
 }
 
 AST_conditional::AST_conditional(token* tk, AST_expression* e, AST_block* b,
                                  AST_conditional* branches)
 {
-    tk_if = tk;
+    line = tk->line;
+    column = tk->column;
+    free(tk);
+
     expr = e;
     block = b;
     else_if = branches;
@@ -134,19 +241,27 @@ AST_conditional::AST_conditional(token* tk, AST_expression* e, AST_block* b,
 
 AST_loop::AST_loop(token* tk, AST_expression* e, AST_block* b)
 {
-    tk_while = tk;
+    line = tk->line;
+    column = tk->column;
+    free(tk);
+
     expr = e;
     block = b;
 }
 
-AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id, token* in,
+AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id,
                          AST_expression* l,
                          AST_expression* r,
                          AST_block* b)
 {
-    tk_for = for_;
-    tk_ident = id;
-    tk_in = in;
+    line = for_->line;
+    column = for_->column;
+    free(for_);
+
+    name = string(id->ident);
+    line_name = id->line;
+    column_name = id->column;
+    free(id);
     
     left_bound = l;
     right_bound = r;
@@ -155,27 +270,15 @@ AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id, token* in,
 }
 
 AST_break::AST_break(token* t){
-    tk = t;
+    line = t->line;
+    column = t->column;
+    free(t);
 }
 
 AST_continue::AST_continue(token* t){
-    tk = t;
-}
-
-AST_type::AST_type(int l, char* t){
-    line = l;
-    
-    if ( strcmp(t, "int") == 0 ){
-        type = INT;
-    } else if ( strcmp(t, "float") == 0 ){
-        type = FLOAT;
-    } else if ( strcmp(t, "char") == 0 ){
-        type = CHAR;
-    } else if ( strcmp(t, "boolean") == 0 ){
-        type = BOOLEAN;
-    } else {
-        //TODO qué pasa aquí
-    }
+    line = t->line;
+    column = t->column;
+    free(t);
 }
 
 
