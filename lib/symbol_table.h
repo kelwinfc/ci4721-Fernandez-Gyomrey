@@ -26,10 +26,6 @@ class symbol_table {
         symbol* lookup(string name);
         
         void insert(symbol* s);
-        
-        bool fill_with(AST_node* a);
-        
-        bool check(AST_node* a);
 };
 
 #endif

@@ -61,7 +61,7 @@ bool error = false;
 input : declaration             {
                                     p->add_declaration((AST_declaration*)$1);
                                 }
-      | declaration input       {
+      | input declaration       {
                                     p->add_declaration((AST_declaration*)$1);
                                 }
       ;
@@ -258,9 +258,7 @@ expression : TK_INT                {
                                        $$ = new AST_char( (tokenId*)$1);
                                    }
            | '(' expression ')' {
-                                   $$ = new AST_parenthesis( $1,
-                                                            (AST_expression*)$2,
-                                                             $3);
+                                   $$ = (AST_expression*)$1;
                                 }
            | TK_IDENT                  {
                                            $$ = new AST_ident((tokenId*)$1);
@@ -419,15 +417,6 @@ int main (int argc,char **argv)
 {
     p = new AST_program();
     error = false;
-/*
-    symbol_int* i = new symbol_int("entero", 1);
-    symbol_double* d = new symbol_double("doble", 1.0);
-    symbol_char* c = new symbol_char("caracter", 'c');
-    symbol_table* t = new symbol_table();
-    t->insert(i);
-    t->insert(d);
-    t->insert(c);
-    */
 
     if (argc == 1){
         yyparse();
@@ -446,7 +435,7 @@ int main (int argc,char **argv)
         cout << "-------------------------------------------------------\n";
         
         symbol_table st;
-        st.fill_with(p);
+        //st.fill_with(p);
         
         if ( error ){
             fprintf (stderr, "Epic fail!\n");

@@ -49,19 +49,6 @@ class AST_expression : public AST_node{
         virtual void print(int indentation);
 };
 
-class AST_parenthesis : public AST_expression {
-
-    public:
-
-        AST_expression* expr;
-
-        token *left, *right;
-
-        AST_parenthesis(token* l, AST_expression* e, token* r);
-
-        virtual void print(int indentation);
-};
-
 class AST_op : public AST_expression {
 
     public:
