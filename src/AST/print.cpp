@@ -39,22 +39,26 @@ void AST_function::print(int indentation){
     print_indentation(indentation);
     cout << "Declaration of Function " << identifier << " -> ";
     
-    switch ( type ) {
-        case INT:
+    switch ( func->getType() ) {
+        case symbol::INT:
             cout << "int";
-        case FLOAT:
+        case symbol::FLOAT:
             cout << "float";
-        case CHAR:
+        case symbol::CHAR:
             cout << "char";
-        case BOOLEAN:
+        case symbol::BOOLEAN:
             cout << "boolean";
-        case NONE:
+        case symbol::NONE:
             cout << "none";
+        case symbol::INVALID:
+            cout << "invalid";
+        case symbol::UNDEFINED:
+            cout << "undefined";
     }
     cout << endl;
     
     cout << "     (\n";
-    formal_parameters->print(indentation+1);
+    //formal_parameters->print(indentation+1);
     cout << "     )\n";
     instructions->print(indentation+1);
 }

@@ -6,6 +6,9 @@
 #include <cstdio>
 #include <cstring>
 #include "token.h"
+#include "symbol.h"
+
+using namespace std;
 
 /* Clase raiz de la jerarquia del AST */
 class AST_node{
@@ -13,7 +16,7 @@ class AST_node{
 
         int line;
 
-		int column;
+        int column;
 
         virtual void print(int indentation = 0);
 };
@@ -27,9 +30,7 @@ class AST_statement : public AST_node{
 class AST_expression : public AST_node{
     public:
 
-        enum TYPE { INT, FLOAT, CHAR, BOOLEAN };
-
-        TYPE type;
+        symbol::TYPE type;
 
         virtual void print(int indentation);
 };
@@ -44,7 +45,7 @@ class AST_op : public AST_expression {
 
         AST_expression *left, *right;
 
-        TYPE type;
+        TYPE oper_type;
 
         AST_op(AST_expression* l, tokenId* o, AST_expression* r);
 
@@ -57,7 +58,7 @@ class AST_un_op : public AST_expression {
 
         enum TYPE { NEG, NOT };
 
-        TYPE type;
+        TYPE oper_type;
 
         AST_expression *expr;
 
@@ -99,17 +100,6 @@ class AST_boolean : public AST_expression{
         virtual void print(int indentation);
 };
 
-class AST_ident : public AST_expression {
-
-    public:
-
-        string value;
-
-        AST_ident(tokenId* tk);
-
-        virtual void print(int indentation);
-};
-
 class AST_char : public AST_expression {
 
     public:
@@ -117,6 +107,19 @@ class AST_char : public AST_expression {
         char value;
 
         AST_char(tokenId* tk);
+
+        virtual void print(int indentation);
+};
+
+class AST_ident : public AST_expression {
+
+    public:
+
+        string value;
+
+        symbol* sym;
+
+        AST_ident(tokenId* tk);
 
         virtual void print(int indentation);
 };
@@ -140,6 +143,8 @@ class AST_function_call : public AST_expression {
 
         string name;
 
+        symbol* sym;
+
         AST_parameters_list* params;
 
         AST_function_call(tokenId* tk, AST_parameters_list* p);
@@ -155,20 +160,17 @@ class AST_declaration : public AST_statement {
 };
 
 class AST_variable_declaration : public AST_declaration {
-
     public:
 
-        enum TYPE { INT, FLOAT, CHAR, BOOLEAN };
-
-        TYPE type;
-
-        int line_id, column_id;
+        symbol* sym;
 
         AST_expression* value;
 
         AST_variable_declaration(tokenType* t, tokenId* id,
                                  AST_expression* v = 0
                                 );
+
+        symbol getSym();
         
         virtual void print(int indentation);
 };
@@ -187,12 +189,9 @@ class AST_block : public AST_node {
 };
 
 class AST_arg_list : public AST_node {
-
     public:
 
-        enum TYPE { INT, FLOAT, CHAR, BOOLEAN, NONE };
-
-        vector< pair<TYPE, string> > args;
+        vector< symbol* > args;
 
         AST_arg_list();
 
@@ -204,13 +203,9 @@ class AST_arg_list : public AST_node {
 class AST_function : public AST_declaration {
     public:
 
-        enum TYPE { INT, FLOAT, CHAR, BOOLEAN, NONE };
+        symbol_function* func;
 
-        int line_id, column_id;
-
-        TYPE type;
-
-        AST_arg_list* formal_parameters;
+        AST_arg_list* args;
 
         AST_block* instructions;
 
@@ -238,6 +233,8 @@ class AST_assignment : public AST_statement {
     public:
 
         string variable;
+
+        symbol* sym;
 
         AST_expression* expr;
 
@@ -296,8 +293,6 @@ class AST_bounded_loop : public AST_statement {
         string name;
 
         int line_name, column_name;
-
-        token* tk_in;
 
         AST_expression* left_bound;
 

@@ -24,41 +24,23 @@ tokenBoolean::tokenBoolean(int l, char* val){
 tokenId::tokenId(int l, char* id){
     line = l;
     
-    ident = (char*)malloc( (strlen(id)+1)*sizeof(char) );
-    memset(ident, 0, sizeof ident);
-    sprintf(ident, "%s", id );
+    ident = string(id);
 }
 
 tokenType::tokenType(int l, char* id){
     
     line = l;
-    
     if ( strcmp(id, "int") == 0 ){
-        ident = tokenType::INT;
+        ident = symbol::INT;
     } else if ( strcmp(id, "float") == 0 ){
-        ident = tokenType::FLOAT;
+        ident = symbol::FLOAT;
     } else if ( strcmp(id, "char") == 0 ){
-        ident = tokenType::CHAR;
+        ident = symbol::CHAR;
     } else if ( strcmp(id, "boolean") == 0 ){
-        ident = tokenType::BOOLEAN;
+        ident = symbol::BOOLEAN;
     } else {
-        
+        throw "El tipo no existe";
     }
-}
-
-char* tokenType::type(){
-    switch ( ident ) {
-        case INT:
-            return (char*)"int";
-        case FLOAT:
-            return (char*)"float";
-        case CHAR:
-            return (char*)"char";
-        case BOOLEAN:
-            return (char*)"boolean";
-    }
-    
-    return (char*)"";
 }
 
 tokenInt::tokenInt(int l, char* num){
@@ -124,13 +106,13 @@ tokenInt::tokenInt(int l, char* num){
 }
 
 void tokenType::print(){
-    if ( ident == tokenType::INT ){
+    if ( ident == symbol::INT ){
         cout << "int";
-    } else if ( ident == tokenType::FLOAT ){
+    } else if ( ident == symbol::FLOAT ){
         cout << "float";
-    } else if ( ident == tokenType::BOOLEAN ){
+    } else if ( ident == symbol::BOOLEAN ){
         cout << "boolean";
-    } else if ( ident == tokenType::CHAR ){
+    } else if ( ident == symbol::CHAR ){
         cout << "char";
     } else {
         

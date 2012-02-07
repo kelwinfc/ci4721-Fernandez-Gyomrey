@@ -4,37 +4,39 @@
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
+    type = symbol::UNDEFINED;
+
     line = l->line;
     column = l->column;
 
-    if ( strcmp(o->ident, "+") == 0 ){
-        type = PLUS;
-    } else if ( strcmp(o->ident, "-") == 0 ){
-        type = MINUS;
-    } else if ( strcmp(o->ident, "*") == 0 ){
-        type = PROD;
-    } else if ( strcmp(o->ident, "/") == 0 ){
-        type = DIV;
-    } else if ( strcmp(o->ident, "&&") == 0 ){
-        type = AND;
-    } else if ( strcmp(o->ident, "||") == 0 ){
-        type = OR;
-    } else if ( strcmp(o->ident, "==>") == 0 ){
-        type = IMP;
-    } else if ( strcmp(o->ident, "<==") == 0 ){
-        type = CONSEQ;
-    } else if ( strcmp(o->ident, "==") == 0 ){
-        type = EQ;
-    } else if ( strcmp(o->ident, "!=") == 0 ){
-        type = UNEQ;
-    } else if ( strcmp(o->ident, "<") == 0 ){
-        type = LESS;
-    } else if ( strcmp(o->ident, "<=") == 0 ){
-        type = LESS_EQ;
-    } else if ( strcmp(o->ident, ">") == 0 ){
-        type = GREAT;
-    } else if ( strcmp(o->ident, ">=") == 0 ){
-        type = GREAT_EQ;
+    if ( o->ident.compare("+") == 0 ){
+        oper_type = PLUS;
+    } else if ( o->ident.compare("-") == 0 ){
+        oper_type = MINUS;
+    } else if ( o->ident.compare("*") == 0 ){
+        oper_type = PROD;
+    } else if ( o->ident.compare("/") == 0 ){
+        oper_type = DIV;
+    } else if ( o->ident.compare("&&") == 0 ){
+        oper_type = AND;
+    } else if ( o->ident.compare("||") == 0 ){
+        oper_type = OR;
+    } else if ( o->ident.compare("==>") == 0 ){
+        oper_type = IMP;
+    } else if ( o->ident.compare("<==") == 0 ){
+        oper_type = CONSEQ;
+    } else if ( o->ident.compare("==") == 0 ){
+        oper_type = EQ;
+    } else if ( o->ident.compare("!=") == 0 ){
+        oper_type = UNEQ;
+    } else if ( o->ident.compare("<") == 0 ){
+        oper_type = LESS;
+    } else if ( o->ident.compare("<=") == 0 ){
+        oper_type = LESS_EQ;
+    } else if ( o->ident.compare(">") == 0 ){
+        oper_type = GREAT;
+    } else if ( o->ident.compare(">=") == 0 ){
+        oper_type = GREAT_EQ;
     } else {
         throw "Error de implementación en identificación de operador de expresión binaria";
     }
@@ -49,10 +51,10 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
 AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
 
-    if ( strcmp(o->ident, "!") == 0 ){
-        type = NOT;
-    } else if ( strcmp(o->ident, "-") == 0 ){
-        type = NEG;
+    if ( o->ident.compare("!") == 0 ){
+        oper_type = NOT;
+    } else if ( o->ident.compare("-") == 0 ){
+        oper_type = NEG;
     } else {
         throw "Error de implementación en identificación de operador de expresión unaria";
     }
@@ -88,19 +90,19 @@ AST_boolean::AST_boolean(tokenBoolean* tk){
     free(tk);
 }
 
+AST_char::AST_char(tokenId* tk){
+
+    line = tk->line;
+    column = tk->column;
+    value = tk->ident[0];
+    free(tk);
+}
+
 AST_ident::AST_ident(tokenId* tk){
 
     line = tk->line;
     column = tk->column;
     value = string(tk->ident);
-    free(tk);
-}
-
-AST_char::AST_char(tokenId* tk){
-
-    line = tk->line;
-    column = tk->column;
-    value = *tk->ident;
     free(tk);
 }
 
@@ -130,24 +132,8 @@ AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
                                                    AST_expression* v
                                                   )
 {
-    if ( strcmp(t->type(), "int") == 0 ){
-        type = INT;
-    } else if ( strcmp(t->type(), "float") == 0 ){
-        type = FLOAT;
-    } else if ( strcmp(t->type(), "char") == 0 ){
-        type = CHAR;
-    } else if ( strcmp(t->type(), "boolean") == 0 ){
-        type = BOOLEAN;
-    } else {
-        throw "Error en implementación de identificación de tipo de variable";
-    }
-    line = t->line;
-    column = t->column;
+    sym = new symbol(string(id->ident), false, t->ident, id->line, id->column, 0 != v);
     free(t);
-
-    line_id = id->line;
-    column_id = id->column;
-    identifier = string(id->ident);
     free(id);
 
     value = v;
@@ -166,49 +152,25 @@ AST_arg_list::AST_arg_list(){
 }
 
 void AST_arg_list::add_argument( tokenType* t, tokenId* id ){
-    TYPE type;
-    if ( strcmp(t->type(), "int") == 0 ){
-        type = INT;
-    } else if ( strcmp(t->type(), "float") == 0 ){
-        type = FLOAT;
-    } else if ( strcmp(t->type(), "char") == 0 ){
-        type = CHAR;
-    } else if ( strcmp(t->type(), "boolean") == 0 ){
-        type = BOOLEAN;
-    } else {
-        throw "Error en implementación de identificación de tipo de parámetro de función";
-    }
-    args.push_back( pair<TYPE, string>(type, string(id->ident)) );
+    //symbol::TYPE type = t->ident;
+
 }
 
 
 AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
              AST_block* code)
 {
-    if ( 0 == t ) {
-        type = NONE;
-    } else if ( strcmp(t->type(), "int") == 0 ){
-        type = INT;
-    } else if ( strcmp(t->type(), "float") == 0 ){
-        type = FLOAT;
-    } else if ( strcmp(t->type(), "char") == 0 ){
-        type = CHAR;
-    } else if ( strcmp(t->type(), "boolean") == 0 ){
-        type = BOOLEAN;
-    } else {
-        throw "Error en implementación de identificación de tipo de función";
+    vector< symbol* >::iterator it;
+    vector< symbol::TYPE > types;
+    for (it = args->args.begin(); it != args->args.end(); ++ it){
+        types.push_back( (*it)->getType() );
     }
+    func = new symbol_function(id->ident, t->ident, id->line, id->column, (void*) code, types);
 
-    line = t->line;
-    column = t->column;
     free(t);
-
-    identifier = string(id->ident);
-    line_id = id->line;
-    column_id = id->column;
     free(id);
     
-    formal_parameters = args;
+    //formal_parameters = args;
     instructions = code;
 }
 

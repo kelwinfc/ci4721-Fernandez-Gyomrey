@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <iostream>
 #include "utils.h"
+#include "symbol.h"
 
 using namespace std;
 
@@ -22,25 +23,19 @@ class token{
 class tokenId : public token{
     public:
 
-        char* ident;
+        string ident;
 
         tokenId(int l, char* id);
 };
 
 class tokenType : public token {
-    private:
-
-        enum TYPE { INT, FLOAT, CHAR, BOOLEAN };
-
     public:
 
-        TYPE ident;
+        symbol::TYPE ident;
 
         tokenType(int l, char* id);
 
         void print();
-        
-        char* type();
 };
 
 class tokenInt : public token {

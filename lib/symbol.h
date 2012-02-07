@@ -3,11 +3,13 @@
 
 #include <string>
 #include <vector>
-#include "AST.h"
 
 using namespace std;
 
 class symbol{
+    public:
+
+        enum TYPE { INT, FLOAT, CHAR, BOOLEAN, NONE, UNDEFINED, INVALID };
 
     protected:
 
@@ -15,7 +17,7 @@ class symbol{
 
         bool constant;
 
-        string type;
+        TYPE type;
 
         int line;
 
@@ -25,18 +27,15 @@ class symbol{
 
     public:
 
-        symbol(){}
+        symbol();
         
-        symbol(char* t, char* n){
-            name = n;
-            type = t;
-        }
+        symbol(string name, bool constant, TYPE type, int line, int column, bool initialized);
         
         string getName();
 
         bool isConst();
 
-        string getType();
+        TYPE getType();
 
         int getLine();
 
@@ -47,10 +46,12 @@ class symbol{
 
 class symbol_function : public symbol {
     public:
-        
+
         vector<symbol> params;
-        
-        symbol_function(AST_function& f);
+
+        symbol_function();
+
+        symbol_function(string name, TYPE type, int line, int column, void* pointer, vector< TYPE > types);//AST_function& f
 };
 
 #endif

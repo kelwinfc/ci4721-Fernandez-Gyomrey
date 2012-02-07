@@ -24,3 +24,5 @@ symbol_table symbol_table::getParent(){
 void symbol_table::insert(symbol* s){
     table[s->getName()] = s;
 }
+
+//TODO agregar tabla hija

@@ -1,6 +1,18 @@
 
 #include "symbol.h"
 
+symbol::symbol(){}
+
+symbol::symbol(string name, bool constant, TYPE type, int line, int column, bool initialized){
+    //al construir se puede validar que no sea NONE!
+    this->name = name;
+    this->constant = constant;
+    this->type = type;
+    this->line = line;
+    this->column = column;
+    this->initialized = initialized;
+}
+
 string symbol::getName(){
     return name;
 }
@@ -9,7 +21,7 @@ bool symbol::isConst(){
     return constant;
 }
 
-string symbol::getType(){
+symbol::TYPE symbol::getType(){
     return type;
 }
 
@@ -25,7 +37,10 @@ bool symbol::isInitialized(){
     return initialized;
 }
 
-symbol_function::symbol_function(AST_function& f){
+symbol_function::symbol_function(){}
+
+symbol_function::symbol_function(string name, TYPE type, int line, int column, void* pointer, vector<TYPE> types){
+/*AST_function& f
     
     this->name = f.identifier;
     
@@ -60,5 +75,5 @@ symbol_function::symbol_function(AST_function& f){
         //TODO no funciona
         //symbol next_arg( type, it->second );
         //params.push_back( next_arg );
-    }
+    }*/
 }
