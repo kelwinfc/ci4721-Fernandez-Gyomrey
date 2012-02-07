@@ -20,16 +20,8 @@ void AST_continue::print(int indentation){
     cout << "Continue\n";
 }
 
-void AST_declaration::print(int indentation){/*
-    printf("%3d: ", line);
-    print_indentation(indentation);
-    cout << "Declaration of " << identifier->ident << "(";
-    type->print();
-    cout << ") ";*/
-}
 
-
-void AST_variable_declaration::print(int indentation){/*
+void AST_variable_declaration::print(int indentation){
     AST_declaration::print(indentation);
     
     if ( value != 0 ){
@@ -38,41 +30,44 @@ void AST_variable_declaration::print(int indentation){/*
         value->print(indentation+1);
     } else {
         cout << "unitialized\n";
-    }*/
+    }
 }
 
-void AST_function::print(int indentation){/*
-    if ( type ){
-        printf("%3d: ", type->line);
-    } else {
-        printf("%3d: ", identifier->line);
-    }
-    
+void AST_function::print(int indentation){
+    printf("%3d: ", line);
+
     print_indentation(indentation);
-    cout << "Declaration of Function " << identifier->ident << " -> ";
+    cout << "Declaration of Function " << identifier << " -> ";
     
-    if ( type ){
-        type->print();
-    } else {
-        cout << "none";
+    switch ( type ) {
+        case INT:
+            cout << "int";
+        case FLOAT:
+            cout << "float";
+        case CHAR:
+            cout << "char";
+        case BOOLEAN:
+            cout << "boolean";
+        case NONE:
+            cout << "none";
     }
     cout << endl;
     
     cout << "     (\n";
     formal_parameters->print(indentation+1);
     cout << "     )\n";
-    instructions->print(indentation+1);*/
+    instructions->print(indentation+1);
 }
 
 void AST_arg_list::print(int indentation){/*
-    for (int i=args.size()-1; i >= 0; i--){
-        printf("%3d: ", args[i].first->line);
+    for (int i = 0; i < args.size(); ++ i){
+
         print_indentation(indentation);
-        
-        cout << args[i].second->ident << "(";
+
+        cout << args[i].second << "(";
         args[i].first->print();
         cout << ")";
-        
+
         if ( i ){
             cout << ",";
         }

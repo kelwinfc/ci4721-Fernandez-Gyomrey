@@ -37,14 +37,28 @@ symbol_function::symbol_function(AST_function& f){
     
     this->params.clear();
     
-    vector< pair<tokenType*, tokenId*> >::iterator it;
+    vector< pair< AST_arg_list::TYPE, string> >::iterator it;
     
     for( it = f.formal_parameters->args.begin();
          it != f.formal_parameters->args.end();
          ++it
        )
     {
-        symbol next_arg( it->first->type(), it->second->ident );
-        params.push_back( next_arg );
+        string type;
+        switch ( it->first ) {
+            case AST_arg_list::INT:
+                type = "int";
+            case AST_arg_list::FLOAT:
+                type = "float";
+            case AST_arg_list::CHAR:
+                type = "char";
+            case AST_arg_list::BOOLEAN:
+                type = "boolean";
+            case AST_arg_list::NONE:
+                type = "none";
+        }
+        //TODO no funciona
+        //symbol next_arg( type, it->second );
+        //params.push_back( next_arg );
     }
 }

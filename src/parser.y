@@ -335,13 +335,6 @@ int main (int argc,char **argv)
         
         symbol_table st;
         //st.fill_with(p);
-        
-        if ( error ){
-            fprintf (stderr, "Epic fail!\n");
-        } else {
-            cout << "Like a boss!\n";
-            cout << "-------------------------------------------------------\n";
-        }
     }
     
     return 0;

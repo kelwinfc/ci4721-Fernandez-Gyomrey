@@ -152,8 +152,6 @@ class AST_declaration : public AST_statement {
     public:
 
         string identifier;
-
-        virtual void print(int indentation);
 };
 
 class AST_variable_declaration : public AST_declaration {
@@ -192,7 +190,9 @@ class AST_arg_list : public AST_node {
 
     public:
 
-        vector< pair<tokenType*, tokenId*> > args;
+        enum TYPE { INT, FLOAT, CHAR, BOOLEAN, NONE };
+
+        vector< pair<TYPE, string> > args;
 
         AST_arg_list();
 
@@ -204,7 +204,7 @@ class AST_arg_list : public AST_node {
 class AST_function : public AST_declaration {
     public:
 
-        enum TYPE { INT, FLOAT, CHAR, BOOLEAN, VOID };
+        enum TYPE { INT, FLOAT, CHAR, BOOLEAN, NONE };
 
         int line_id, column_id;
 

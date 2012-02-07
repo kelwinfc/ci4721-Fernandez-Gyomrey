@@ -166,7 +166,19 @@ AST_arg_list::AST_arg_list(){
 }
 
 void AST_arg_list::add_argument( tokenType* t, tokenId* id ){
-    args.push_back( pair<tokenType*, tokenId*>(t,id) );
+    TYPE type;
+    if ( strcmp(t->type(), "int") == 0 ){
+        type = INT;
+    } else if ( strcmp(t->type(), "float") == 0 ){
+        type = FLOAT;
+    } else if ( strcmp(t->type(), "char") == 0 ){
+        type = CHAR;
+    } else if ( strcmp(t->type(), "boolean") == 0 ){
+        type = BOOLEAN;
+    } else {
+        throw "Error en implementación de identificación de tipo de parámetro de función";
+    }
+    args.push_back( pair<TYPE, string>(type, string(id->ident)) );
 }
 
 
@@ -174,7 +186,7 @@ AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
              AST_block* code)
 {
     if ( 0 == t ) {
-        type = VOID;
+        type = NONE;
     } else if ( strcmp(t->type(), "int") == 0 ){
         type = INT;
     } else if ( strcmp(t->type(), "float") == 0 ){
