@@ -69,6 +69,8 @@ tokenInt::tokenInt(int l, char* num){
         number = 0;
         pow = 1;
         
+        //TODO chequeo de overflow
+        //TODO agregar al documento el rango válido de enteros (32 bits)
         if ( base > 36 || base == 0 ){
             number = -1;
         } else if ( base != 1 ){
