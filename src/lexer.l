@@ -100,7 +100,7 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                                  return TK_CHAR;
                                }
 
-"none"                         { //yylval.tk = new token(yylineno);
+"none"                         { yylval.tk = new token(yylineno);
                                  return TK_NONE;
                                }
 

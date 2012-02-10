@@ -7,8 +7,11 @@
 #include <cstring>
 #include "token.h"
 #include "symbol.h"
+#include "symbol_table.h"
 
 using namespace std;
+
+extern bool error;
 
 /* Clase raiz de la jerarquia del AST */
 class AST_node{
@@ -19,37 +22,47 @@ class AST_node{
         int column;
 
         virtual void print(int indentation = 0);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_statement : public AST_node{
     public:
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_expression : public AST_node{
     public:
-
+        
         symbol::TYPE type;
-
+        
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_op : public AST_expression {
     public:
-
+        
         enum TYPE { PLUS, MINUS, PROD, DIV, AND, OR, IMP, CONSEQ,
                     EQ, UNEQ, LESS, LESS_EQ, GREAT, GREAT_EQ     };
-
+        
         int line_op, column_op, line_rop, column_rop;
-
+        
         AST_expression *left, *right;
-
+        
         TYPE oper_type;
-
+        
         AST_op(AST_expression* l, tokenId* o, AST_expression* r);
-
+        
+        string binary_operator();
+        
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_un_op : public AST_expression {
@@ -63,8 +76,12 @@ class AST_un_op : public AST_expression {
         AST_expression *expr;
 
         AST_un_op(tokenId* o, AST_expression* e);
-
+        
+        string unary_operator();
+        
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_int : public AST_expression{
@@ -76,6 +93,8 @@ class AST_int : public AST_expression{
         AST_int(tokenInt* tk);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_float : public AST_expression{
@@ -87,6 +106,8 @@ class AST_float : public AST_expression{
         AST_float(tokenFloat* tk);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_boolean : public AST_expression{
@@ -98,17 +119,21 @@ class AST_boolean : public AST_expression{
         AST_boolean(tokenBoolean* tk);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_char : public AST_expression {
 
     public:
 
-        char value;
+        string value;
 
         AST_char(tokenId* tk);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_ident : public AST_expression {
@@ -122,6 +147,8 @@ class AST_ident : public AST_expression {
         AST_ident(tokenId* tk);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_parameters_list : public AST_node {
@@ -135,6 +162,8 @@ class AST_parameters_list : public AST_node {
         void add_element(AST_expression* e);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_function_call : public AST_expression {
@@ -150,6 +179,8 @@ class AST_function_call : public AST_expression {
         AST_function_call(tokenId* tk, AST_parameters_list* p);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_declaration : public AST_statement {
@@ -157,6 +188,10 @@ class AST_declaration : public AST_statement {
     public:
 
         string identifier;
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_variable_declaration : public AST_declaration {
@@ -173,6 +208,8 @@ class AST_variable_declaration : public AST_declaration {
         symbol getSym();
         
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_block : public AST_node {
@@ -186,6 +223,8 @@ class AST_block : public AST_node {
         void add_statement(AST_statement* s);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_arg_list : public AST_node {
@@ -198,6 +237,8 @@ class AST_arg_list : public AST_node {
         void add_argument( tokenType* t, tokenId* id );
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_function : public AST_declaration {
@@ -205,7 +246,7 @@ class AST_function : public AST_declaration {
 
         symbol_function* func;
 
-        AST_arg_list* args;
+        AST_arg_list* formal_parameters;
 
         AST_block* instructions;
 
@@ -213,6 +254,8 @@ class AST_function : public AST_declaration {
                      AST_block* code);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_program : public AST_node {
@@ -226,6 +269,8 @@ class AST_program : public AST_node {
         void add_declaration(AST_declaration* d);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_assignment : public AST_statement {
@@ -241,6 +286,8 @@ class AST_assignment : public AST_statement {
         AST_assignment(tokenId* i, AST_expression* e);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_return : public AST_statement {
@@ -252,6 +299,8 @@ class AST_return : public AST_statement {
         AST_return(token* tk, AST_expression* e);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_conditional : public AST_statement {
@@ -270,6 +319,8 @@ class AST_conditional : public AST_statement {
         virtual void print(int indentation);
 
         virtual void print(int indentation, bool first);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_loop : public AST_statement {
@@ -283,6 +334,8 @@ class AST_loop : public AST_statement {
         AST_loop(token* tk, AST_expression* e, AST_block* b);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 
@@ -306,6 +359,8 @@ class AST_bounded_loop : public AST_statement {
                          AST_block* b);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_break : public AST_statement {
@@ -315,6 +370,8 @@ class AST_break : public AST_statement {
         AST_break(token* t);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 class AST_continue: public AST_statement {
@@ -324,6 +381,8 @@ class AST_continue: public AST_statement {
         AST_continue(token* t);
 
         virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
 };
 
 

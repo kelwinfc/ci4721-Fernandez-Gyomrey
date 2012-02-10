@@ -1,7 +1,7 @@
 #include "AST.h"
 
 void AST_node::print(int indentation){
-
+    
 }
 
 void AST_conditional::print(int indentation){
@@ -20,13 +20,46 @@ void AST_continue::print(int indentation){
     cout << "Continue\n";
 }
 
+void AST_declaration::print(int indentation){
+    printf("%3d: ", line);
+    print_indentation(indentation);
+}
 
 void AST_variable_declaration::print(int indentation){
+    
     AST_declaration::print(indentation);
+    
+    cout << "Declaration: " << sym->getName()
+         << " (";
+     
+    switch ( sym->getType() ) {
+        case symbol::INT:
+            cout << "int";
+            break;
+        case symbol::FLOAT:
+            cout << "float";
+            break;
+        case symbol::CHAR:
+            cout << "char";
+            break;
+        case symbol::BOOLEAN:
+            cout << "boolean";
+            break;
+        case symbol::NONE:
+            cout << "none";
+            break;
+        case symbol::INVALID:
+            cout << "invalid";
+            break;
+        case symbol::UNDEFINED:
+            cout << "undefined";
+            break;
+    }
+    
+    cout << ") ";
     
     if ( value != 0 ){
         cout << "initialized with\n";
-        
         value->print(indentation+1);
     } else {
         cout << "unitialized\n";
@@ -35,48 +68,46 @@ void AST_variable_declaration::print(int indentation){
 
 void AST_function::print(int indentation){
     printf("%3d: ", line);
-
     print_indentation(indentation);
-    cout << "Declaration of Function " << identifier << " -> ";
     
-    switch ( func->getType() ) {
-        case symbol::INT:
-            cout << "int";
-        case symbol::FLOAT:
-            cout << "float";
-        case symbol::CHAR:
-            cout << "char";
-        case symbol::BOOLEAN:
-            cout << "boolean";
-        case symbol::NONE:
-            cout << "none";
-        case symbol::INVALID:
-            cout << "invalid";
-        case symbol::UNDEFINED:
-            cout << "undefined";
-    }
-    cout << endl;
+    cout << "Declaration of Function " 
+         << identifier
+         << " -> "
+         << func->getTypeName()
+         << endl;
     
-    cout << "     (\n";
-    //formal_parameters->print(indentation+1);
-    cout << "     )\n";
+    printf("%3d:     (\n",
+           formal_parameters->args.size() ? formal_parameters->line : line
+          );
+    print_indentation(indentation);
+    
+    formal_parameters->print(indentation+1);
+    
+    printf("%3d:     )\n",
+           formal_parameters->args.size() ? 
+                 formal_parameters->args.back()->getLine()
+               : line
+          );
+    
     instructions->print(indentation+1);
 }
 
-void AST_arg_list::print(int indentation){/*
-    for (int i = 0; i < args.size(); ++ i){
-
+void AST_arg_list::print(int indentation){  
+    vector<symbol*>::iterator it;
+    for ( it = args.begin(); it != args.end(); ){
+        printf("%3d: ", (*it)->getLine());
         print_indentation(indentation);
 
-        cout << args[i].second << "(";
-        args[i].first->print();
+        cout << (*it)->getTypeName() << "(";
+        cout << (*it)->getName();
         cout << ")";
-
-        if ( i ){
+        
+        if ( ++it != args.end() ){
             cout << ",";
         }
         cout << endl;
-    }*/
+        
+    }
 }
 
 void AST_statement::print(int indentation){/*
@@ -84,76 +115,126 @@ void AST_statement::print(int indentation){/*
     cout << "bello statement\n";*/
 }
 
-void AST_block::print(int indentation){/*
+void AST_block::print(int indentation){
+    
+    printf("%3d: ",statements.size() ? statements[0]->line : line );
     print_indentation(indentation);
-    cout << "     {\n";
-    for (int i=statements.size()-1; i >= 0; i--){
-        statements[i]->print(indentation+1);
+    cout << "{\n";
+    
+    vector<AST_statement*>::iterator it;
+    for (it = statements.begin(); it != statements.end(); ++it){
+        (*it)->print(indentation+1);
     }
+    
+    printf("%3d: ",statements.size() ? statements.back()->line : line );
     print_indentation(indentation);
-    cout << "     }\n";*/
+    cout << "}\n";
 }
 
 
-void AST_expression::print(int indentation){/*
+void AST_expression::print(int indentation){
     print_indentation(indentation);
-    cout << "Expression\n";*/
+    cout << "Expression\n";
 }
 
-void AST_op::print(int indentation){/*
-    printf("%3d: ", line_op);
+string AST_op::binary_operator(){
+    switch ( oper_type ){
+        case PLUS:
+            return "+";
+        case MINUS:
+            return "-";
+        case PROD:
+            return "*";
+        case DIV:
+            return "/";
+        case AND:
+            return "&&";
+        case OR:
+            return "||";
+        case IMP:
+            return "==>";
+        case CONSEQ:
+            return "<==";
+        case EQ:
+            return "==";
+        case UNEQ:
+            return "!=";
+        case LESS:
+            return "<";
+        case LESS_EQ:
+            return "<=";
+        case GREAT:
+            return ">";
+        case GREAT_EQ:
+            return ">=";
+    }
+    return "";
+}
+
+void AST_op::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
-    cout << op->ident << endl;
+    cout << binary_operator() << endl;
     
     left->print(indentation+1);
-    right->print(indentation+1);*/
+    right->print(indentation+1);
     
 }
 
-void AST_un_op::print(int indentation){/*
-    printf("%3d: ", op->line);
-    print_indentation(indentation);
-    cout << "Unary " << op->ident << endl;
+string AST_un_op::unary_operator(){
     
-    expr->print(indentation+1);*/
+    switch ( oper_type ){
+        case NOT:
+            return "!";
+        case NEG:
+            return "-";
+    }
+}
+
+void AST_un_op::print(int indentation){
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    cout << "Unary " << unary_operator() << endl;
+    
+    expr->print(indentation+1);
     
 }
 
-void AST_int::print(int indentation){/*
-    printf("%3d: ", value->line);
+void AST_int::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
-    cout << "Constant int: " << value->number << endl;*/
+    cout << "Constant int: " << value << endl;
 }
 
-void AST_float::print(int indentation){/*
-    printf("%3d: ", value->line);
+void AST_float::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
-    cout << "Constant float: " << value->number << endl;*/
+    cout << "Constant float: " << value << endl;
 }
 
-void AST_boolean::print(int indentation){/*
-    printf("%3d: ", value->line);
+void AST_boolean::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
-    cout << "Constant boolean: " << (value->value ? "true" : "false") << endl;*/
+    cout << "Constant boolean: " << (value ? "true" : "false") << endl;
 }
 
-void AST_char::print(int indentation){/*
-    printf("%3d: ", value->line);
+void AST_char::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
-    cout << "Constant char: " << value->ident << endl;*/
+    cout << "Constant char: " << value << endl;
 }
 
-void AST_ident::print(int indentation){/*
-    printf("%3d: ", value->line);
+void AST_ident::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
-    cout << "Identifier: " << value->ident << endl;*/
+    cout << "Identifier: " << value << endl;
 }
 
-void AST_function_call::print(int indentation){/*
-    printf("%3d: ", ident->line);
+void AST_function_call::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
     
-    cout << ident->ident << endl;
+    cout << name << endl;
     
     cout << "     ";
     print_indentation(indentation);
@@ -163,38 +244,40 @@ void AST_function_call::print(int indentation){/*
     
     cout << "     ";
     print_indentation(indentation);
-    cout << ")\n";*/
+    cout << ")\n";
 }
 
-void AST_parameters_list::print(int indentation){/*
-    for (int i=elem.size()-1; i >= 0; i--){
+void AST_parameters_list::print(int indentation){
+    
+    for (uint i=0; i < elem.size(); i++){
         elem[i]->print(indentation);
         
-        if ( i != 0 ){
+        if ( i + 1 < elem.size() ){
             cout << "   ";
             print_indentation(indentation);
             cout << "...\n";
         }
-    }*/
+    }
 }
 
-void AST_program::print(int indentation){/*
-    for (int i=declarations.size()-1; i >= 0; i--){
+void AST_program::print(int indentation){
+    uint nsize = declarations.size();
+    for (uint i=0; i < nsize; i++){
         declarations[i]->print(0);
-    }*/
+    }
 }
 
-void AST_assignment::print(int indentation){/*
-    printf("%3d: ", variable->line);
+void AST_assignment::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
     
-    cout << "Assignment " << variable->ident << " <--\n";
+    cout << "Assignment " << variable << " <--\n";
     
-    expr->print(indentation+1);*/
+    expr->print(indentation+1);
 }
 
-void AST_return::print(int indentation){/*
-    printf("%3d: ", ret->line);
+void AST_return::print(int indentation){
+    printf("%3d: ", line);
     print_indentation(indentation);
     
     if ( expr ){
@@ -202,12 +285,12 @@ void AST_return::print(int indentation){/*
         expr->print(indentation+1);
     } else {
         cout << "Empty return" << endl;
-    }*/
+    }
 }
 
-void AST_conditional::print(int indentation, bool first){/*
+void AST_conditional::print(int indentation, bool first){
     
-    printf("%3d: ", tk_if->line);
+    printf("%3d: ", line);
     print_indentation(indentation);
     
     if ( first ){
@@ -232,12 +315,12 @@ void AST_conditional::print(int indentation, bool first){/*
     
     if ( else_if ){
         else_if->print(indentation, false);
-    }*/
+    }
 }
 
-void AST_loop::print(int indentation){/*
+void AST_loop::print(int indentation){
     
-    printf("%3d: ", tk_while->line);
+    printf("%3d: ", line);
     print_indentation(indentation);
     
     cout << "While\n";
@@ -252,30 +335,30 @@ void AST_loop::print(int indentation){/*
     print_indentation(indentation+1);
     cout << "     )\n";
     
-    block->print(indentation+1);*/
+    block->print(indentation+1);
 }
 
-void AST_bounded_loop::print(int indentation){/*
+void AST_bounded_loop::print(int indentation){
     
-    printf("%3d: ", tk_for->line);
+    printf("%3d: ", line);
     print_indentation(indentation);
     
-    cout << "For " << tk_ident->ident << " in" << endl;
+    cout << "For " << name << " in" << endl;
     
     print_indentation(indentation+1);
     cout << "     (\n";
     
-    left_bound->print(indentation+1);
+    left_bound->print(indentation+2);
     
     print_indentation(indentation+1);
     cout << "     ,\n";
     
-    right_bound->print(indentation+1);
+    right_bound->print(indentation+2);
     
     print_indentation(indentation+1);
     cout << "     )\n";
     
-    block->print(indentation+1);*/
+    block->print(indentation+1);
 }
 /*
 void AST_type::print(int indentation){

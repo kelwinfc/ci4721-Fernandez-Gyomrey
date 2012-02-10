@@ -1,6 +1,7 @@
 #include "AST.h"
 #include "utils.h"
 #include "AST/print.cpp"
+#include "AST/check.cpp"
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
@@ -51,6 +52,8 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
 AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
 
+    type = symbol::UNDEFINED;
+    
     if ( o->ident.compare("!") == 0 ){
         oper_type = NOT;
     } else if ( o->ident.compare("-") == 0 ){
@@ -67,7 +70,9 @@ AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
 }
 
 AST_int::AST_int(tokenInt* tk){
-
+    
+    type = symbol::INT;
+    
     line = tk->line;
     column = tk->column;
     value = tk->number;
@@ -76,6 +81,8 @@ AST_int::AST_int(tokenInt* tk){
 
 AST_float::AST_float(tokenFloat* tk){
 
+    type = symbol::FLOAT;
+    
     line = tk->line;
     column = tk->column;
     value = tk->number;
@@ -83,7 +90,9 @@ AST_float::AST_float(tokenFloat* tk){
 }
 
 AST_boolean::AST_boolean(tokenBoolean* tk){
-
+    
+    type = symbol::BOOLEAN;
+    
     line = tk->line;
     column = tk->column;
     value = tk->value;
@@ -92,14 +101,18 @@ AST_boolean::AST_boolean(tokenBoolean* tk){
 
 AST_char::AST_char(tokenId* tk){
 
+    type = symbol::CHAR;
+    
     line = tk->line;
     column = tk->column;
-    value = tk->ident[0];
+    value = tk->ident + "";
     free(tk);
 }
 
 AST_ident::AST_ident(tokenId* tk){
 
+    type = symbol::UNDEFINED;
+    
     line = tk->line;
     column = tk->column;
     value = string(tk->ident);
@@ -132,7 +145,11 @@ AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
                                                    AST_expression* v
                                                   )
 {
-    sym = new symbol(string(id->ident), false, t->ident, id->line, id->column, 0 != v);
+    line = t->line;
+    
+    sym = new symbol(string(id->ident), false, t->ident, id->line,
+                     id->column, 0 != v
+                    );
     free(t);
     free(id);
 
@@ -152,25 +169,38 @@ AST_arg_list::AST_arg_list(){
 }
 
 void AST_arg_list::add_argument( tokenType* t, tokenId* id ){
-    //symbol::TYPE type = t->ident;
-
+    symbol* next_arg = new symbol(id->ident, false, t->ident,
+                                  t->line, t->column, false);
+    
+    args.push_back( next_arg );
+    
+    line = args[0]->getLine();
 }
 
 
 AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
-             AST_block* code)
+                           AST_block* code
+                          )
 {
+    line = id->line;
+    
     vector< symbol* >::iterator it;
     vector< symbol::TYPE > types;
     for (it = args->args.begin(); it != args->args.end(); ++ it){
         types.push_back( (*it)->getType() );
     }
-    func = new symbol_function(id->ident, t->ident, id->line, id->column, (void*) code, types);
-
+    
+    if ( t ){
+        func = new symbol_function(id->ident, t->ident, id->line, id->column,
+                                   types);
+    } else {
+        func = new symbol_function(id->ident, id->line, id->column, types );
+    }
+    
     free(t);
     free(id);
     
-    //formal_parameters = args;
+    formal_parameters = args;
     instructions = code;
 }
 
@@ -273,17 +303,4 @@ AST_declaration::AST_declaration(tokenType* t, tokenId* i, AST_expression* expr)
     val = expr;
 }
 
-void AST_declaration::print(int indentation){
-    cout << "Declaration: " << id 
-         << " (";
-     type->print(0);
-     cout << ")";
-    
-    if ( val != 0 ){
-        cout << " initialized with:\n";
-        val->print(indentation+1);
-    } else {
-        cout << " uninitialized:\n";
-    }
-}
 */

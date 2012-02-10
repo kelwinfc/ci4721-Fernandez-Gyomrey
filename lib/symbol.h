@@ -37,6 +37,8 @@ class symbol{
 
         TYPE getType();
 
+        string getTypeName();
+        
         int getLine();
 
         int getColumn();
@@ -47,11 +49,15 @@ class symbol{
 class symbol_function : public symbol {
     public:
 
-        vector<symbol> params;
+        vector<TYPE> params;
 
         symbol_function();
 
-        symbol_function(string name, TYPE type, int line, int column, void* pointer, vector< TYPE > types);//AST_function& f
+        symbol_function(string name, int line, int column,
+                        vector< TYPE >& types);
+        
+        symbol_function(string name, TYPE type, int line, int column,
+                        vector< TYPE >& types);
 };
 
 #endif

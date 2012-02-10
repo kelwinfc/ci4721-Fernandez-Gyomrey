@@ -11,9 +11,9 @@ FILES=token\
       symbol\
       symbol_table
 
-DEP_AST=token utils
+DEP_AST=token utils symbol symbol_table
 DEP_token=utils
-DEP_symbol_table=symbol AST
+DEP_symbol_table=symbol
 
 all: bla
 
@@ -39,4 +39,4 @@ bin/symbol_table.o: $(DEP_symbol_table:%=src/%.cpp) $(DEP_symbol_table:%=lib/%.h
 doc:
 	markdown2pdf doc/especificacion.mdwn -o doc/especificacion.pdf
 clean:
-		rm -f bin/*.o *~ bin/*~ src/*~ lib/*~ test/*~ bla y.tab.h lex.yy.c y.tab.c
+		rm -f bin/*.o *~ bin/*~ src/*~ lib/*~ test/*~ bla y.tab.h lex.yy.c y.tab.c src/AST/*~

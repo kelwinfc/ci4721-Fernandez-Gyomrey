@@ -35,17 +35,19 @@ bool error = false;
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
 
-%left '-' '+'
-%left '*' '/'
-%left NEG
 %left TK_AND TK_OR
 %right TK_IMP
 %left TK_CONSEQ
 %left TK_EQ TK_UNEQ
 %nonassoc TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
+%left '-' '+'
+%left '*' '/'
+%left NEG
+
 
 %type<nd> input declaration variable_declaration block statement
-          parameters_instance parameters_instance_non_empty arg_list non_empty_arg_list
+          parameters_instance parameters_instance_non_empty
+          arg_list non_empty_arg_list
           block_statement loop_statement loop_block loop_block_statement
           else_statements expression aritmetic_expression boolean_expression
 %type<tk> TK_TYPE TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE TK_INT TK_FLOAT
@@ -64,10 +66,17 @@ input:
 
 // Declaracion de variables y funciones
 declaration:
-
-        variable_declaration                                { $$ = $1 }
+        variable_declaration                               
+            { $$ = $1 }
     |   TK_FUNCTION TK_TYPE TK_IDENT '(' arg_list ')' block
             { $$ = new AST_function( (tokenType*)$2,
+                                     (tokenId*)$3,
+                                     (AST_arg_list*)$5,
+                                     (AST_block*)$7
+                                   );
+            }
+    |   TK_FUNCTION TK_NONE TK_IDENT '(' arg_list ')' block
+            { $$ = new AST_function( 0,
                                      (tokenId*)$3,
                                      (AST_arg_list*)$5,
                                      (AST_block*)$7
@@ -222,7 +231,7 @@ expression:
     |   TK_FLOAT             { $$ = new AST_float( (tokenFloat*)$1); }
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
-    |   '(' expression ')'   { $$ = (AST_expression*)$1; }
+    |   '(' expression ')'   { $$ = (AST_expression*)$2; }
     |   TK_IDENT             { $$ = new AST_ident((tokenId*)$1); }
     |   TK_IDENT '(' parameters_instance ')'
                              { $$ = new AST_function_call( (tokenId*) $1,
@@ -328,12 +337,18 @@ int main (int argc,char **argv)
     if ( error ){
         fprintf (stderr, "Epic fail!\n");
     } else {
-        p->print(0);
-        
-        cout << "Like a boss!\n";
-        cout << "-------------------------------------------------------\n";
-        
         symbol_table st;
+        p->fill_and_check(&st);
+        //p->print(0);
+        
+        if ( !error ){
+            cout << "Like a boss!\n";
+            cout << "-------------------------------------------------------\n";
+        } else {
+            fprintf (stderr, "Epic fail!\n");
+        }
+        
+        
         //st.fill_with(p);
     }
     

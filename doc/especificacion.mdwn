@@ -203,7 +203,9 @@ es decir, tipo de retorno y número y tipo de parámetros formales.
 * Los identificadores utilizados en los parámetros formales deben ser distintos.
 * Los arreglos y tipos estructurados se pasan por referencia.
 * Los parámetros formales se encuentran en alcance local, por lo que no es
-  posible definir una variable con el mismo identificador que un parámetro formal.
+  posible definir una variable con el mismo identificador que un parámetro formal
+  en el primer nivel de anidamiento de una función. Sin embargo, en niveles
+  de anidamiento mayor es posible la redefinición.
 * Los tipos de retorno pueden ser únicamente tipos primitivos escalares del lenguaje.
   En caso de querer retornar un tipo compuesto, este debe ser pasado por
   referencia a la función.

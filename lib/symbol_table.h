@@ -21,9 +21,13 @@ class symbol_table {
         
         symbol_table();
         
+        symbol_table(symbol_table* p);
+        
         symbol_table getParent();
         
-        symbol* lookup(string name);
+        symbol_table* new_son();
+        
+        symbol* lookup(string name, int* level=0);
         
         void insert(symbol* s);
 };

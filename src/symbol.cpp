@@ -25,6 +25,26 @@ symbol::TYPE symbol::getType(){
     return type;
 }
 
+string symbol::getTypeName(){
+    switch (type){
+        case INT:
+            return "int";
+        case FLOAT:
+            return "float";
+        case CHAR:
+            return "char";
+        case BOOLEAN:
+            return "boolean";
+        case NONE:
+            return "none";
+        case UNDEFINED:
+            return "undefined";
+        case INVALID:
+            return "invalid";
+    }
+    return "";
+}
+
 int symbol::getLine(){
     return line;
 }
@@ -39,41 +59,26 @@ bool symbol::isInitialized(){
 
 symbol_function::symbol_function(){}
 
-symbol_function::symbol_function(string name, TYPE type, int line, int column, void* pointer, vector<TYPE> types){
-/*AST_function& f
+symbol_function::symbol_function(string name, int line, int column,
+                                 vector<TYPE>& types
+                                )
+{
+    this->type = NONE;
+    this->constant = true;
+    this->line = line;
+    this->column = column;
+    this->initialized = false;
+}
+
+symbol_function::symbol_function(string name, TYPE type, int line, int column,
+                                 vector<TYPE>& types
+                                )
+{
+    symbol_function(name, line, column, types);
+    this->type = type;
     
-    this->name = f.identifier;
-    
-    if ( f.type ){
-        this->type = f.type;
-    } else {
-        this->type = (char*)"none";
+    vector< TYPE >::iterator it;
+    for ( it = types.begin(); it != types.end(); ++it ){
+        this->params.push_back( *it );
     }
-    
-    this->params.clear();
-    
-    vector< pair< AST_arg_list::TYPE, string> >::iterator it;
-    
-    for( it = f.formal_parameters->args.begin();
-         it != f.formal_parameters->args.end();
-         ++it
-       )
-    {
-        string type;
-        switch ( it->first ) {
-            case AST_arg_list::INT:
-                type = "int";
-            case AST_arg_list::FLOAT:
-                type = "float";
-            case AST_arg_list::CHAR:
-                type = "char";
-            case AST_arg_list::BOOLEAN:
-                type = "boolean";
-            case AST_arg_list::NONE:
-                type = "none";
-        }
-        //TODO no funciona
-        //symbol next_arg( type, it->second );
-        //params.push_back( next_arg );
-    }*/
 }
