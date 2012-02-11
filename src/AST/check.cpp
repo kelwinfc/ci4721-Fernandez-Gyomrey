@@ -1,5 +1,7 @@
 #include "AST.h"
 
+symbol::TYPE expected_return = symbol::UNDEFINED;
+
 void AST_node::fill_and_check(symbol_table* st){
     // Empty check
 }
@@ -302,19 +304,60 @@ void AST_ident::fill_and_check(symbol_table* st){
     }
 }
 
-//TODO hacer
 void AST_block::fill_and_check(symbol_table* st){
     
+    vector<AST_statement*>::iterator it;
+    for ( it = statements.begin(); it != statements.end(); ++it){
+        (*it)->fill_and_check(st);
+    }
 }
 
-//TODO hacer
 void AST_parameters_list::fill_and_check(symbol_table* st){
-    
+    vector<AST_expression*>::iterator it;
+    for (it=elem.begin(); it != elem.end(); ++it){
+        (*it)->fill_and_check(st);
+    }
 }
 
-//TODO hacer
 void AST_function_call::fill_and_check(symbol_table* st){
+    sym = st->lookup(name);
     
+    if ( !sym ){
+        fprintf(stderr,
+                "Error %d:%d: Función %s no definida.\n",
+                line, column, name.c_str() );
+        error = true;
+    } else if ( !sym->is_function ){
+        sym = 0;
+        
+        fprintf(stderr,
+                "Error %d:%d: Identificador %s no es un nombre de función.\n",
+                line, column, name.c_str() );
+        error = true;
+    } else {
+        params->fill_and_check(st);
+        symbol_function* f = (symbol_function*)sym;
+        
+        if ( params->elem.size() != f->params.size() ){
+            fprintf(stderr,
+                "Error %d:%d: Se esperaban %d argumentos para la función %s, %d recibidos.\n",
+                line, column, f->params.size(),
+                name.c_str(), params->elem.size() );
+            error = true;
+        } else {
+            uint nsize = params->elem.size();
+            for (uint i=0; i<nsize; i++){
+                if ( params->elem[i]->type != symbol::INVALID
+                     && params->elem[i]->type != f->params[i] )
+                {
+                    fprintf(stderr,
+                            "Error %d:%d: Argumento %d de '%s' de tipo inválido.\n",
+                            line, column, i, name.c_str() );
+                    error = true;
+                }
+            }
+        }
+    }
 }
 
 void AST_declaration::fill_and_check(symbol_table* st){
@@ -326,21 +369,39 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
     int level;
     symbol* previous = st->lookup(sym->getName(), &level);
     
-    value->fill_and_check(st);
+    if ( value ){
+        value->fill_and_check(st);
+    }
     
-    if ( previous && level == 0 ){
-        fprintf(stderr,
-                "Error %d:%d: Identificador '%s' definido previamente en línea %d, columna %d.\n",
-                line, column, sym->getName().c_str(),
-                previous->getLine(),
-                previous->getColumn() 
-               );
-        error = true;
+    if ( previous ){
+        if ( previous->is_function ){
+            fprintf(stderr,
+                    "Error %d:%d: Identificador '%s' definido como función en línea %d, columna %d.\n",
+                    line, column, sym->getName().c_str(),
+                    previous->getLine(),
+                    previous->getColumn() 
+                   );
+            error = true;
+        } else if ( level == 0 ){
+            fprintf(stderr,
+                    "Error %d:%d: Identificador '%s' definido previamente en línea %d, columna %d.\n",
+                    line, column, sym->getName().c_str(),
+                    previous->getLine(),
+                    previous->getColumn() 
+                   );
+            error = true;
+        } else {
+            st->insert(sym);
+        }
     } else {
         st->insert(sym);
     }
     
-    if ( value->type != sym->getType() && value->type != symbol::INVALID ){
+    if (    value 
+         && value->type != sym->getType()
+         && value->type != symbol::INVALID
+       )
+    {
         fprintf(stderr,
             "Error %d:%d: Inicialización de '%s' con tipo inválido.\n",
             line, column, sym->getName().c_str() );
@@ -348,25 +409,61 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
     }
 }
 
-//TODO hacer
 void AST_arg_list::fill_and_check(symbol_table* st){
+    vector<symbol*>::iterator it;
     
+    for ( it=args.begin(); it != args.end(); ++it){
+        
+        int level = 0;
+        symbol* prev = st->lookup( (*it)->getName(), &level );
+        if ( prev ){
+            if ( level != 0 ){
+                st->insert( (*it) );
+            } else {
+                fprintf(stderr,
+                        "Error %d:%d: Argumento '%s' con identificador repetido.\n",
+                        line, column, (*it)->getName().c_str() );
+                error = true;
+                break;
+            }
+        } else {
+            st->insert( (*it) );
+        }
+    }
 }
 
-//TODO hacer
 void AST_function::fill_and_check(symbol_table* st){
-    /*
-    symbol_function* func;
-
-    AST_arg_list* formal_parameters;
-
-    AST_block* instructions;
-    */
+    
+    symbol_table* nested_block = st->new_son();
+    
+    expected_return = func->getType();
+    
+    formal_parameters->fill_and_check(nested_block);
+    instructions->fill_and_check(nested_block);
+    
+    expected_return = symbol::UNDEFINED;
 }
 
-//TODO: pasada inicial para las funciones
 void AST_program::fill_and_check(symbol_table* st){
     vector<AST_declaration*>::iterator it;
+    
+    uint nsize = declarations.size();
+    for ( uint i = 0; i != nsize; i++){
+        if ( typeid(*declarations[i]) == typeid(AST_function) ){
+            
+            AST_function* f = (AST_function*)declarations[i];
+            
+            if ( st->lookup( f->func->getName() ) ){
+                fprintf(stderr,
+                        "Error %d:%d: Función '%s' con nombre repetido.\n",
+                        line, column, f->func->getName().c_str()
+                       );
+                error = true;
+            } else {
+                st->insert( f->func );
+            }
+        }
+    }
     
     for ( it = declarations.begin(); it != declarations.end(); it++){
         (*it)->fill_and_check(st);
@@ -393,14 +490,46 @@ void AST_assignment::fill_and_check(symbol_table* st){
     }
 }
 
-//TODO hacer
 void AST_return::fill_and_check(symbol_table* st){
     
+    if ( expected_return == symbol::NONE && expr ){
+        fprintf(stderr,
+            "Error %d:%d: No se esperaba retorno con valor.\n",
+            line, column);
+        error = true;
+    } else if ( expected_return != symbol::NONE && !expr ){
+        fprintf(stderr,
+            "Error %d:%d: Se esperaba valor de retorno.\n",
+            line, column);
+        error = true;
+    } else if ( expected_return != symbol::NONE && expr ){
+        expr->fill_and_check(st);
+        if ( expr->type != expected_return ){
+            fprintf(stderr,
+            "Error %d:%d: Tipo de valor de retorno inválido.\n",
+            line, column);
+            error = true;
+        }
+    }
 }
 
-//TODO hacer
 void AST_conditional::fill_and_check(symbol_table* st){
+    expr->fill_and_check(st);
     
+    if ( expr->type != symbol::BOOLEAN ){
+        fprintf(stderr,
+            "Error %d:%d:%s",
+            line, column,
+            "Se esperaba boolean.\n");
+        error = true;
+    }
+    
+    symbol_table* nested_block = st->new_son();
+    block->fill_and_check(nested_block);
+    
+    if ( else_if ){
+        else_if->fill_and_check(st);
+    }
 }
 
 void AST_loop::fill_and_check(symbol_table* st){
@@ -416,9 +545,38 @@ void AST_loop::fill_and_check(symbol_table* st){
     block->fill_and_check(nested_block);
 }
 
-//TODO hacer
 void AST_bounded_loop::fill_and_check(symbol_table* st){
+
+    left_bound->fill_and_check(st);
+    right_bound->fill_and_check(st);
     
+    if (   left_bound->type == symbol::INVALID 
+        || right_bound->type == symbol::INVALID )
+    {
+        return;
+    } else if ( left_bound->type != right_bound->type ){
+        fprintf(stderr,
+            "Error %d:%d: Ambos límites deben tener el mismo tipo.\n",
+            line, column);
+        error = true;
+    } else if (    left_bound->type != symbol::INT 
+                && left_bound->type != symbol::CHAR
+                && left_bound->type != symbol::BOOLEAN
+              )
+    {
+        fprintf(stderr,
+            "Error %d:%d: Se esperaba un tipo discreto int, char, boolean.\n",
+            line, column);
+        error = true;
+    }
+    
+    symbol_table* nested_block = st->new_son();
+    block->fill_and_check(nested_block);
+    
+    sym = new symbol(name, true, left_bound->type, line_name, column_name,true);
+    nested_block->insert(sym);
+    
+    block->fill_and_check(nested_block);
 }
 
 void AST_break::fill_and_check(symbol_table* st){

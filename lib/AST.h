@@ -344,7 +344,9 @@ class AST_bounded_loop : public AST_statement {
     public:
 
         string name;
-
+        
+        symbol* sym;
+        
         int line_name, column_name;
 
         AST_expression* left_bound;

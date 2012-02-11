@@ -183,6 +183,7 @@ AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
                           )
 {
     line = id->line;
+    column = id->column;
     
     vector< symbol* >::iterator it;
     vector< symbol::TYPE > types;
@@ -270,6 +271,7 @@ AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id,
     left_bound = l;
     right_bound = r;
     
+    sym = 0;
     block = b;
 }
 

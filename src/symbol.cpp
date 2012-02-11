@@ -11,6 +11,7 @@ symbol::symbol(string name, bool constant, TYPE type, int line, int column, bool
     this->line = line;
     this->column = column;
     this->initialized = initialized;
+    this->is_function = false;
 }
 
 string symbol::getName(){
@@ -63,19 +64,26 @@ symbol_function::symbol_function(string name, int line, int column,
                                  vector<TYPE>& types
                                 )
 {
+    this->name = name;
     this->type = NONE;
     this->constant = true;
     this->line = line;
     this->column = column;
     this->initialized = false;
+    this->is_function = true;
 }
 
 symbol_function::symbol_function(string name, TYPE type, int line, int column,
                                  vector<TYPE>& types
                                 )
 {
-    symbol_function(name, line, column, types);
+    this->name = name;
+    this->constant = true;
+    this->line = line;
+    this->column = column;
+    this->initialized = false;
     this->type = type;
+    this->is_function = true;
     
     vector< TYPE >::iterator it;
     for ( it = types.begin(); it != types.end(); ++it ){

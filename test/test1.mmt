@@ -1,6 +1,8 @@
 {- comentario
 de bloque-}
 
+int a = fib(3,2,3);
+int jj = fib(3.0);
 int a = 1+b;
 float b = a + 2.0;
 int a = 2 + 'a';
@@ -14,6 +16,19 @@ int g = 3.0;
 
 int a = 1+2+3*4*(5+6);
 float b = 0.3 + 0.7;
-float e = 0.4 + b;
+float e = 0.4 + b + foo(z);
 char c = -'a';
 boolean d = !false;
+
+fun int foo(){
+    return 3;
+}
+
+fun int foo(int a,
+            float a){
+    return 3;
+}
+
+fun int fib(int n){
+    
+}

@@ -24,9 +24,11 @@ class symbol{
         int column;
 
         bool initialized;
-
+        
     public:
-
+        
+        bool is_function;
+        
         symbol();
         
         symbol(string name, bool constant, TYPE type, int line, int column, bool initialized);
