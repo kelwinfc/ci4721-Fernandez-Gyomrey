@@ -31,6 +31,7 @@ bool error = false;
 %token TK_END_OF_FILE 0
 %token TK_IF TK_ELSE TK_ELIF
 %token TK_WHILE TK_FOR TK_IN TK_BREAK TK_CONTINUE TK_RETURN
+%token TK_CONST
 
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
@@ -50,8 +51,9 @@ bool error = false;
           arg_list non_empty_arg_list
           block_statement loop_statement loop_block loop_block_statement
           else_statements expression aritmetic_expression boolean_expression
-%type<tk> TK_TYPE TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE TK_INT TK_FLOAT
-          TK_BOOLEAN TK_CHAR TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
+%type<tk> TK_TYPE TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE
+          TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR
+          TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
           '(' ')' '+' '-' '*' '/'
@@ -86,7 +88,14 @@ declaration:
 
 // Declaracion de variables
 variable_declaration :
-        TK_TYPE TK_IDENT '=' expression ';'
+      TK_CONST TK_TYPE TK_IDENT '=' expression ';'
+            { $$ = new AST_variable_declaration( (tokenType*)$2,
+                                                 (tokenId*)$3,
+                                                 (AST_expression*)$5,
+                                                 true
+                                               );
+            }
+    | TK_TYPE TK_IDENT '=' expression ';'
             { $$ = new AST_variable_declaration( (tokenType*)$1,
                                                  (tokenId*)$2,
                                                  (AST_expression*)$4
@@ -108,7 +117,16 @@ arg_list:
 
 // Lista de parámetros que no puede ser vacía
 non_empty_arg_list :
-        TK_TYPE TK_IDENT
+        TK_CONST TK_TYPE TK_IDENT
+            {
+                AST_arg_list* ar = new AST_arg_list();
+                ar->add_argument( (tokenType*)$2,
+                                  (tokenId*)$3,
+                                  true
+                                );
+                $$ = ar;
+            }
+    |   TK_TYPE TK_IDENT
             {
                 AST_arg_list* ar = new AST_arg_list();
                 ar->add_argument( (tokenType*)$1,
@@ -120,6 +138,14 @@ non_empty_arg_list :
             {
                 ((AST_arg_list*)$1)->add_argument( (tokenType*)$3,
                                                    (tokenId*)$4
+                                                 );
+                $$ = $1;
+            }
+    |   non_empty_arg_list ',' TK_CONST TK_TYPE TK_IDENT
+            {
+                ((AST_arg_list*)$1)->add_argument( (tokenType*)$4,
+                                                   (tokenId*)$5,
+                                                   true
                                                  );
                 $$ = $1;
             }
@@ -339,7 +365,7 @@ int main (int argc,char **argv)
     } else {
         symbol_table st;
         p->fill_and_check(&st);
-        //p->print(0);
+        p->print(0);
         
         if ( !error ){
             cout << "Like a boss!\n";

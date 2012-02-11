@@ -27,20 +27,24 @@ symbol::TYPE symbol::getType(){
 }
 
 string symbol::getTypeName(){
-    switch (type){
-        case INT:
+    return getTypeName(type);
+}
+
+string symbol::getTypeName(symbol::TYPE t){
+    switch (t){
+        case symbol::INT:
             return "int";
-        case FLOAT:
+        case symbol::FLOAT:
             return "float";
-        case CHAR:
+        case symbol::CHAR:
             return "char";
-        case BOOLEAN:
+        case symbol::BOOLEAN:
             return "boolean";
-        case NONE:
+        case symbol::NONE:
             return "none";
-        case UNDEFINED:
+        case symbol::UNDEFINED:
             return "undefined";
-        case INVALID:
+        case symbol::INVALID:
             return "invalid";
     }
     return "";

@@ -1,19 +1,34 @@
 #include "AST.h"
 
+/* Tipo esperado de retorno, util para verificar la validez de los return en
+ * el cuerpos de las funciones. Valido como manejo global dado que no se
+ * permiten funciones anidadas
+ */
 symbol::TYPE expected_return = symbol::UNDEFINED;
 
+/* Clase ficticia en la jerarquia, solo necesaria por semantica. No requiere
+ * manejo de tabla de simbolos
+ */
 void AST_node::fill_and_check(symbol_table* st){
     // Empty check
 }
 
+/* Clase ficticia en la jerarquia, solo necesaria por semantica. No requiere
+ * manejo de tabla de simbolos
+ */
 void AST_statement::fill_and_check(symbol_table* st){
     // Empty check
 }
 
+/* Clase ficticia en la jerarquia, solo necesaria por semantica. No requiere
+ * manejo de tabla de simbolos
+ */
 void AST_expression::fill_and_check(symbol_table* st){
     // Empty check
 }
 
+/* Verificacion de ambos operandos de un operador binario
+ */
 void AST_op::fill_and_check(symbol_table* st){
     left->fill_and_check(st);
     right->fill_and_check(st);
@@ -41,10 +56,13 @@ void AST_op::fill_and_check(symbol_table* st){
         }
         
         switch( oper_type ){
+            
+            /* Operadores aritmeticos: suma, resta, multiplicacion y division */
             case PLUS:
             case MINUS:
             case PROD:
             case DIV:
+                
                 if (    valido->type == symbol::INT 
                      || valido->type == symbol::FLOAT
                    )
@@ -60,8 +78,7 @@ void AST_op::fill_and_check(symbol_table* st){
                 }
                 break;
             
-            //------------------------------------------------------------------
-            // Boolean = Boolean op Boolean
+            /* Operadores logicos: y, o, implica, consecuencia */
             case AND:
             case OR:
             case IMP:
@@ -78,17 +95,15 @@ void AST_op::fill_and_check(symbol_table* st){
                     error = true;
                 }
                 break;
-                
-            //------------------------------------------------------------------
-            // Boolean = T op T
+            
+            /* Operadores de comparación de igualdad: ==, != */
             case EQ:
             case UNEQ:
             
                 type = valido->type;
                 break;
             
-            //------------------------------------------------------------------
-            // Boolean = (Arithmetic or Char) op (Arithmetic or Char)
+            /* Operadores de relación de orden: <, <=, >, >= */
             case LESS:
             case LESS_EQ:
             case GREAT:
@@ -106,12 +121,12 @@ void AST_op::fill_and_check(symbol_table* st){
         return;
     }
     
-    // Ambos argumentos validos
+    /* else */
     
+    // Ambos argumentos validos    
     switch( oper_type ){
         
-        //----------------------------------------------------------------------
-        // Arithmetic = Arithmetic op Arithmetic
+        /* Operadores aritmeticos: suma, resta, multiplicacion y division */
         case PLUS:
         case MINUS:
         case PROD:
@@ -141,8 +156,7 @@ void AST_op::fill_and_check(symbol_table* st){
             }
             break;
         
-        //----------------------------------------------------------------------
-        // Boolean = Boolean op Boolean
+        /* Operadores logicos: y, o, implica, consecuencia */
         case AND:
         case OR:
         case IMP:
@@ -174,8 +188,7 @@ void AST_op::fill_and_check(symbol_table* st){
             
             break;
         
-        //----------------------------------------------------------------------
-        // Boolean = T op T
+        /* Operadores de comparación de igualdad: ==, != */
         case EQ:
         case UNEQ:
             
@@ -194,8 +207,7 @@ void AST_op::fill_and_check(symbol_table* st){
             
             break;
         
-        //----------------------------------------------------------------------
-        // Boolean = (Arithmetic or Char) op (Arithmetic or Char)
+        /* Operadores de relación de orden: <, <=, >, >= */
         case LESS:
         case LESS_EQ:
         case GREAT:
@@ -236,6 +248,8 @@ void AST_op::fill_and_check(symbol_table* st){
     }
 }
 
+/* Verificacion de operando de un operador unario
+ */
 void AST_un_op::fill_and_check(symbol_table* st){
     expr->fill_and_check(st);
     
@@ -292,9 +306,24 @@ void AST_boolean::fill_and_check(symbol_table* st){
 void AST_ident::fill_and_check(symbol_table* st){
     sym = st->lookup(value);
     
+    /* El simbolo existe en la tabla */
     if ( sym ){
-        type = sym->getType();
+        
+        /* El simbolo es una function, uso incorrecto como variable */
+        if ( sym->is_function ){
+            fprintf(stderr,
+                    "Error %d:%d: Identificador '%s' definido como función en línea %d, columna %d.\n",
+                    line, column, sym->getName().c_str(),
+                    sym->getLine(),
+                    sym->getColumn() 
+                   );
+            error = true;
+            sym = 0;
+        } else {
+            type = sym->getType();
+        }
     } else {
+        /* El simbolo no existe en la tabla */
         type = symbol::INVALID;
         
         fprintf(stderr,
@@ -306,6 +335,10 @@ void AST_ident::fill_and_check(symbol_table* st){
 
 void AST_block::fill_and_check(symbol_table* st){
     
+    /* Verificar cada statement del bloque, se asume que la tabla de
+     * simbolos es nueva o que tiene los argumentos de la funcion en caso
+     * de ser el cuerpo de una
+     */
     vector<AST_statement*>::iterator it;
     for ( it = statements.begin(); it != statements.end(); ++it){
         (*it)->fill_and_check(st);
@@ -313,6 +346,10 @@ void AST_block::fill_and_check(symbol_table* st){
 }
 
 void AST_parameters_list::fill_and_check(symbol_table* st){
+    
+    /* Verifica el tipo de cada uno de los parametros reales de la llamada de
+     * una funcion
+     */
     vector<AST_expression*>::iterator it;
     for (it=elem.begin(); it != elem.end(); ++it){
         (*it)->fill_and_check(st);
@@ -320,6 +357,9 @@ void AST_parameters_list::fill_and_check(symbol_table* st){
 }
 
 void AST_function_call::fill_and_check(symbol_table* st){
+    
+    params->fill_and_check(st);
+    
     sym = st->lookup(name);
     
     if ( !sym ){
@@ -335,7 +375,6 @@ void AST_function_call::fill_and_check(symbol_table* st){
                 line, column, name.c_str() );
         error = true;
     } else {
-        params->fill_and_check(st);
         symbol_function* f = (symbol_function*)sym;
         
         if ( params->elem.size() != f->params.size() ){
@@ -479,6 +518,12 @@ void AST_assignment::fill_and_check(symbol_table* st){
     if ( !sym ){
         fprintf(stderr,
                 "Error %d:%d: Identificador %s no definido previamente.\n",
+                line, column, variable.c_str() );
+        error = true;
+    } else if ( sym->isConst() ){
+        
+        fprintf(stderr,
+                "Error %d:%d: Intento de asignación a constante '%s'.\n",
                 line, column, variable.c_str() );
         error = true;
     } else if ( expr->type != sym->getType() && expr->type != symbol::INVALID ){

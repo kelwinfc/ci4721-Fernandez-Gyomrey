@@ -41,6 +41,8 @@ class symbol{
 
         string getTypeName();
         
+        static string getTypeName(TYPE t);
+        
         int getLine();
 
         int getColumn();

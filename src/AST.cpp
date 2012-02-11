@@ -142,12 +142,13 @@ AST_function_call::AST_function_call(tokenId* tk, AST_parameters_list* p){
 }
 
 AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
-                                                   AST_expression* v
+                                                   AST_expression* v,
+                                                   bool constant
                                                   )
 {
     line = t->line;
     
-    sym = new symbol(string(id->ident), false, t->ident, id->line,
+    sym = new symbol(string(id->ident), constant, t->ident, id->line,
                      id->column, 0 != v
                     );
     free(t);
@@ -168,8 +169,8 @@ AST_arg_list::AST_arg_list(){
 
 }
 
-void AST_arg_list::add_argument( tokenType* t, tokenId* id ){
-    symbol* next_arg = new symbol(id->ident, false, t->ident,
+void AST_arg_list::add_argument( tokenType* t, tokenId* id, bool constant ){
+    symbol* next_arg = new symbol(id->ident, constant, t->ident,
                                   t->line, t->column, false);
     
     args.push_back( next_arg );

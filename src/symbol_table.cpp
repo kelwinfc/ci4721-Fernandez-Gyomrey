@@ -18,7 +18,12 @@ symbol* symbol_table::lookup(string name, int* level){
     }
     
     if (0 != parent){
-        return (*parent).lookup(name, level);
+        symbol* s = (*parent).lookup(name, level);
+        
+        if ( level){
+            *level = *level + 1;
+        }
+        return s;
     }
     
     return 0;

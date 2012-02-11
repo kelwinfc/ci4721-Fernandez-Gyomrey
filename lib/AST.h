@@ -202,7 +202,8 @@ class AST_variable_declaration : public AST_declaration {
         AST_expression* value;
 
         AST_variable_declaration(tokenType* t, tokenId* id,
-                                 AST_expression* v = 0
+                                 AST_expression* v = 0,
+                                 bool constant = false
                                 );
 
         symbol getSym();
@@ -234,7 +235,7 @@ class AST_arg_list : public AST_node {
 
         AST_arg_list();
 
-        void add_argument( tokenType* t, tokenId* id );
+        void add_argument( tokenType* t, tokenId* id, bool constant = false );
 
         virtual void print(int indentation);
         

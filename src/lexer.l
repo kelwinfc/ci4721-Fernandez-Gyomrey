@@ -99,6 +99,11 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_GREAT_EQ;
                             }
 
+"const"                        { updatecol();
+                                 yylval.tk = new token(yylineno, column);
+                                 return TK_CONST;
+                               }
+
 "int"|"float"|"char"|"boolean" { updatecol();
                                  yylval.tk = new tokenType(yylineno, column, yytext);
                                  return TK_TYPE;

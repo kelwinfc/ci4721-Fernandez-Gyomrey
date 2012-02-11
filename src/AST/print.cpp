@@ -110,9 +110,8 @@ void AST_arg_list::print(int indentation){
     }
 }
 
-void AST_statement::print(int indentation){/*
-    print_indentation(indentation+2);
-    cout << "bello statement\n";*/
+void AST_statement::print(int indentation){
+    
 }
 
 void AST_block::print(int indentation){
@@ -174,7 +173,7 @@ string AST_op::binary_operator(){
 void AST_op::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
-    cout << binary_operator() << endl;
+    cout << binary_operator() << " [" << symbol::getTypeName(type) << "]\n";
     
     left->print(indentation+1);
     right->print(indentation+1);
@@ -194,7 +193,8 @@ string AST_un_op::unary_operator(){
 void AST_un_op::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
-    cout << "Unary " << unary_operator() << endl;
+    cout << "Unary " << unary_operator()
+         << " [" << symbol::getTypeName(type) << "]\n";
     
     expr->print(indentation+1);
     
@@ -227,15 +227,39 @@ void AST_char::print(int indentation){
 void AST_ident::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
-    cout << "Identifier: " << value << endl;
+    cout << "Identifier: " << value;
+    if ( sym ){
+        cout << " ["
+             << symbol::getTypeName(sym->getType())
+             << ":"
+             << sym->getLine()
+             << ":"
+             << sym->getColumn()
+             << "]";
+    } else {
+        cout << " [UNDEFINED]";
+    }
+    cout << endl;
 }
 
 void AST_function_call::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
     
-    cout << name << endl;
+    cout << name;
+    if ( sym ){
+        cout << " ["
+             << symbol::getTypeName(sym->getType())
+             << ":"
+             << sym->getLine()
+             << ":"
+             << sym->getColumn()
+             << "]";
+    } else {
+        cout << " [UNDEFINED]";
+    }
     
+    cout << endl;
     cout << "     ";
     print_indentation(indentation);
     
@@ -255,7 +279,7 @@ void AST_parameters_list::print(int indentation){
         if ( i + 1 < elem.size() ){
             cout << "   ";
             print_indentation(indentation);
-            cout << "...\n";
+            cout << ",\n";
         }
     }
 }
@@ -271,7 +295,21 @@ void AST_assignment::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
     
-    cout << "Assignment " << variable << " <--\n";
+    cout << "Assignment " << variable;
+    
+    if ( sym ){
+        cout << " ["
+             << symbol::getTypeName(sym->getType())
+             << ":"
+             << sym->getLine()
+             << ":"
+             << sym->getColumn()
+             << "]";
+    } else {
+        cout << " [UNDEFINED]";
+    }
+    
+    cout << " <--\n";
     
     expr->print(indentation+1);
 }
@@ -281,7 +319,7 @@ void AST_return::print(int indentation){
     print_indentation(indentation);
     
     if ( expr ){
-        cout << "Return" << endl;
+        cout << "Return [" << symbol::getTypeName(expr->type) << "]" << endl;
         expr->print(indentation+1);
     } else {
         cout << "Empty return" << endl;
@@ -360,22 +398,3 @@ void AST_bounded_loop::print(int indentation){
     
     block->print(indentation+1);
 }
-/*
-void AST_type::print(int indentation){
-    switch (type) {
-        case AST_type::INT:
-            cout << "int";
-            break;
-        case AST_type::FLOAT:
-            cout << "float";
-            break;
-        case AST_type::BOOLEAN:
-            cout << "boolean";
-            break;
-        case AST_type::CHAR:
-            cout << "char";
-            break;
-        default:
-            break;
-    }
-}*/
