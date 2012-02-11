@@ -561,14 +561,17 @@ void AST_return::fill_and_check(symbol_table* st){
 }
 
 void AST_conditional::fill_and_check(symbol_table* st){
-    expr->fill_and_check(st);
     
-    if ( expr->type != symbol::BOOLEAN ){
-        fprintf(stderr,
-            "Error %d:%d:%s",
-            line, column,
-            "Se esperaba boolean.\n");
-        error = true;
+    if ( expr ){
+        expr->fill_and_check(st);
+        
+        if ( expr->type != symbol::BOOLEAN ){
+            fprintf(stderr,
+                "Error %d:%d:%s",
+                line, column,
+                "Se esperaba boolean.\n");
+            error = true;
+        }
     }
     
     symbol_table* nested_block = st->new_son();
