@@ -256,6 +256,13 @@ statement :
                 $$ = new AST_return($1,(AST_expression*)$2);
                 delete $3;
             }
+    |   TK_IDENT '(' parameters_instance ')'
+                             { $$ = new AST_function_call( (tokenId*) $1,
+                                                           (AST_parameters_list*) $3
+                                                         );
+                               delete $2;
+                               delete $4;
+                             }
 ;
 
 // Loop blocks: includes break and continue to statements
@@ -312,7 +319,7 @@ else_statements :
 ;
 
 // Subgramatica de expresiones
-expression:
+expression :
         TK_INT               { $$ = new AST_int( (tokenInt*)$1); }
     |   TK_FLOAT             { $$ = new AST_float( (tokenFloat*)$1); }
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
