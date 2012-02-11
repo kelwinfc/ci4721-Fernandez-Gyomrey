@@ -44,7 +44,7 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
     line_op = o->line;
     column_op = o->column;
-    free(o);
+    delete o;
 
     left = l;
     right = r;
@@ -64,7 +64,7 @@ AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
 
     line = o->line;
     column = o->column;
-    free(o);
+    delete o;
 
     expr = e;
 }
@@ -76,7 +76,7 @@ AST_int::AST_int(tokenInt* tk){
     line = tk->line;
     column = tk->column;
     value = tk->number;
-    free(tk);
+    delete tk;
 }
 
 AST_float::AST_float(tokenFloat* tk){
@@ -86,7 +86,7 @@ AST_float::AST_float(tokenFloat* tk){
     line = tk->line;
     column = tk->column;
     value = tk->number;
-    free(tk);
+    delete tk;
 }
 
 AST_boolean::AST_boolean(tokenBoolean* tk){
@@ -96,7 +96,7 @@ AST_boolean::AST_boolean(tokenBoolean* tk){
     line = tk->line;
     column = tk->column;
     value = tk->value;
-    free(tk);
+    delete tk;
 }
 
 AST_char::AST_char(tokenId* tk){
@@ -106,7 +106,7 @@ AST_char::AST_char(tokenId* tk){
     line = tk->line;
     column = tk->column;
     value = tk->ident + "";
-    free(tk);
+    delete tk;
 }
 
 AST_ident::AST_ident(tokenId* tk){
@@ -116,7 +116,7 @@ AST_ident::AST_ident(tokenId* tk){
     line = tk->line;
     column = tk->column;
     value = string(tk->ident);
-    free(tk);
+    delete tk;
 }
 
 AST_parameters_list::AST_parameters_list(){
@@ -136,7 +136,7 @@ AST_function_call::AST_function_call(tokenId* tk, AST_parameters_list* p){
     line = tk->line;
     column = tk->column;
     name = string(tk->ident);
-    free(tk);
+    delete tk;
 
     params = p;
 }
@@ -151,8 +151,8 @@ AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
     sym = new symbol(string(id->ident), constant, t->ident, id->line,
                      id->column, 0 != v
                     );
-    free(t);
-    free(id);
+    delete t;
+    delete id;
 
     value = v;
 }
@@ -176,6 +176,9 @@ void AST_arg_list::add_argument( tokenType* t, tokenId* id, bool constant ){
     args.push_back( next_arg );
     
     line = args[0]->getLine();
+    
+    delete t;
+    delete id;
 }
 
 
@@ -199,8 +202,8 @@ AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
         func = new symbol_function(id->ident, id->line, id->column, types );
     }
     
-    free(t);
-    free(id);
+    delete t;
+    delete id;
     
     formal_parameters = args;
     instructions = code;
@@ -219,7 +222,7 @@ AST_assignment::AST_assignment(tokenId* i, AST_expression* e){
     variable = string(i->ident);
     line = i->line;
     column = i->column;
-    free(i);
+    delete i;
 
     expr = e;
 }
@@ -228,7 +231,7 @@ AST_return::AST_return(token* tk, AST_expression* e){
 
     line = tk->line;
     column = tk->column;
-    free(tk);
+    delete tk;
 
     expr = e;
 }
@@ -238,7 +241,7 @@ AST_conditional::AST_conditional(token* tk, AST_expression* e, AST_block* b,
 {
     line = tk->line;
     column = tk->column;
-    free(tk);
+    delete tk;
 
     expr = e;
     block = b;
@@ -249,25 +252,25 @@ AST_loop::AST_loop(token* tk, AST_expression* e, AST_block* b)
 {
     line = tk->line;
     column = tk->column;
-    free(tk);
+    delete tk;
 
     expr = e;
     block = b;
 }
 
 AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id,
-                         AST_expression* l,
-                         AST_expression* r,
-                         AST_block* b)
+                                   AST_expression* l,
+                                   AST_expression* r,
+                                   AST_block* b)
 {
     line = for_->line;
     column = for_->column;
-    free(for_);
+    delete for_;
 
     name = string(id->ident);
     line_name = id->line;
     column_name = id->column;
-    free(id);
+    delete id;
     
     left_bound = l;
     right_bound = r;
@@ -279,13 +282,13 @@ AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id,
 AST_break::AST_break(token* t){
     line = t->line;
     column = t->column;
-    free(t);
+    delete t;
 }
 
 AST_continue::AST_continue(token* t){
     line = t->line;
     column = t->column;
-    free(t);
+    delete t;
 }
 
 

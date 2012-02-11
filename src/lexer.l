@@ -30,9 +30,9 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                                         return TK_END_OF_FILE;
                                     }
 
-[ \t\r\n]                                             /* Ignore whitespace */{ updatecol(); }
---[^\r\n]*                                            /* Ignore line comment */{ updatecol(); }
-"{-"([^-]|[\r\n]|(-+([^}]|\r\n])))*-+"}"              /* Ignore block comment */{ updatecol(); }
+[ \t\r\n]                                             { updatecol(); }
+--[^\r\n]*                                            { updatecol(); }
+"{-"([^-]|[\r\n]|(-+([^}]|\r\n])))*-+"}"              { updatecol(); }
 
 ";"|"="|"("|")"|"{"|"}"|"," { updatecol();
                               yylval.tk = new token(yylineno, column);
@@ -79,24 +79,24 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_NOT;
                             }
 
-"<"                         { updatecol();
-                              yylval.tk = new tokenId(yylineno, column, yytext);
-                              return TK_LESS;
-                            }
-
 "<="                        { updatecol();
                               yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_LESS_EQ;
                             }
 
-">"                         { updatecol();
+"<"                         { updatecol();
                               yylval.tk = new tokenId(yylineno, column, yytext);
-                              return TK_GREAT;
+                              return TK_LESS;
                             }
 
 ">="                        { updatecol();
                               yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_GREAT_EQ;
+                            }
+
+">"                         { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
+                              return TK_GREAT;
                             }
 
 "const"                        { updatecol();

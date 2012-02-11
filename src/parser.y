@@ -56,7 +56,7 @@ bool error = false;
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
-          '(' ')' '+' '-' '*' '/'
+          '(' ')' '+' '-' '*' '/' '=' ';' ',' '{' '}'
 
 %%
 
@@ -76,6 +76,9 @@ declaration:
                                      (AST_arg_list*)$5,
                                      (AST_block*)$7
                                    );
+            delete $1;
+            delete $4;
+            delete $6;
             }
     |   TK_FUNCTION TK_NONE TK_IDENT '(' arg_list ')' block
             { $$ = new AST_function( 0,
@@ -83,6 +86,10 @@ declaration:
                                      (AST_arg_list*)$5,
                                      (AST_block*)$7
                                    );
+            delete $1;
+            delete $2;
+            delete $4;
+            delete $6;
             }
 ;
 
@@ -94,18 +101,24 @@ variable_declaration :
                                                  (AST_expression*)$5,
                                                  true
                                                );
+            delete $1;
+            delete $4;
+            delete $6;
             }
     | TK_TYPE TK_IDENT '=' expression ';'
             { $$ = new AST_variable_declaration( (tokenType*)$1,
                                                  (tokenId*)$2,
                                                  (AST_expression*)$4
                                                );
+            delete $3;
+            delete $5;
             }
     |   TK_TYPE TK_IDENT ';'
             { $$ = new AST_variable_declaration( (tokenType*)$1,
                                                  (tokenId*)$2,
                                                  0
                                                );
+            delete $3;
             }
 ;
 
@@ -125,6 +138,7 @@ non_empty_arg_list :
                                   true
                                 );
                 $$ = ar;
+                delete $1;
             }
     |   TK_TYPE TK_IDENT
             {
@@ -140,6 +154,7 @@ non_empty_arg_list :
                                                    (tokenId*)$4
                                                  );
                 $$ = $1;
+                delete $2;
             }
     |   non_empty_arg_list ',' TK_CONST TK_TYPE TK_IDENT
             {
@@ -148,13 +163,25 @@ non_empty_arg_list :
                                                    true
                                                  );
                 $$ = $1;
+                delete $2;
+                delete $3;
             }
 ;
 
 // Definicion de bloques de anidamiento
 block :
-        '{' block_statement '}' { $$ = $2 }
-    |   '{' '}'                 { $$ = new AST_block(); }
+        '{' block_statement '}' 
+            { 
+                $$ = $2;
+                delete $1;
+                delete $3;
+            }
+    |   '{' '}'
+            { 
+                $$ = new AST_block();
+                delete $1;
+                delete $2;
+            }
 ;
 
 // Bloques de instrucciones
@@ -179,21 +206,32 @@ statement :
         variable_declaration
             { $$ = $1; }
     |   TK_IDENT '=' expression ';'
-            { $$ = new AST_assignment((tokenId*)$1, (AST_expression*)$3); }
+            { 
+                $$ = new AST_assignment((tokenId*)$1, (AST_expression*)$3);
+                delete $2;
+                delete $4;
+            }
     |   ';'
-            { $$ = 0  }
+            { 
+                $$ = 0;
+                delete $1;
+            }
     |   TK_IF '(' expression ')' block else_statements 
             { $$ = new AST_conditional( $1,
                                         (AST_expression*) $3,
                                         (AST_block*) $5,
                                         (AST_conditional*) $6
                                       );
+              delete $2;
+              delete $4;
             }
     |   TK_WHILE '(' expression ')' loop_block
             { $$ = new AST_loop( (token*)$1,
                                  (AST_expression*)$3,
                                  (AST_block*)$5
                                );
+              delete $2;
+              delete $4;
             }
     |   TK_FOR TK_IDENT TK_IN '(' expression ',' expression ')' loop_block
             { $$ = new AST_bounded_loop( (token*)$1,
@@ -201,19 +239,39 @@ statement :
                                          (AST_expression*)$5,
                                          (AST_expression*)$7,
                                          (AST_block*)$9);
+              delete $3;
+              delete $4;
+              delete $6;
+              delete $8;
             }
     |   block
             { $$ = $1 }
     |   TK_RETURN ';'
-            { $$ = new AST_return($1, 0); }
+            { 
+                $$ = new AST_return($1, 0);
+                delete $2;
+            }
     |   TK_RETURN expression ';'
-            { $$ = new AST_return($1,(AST_expression*)$2); }
+            {
+                $$ = new AST_return($1,(AST_expression*)$2);
+                delete $3;
+            }
 ;
 
 // Loop blocks: includes break and continue to statements
 loop_block:
-        '{' loop_block_statement '}' { $$ = $2 }
-    |   '{' '}'                      { $$ = new AST_block(); }
+        '{' loop_block_statement '}'
+            { 
+                $$ = $2;
+                delete $1;
+                delete $3;
+            }
+    |   '{' '}'
+            {
+                $$ = new AST_block();
+                delete $1;
+                delete $2;
+            }
 ;
 
 loop_block_statement:
@@ -234,8 +292,8 @@ loop_block_statement:
 
 loop_statement :
         statement       { $$ = $1                    }
-    |   TK_BREAK ';'    { $$ = new AST_break($1);    }
-    |   TK_CONTINUE ';' { $$ = new AST_continue($1); }
+    |   TK_BREAK ';'    { $$ = new AST_break($1); delete $2; }
+    |   TK_CONTINUE ';' { $$ = new AST_continue($1); delete $2; }
 ;
 
 else_statements :
@@ -246,6 +304,8 @@ else_statements :
                                         (AST_block*) $5,
                                         (AST_conditional*) $6
                                       );
+              delete $2;
+              delete $4;
             }
     |   TK_ELSE block
             { $$ = new AST_conditional($1, 0, (AST_block*)$2, 0 ); }
@@ -257,12 +317,17 @@ expression:
     |   TK_FLOAT             { $$ = new AST_float( (tokenFloat*)$1); }
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
-    |   '(' expression ')'   { $$ = (AST_expression*)$2; }
+    |   '(' expression ')'   { $$ = (AST_expression*)$2;
+                               delete $1;
+                               delete $3;
+                             }
     |   TK_IDENT             { $$ = new AST_ident((tokenId*)$1); }
     |   TK_IDENT '(' parameters_instance ')'
                              { $$ = new AST_function_call( (tokenId*) $1,
                                                            (AST_parameters_list*) $3
                                                          );
+                               delete $2;
+                               delete $4;
                              }
     |   aritmetic_expression { $$ = $1; }
     |   boolean_expression   { $$ = $1; }
@@ -338,6 +403,7 @@ parameters_instance_non_empty:
         {
             ((AST_parameters_list*)$1)->add_element((AST_expression*)$3);
             $$ = $1;
+            delete $2;
         }
 ;
 %%
@@ -373,9 +439,6 @@ int main (int argc,char **argv)
         } else {
             fprintf (stderr, "Epic fail!\n");
         }
-        
-        
-        //st.fill_with(p);
     }
     
     return 0;

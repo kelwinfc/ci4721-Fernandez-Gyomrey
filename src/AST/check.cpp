@@ -481,6 +481,8 @@ void AST_function::fill_and_check(symbol_table* st){
     instructions->fill_and_check(nested_block);
     
     expected_return = symbol::UNDEFINED;
+    
+    delete nested_block;
 }
 
 void AST_program::fill_and_check(symbol_table* st){
@@ -572,6 +574,8 @@ void AST_conditional::fill_and_check(symbol_table* st){
     symbol_table* nested_block = st->new_son();
     block->fill_and_check(nested_block);
     
+    delete nested_block;
+    
     if ( else_if ){
         else_if->fill_and_check(st);
     }
@@ -588,6 +592,7 @@ void AST_loop::fill_and_check(symbol_table* st){
     
     symbol_table* nested_block = st->new_son();
     block->fill_and_check(nested_block);
+    delete nested_block;
 }
 
 void AST_bounded_loop::fill_and_check(symbol_table* st){
@@ -622,6 +627,8 @@ void AST_bounded_loop::fill_and_check(symbol_table* st){
     nested_block->insert(sym);
     
     block->fill_and_check(nested_block);
+    delete nested_block;
+    
 }
 
 void AST_break::fill_and_check(symbol_table* st){

@@ -28,6 +28,8 @@ class tokenId : public token{
         string ident;
 
         tokenId(int l, int c, char* id);
+        
+        ~tokenId(){ ident.clear(); }
 };
 
 class tokenType : public token {
