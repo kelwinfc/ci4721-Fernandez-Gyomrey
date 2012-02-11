@@ -342,7 +342,13 @@ void AST_block::fill_and_check(symbol_table* st){
     vector<AST_statement*>::iterator it;
     
     for (int i=statements.size()-1; i>=0; i--){
-        statements[i]->fill_and_check(st);
+        if ( typeid(*statements[i]) == typeid(AST_block) ){
+            symbol_table* nested_block = st->new_son();
+            statements[i]->fill_and_check(nested_block);
+            delete nested_block;
+        } else {
+            statements[i]->fill_and_check(st);
+        }
     }
     
 }
