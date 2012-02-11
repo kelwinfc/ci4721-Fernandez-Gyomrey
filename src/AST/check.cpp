@@ -100,7 +100,7 @@ void AST_op::fill_and_check(symbol_table* st){
             case EQ:
             case UNEQ:
             
-                type = valido->type;
+                type = symbol::BOOLEAN;
                 break;
             
             /* Operadores de relación de orden: <, <=, >, >= */
@@ -114,7 +114,7 @@ void AST_op::fill_and_check(symbol_table* st){
                  || valido->type == symbol::CHAR
                )
             {
-                type = valido->type;
+                type = symbol::BOOLEAN;
             }
             break;
         }
@@ -220,7 +220,7 @@ void AST_op::fill_and_check(symbol_table* st){
                      || left->type == symbol::CHAR
                    )
                 {
-                    type = left->type;
+                    type = symbol::BOOLEAN;
                 } else {
                      // Error de ambos argumentos con tipos invalidos
                     fprintf(
@@ -340,9 +340,11 @@ void AST_block::fill_and_check(symbol_table* st){
      * de ser el cuerpo de una
      */
     vector<AST_statement*>::iterator it;
-    for ( it = statements.begin(); it != statements.end(); ++it){
-        (*it)->fill_and_check(st);
+    
+    for (int i=statements.size()-1; i>=0; i--){
+        statements[i]->fill_and_check(st);
     }
+    
 }
 
 void AST_parameters_list::fill_and_check(symbol_table* st){

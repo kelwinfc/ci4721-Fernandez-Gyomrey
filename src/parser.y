@@ -193,11 +193,11 @@ block_statement :
                     b->add_statement( (AST_statement*)$1 );
                 $$ = b;
             }
-    |   block_statement statement
+    |   statement block_statement
             {
-                if ( $2 != 0 )
-                    ((AST_block*)$1)->add_statement((AST_statement*)$2);
-                $$ = $1;
+                if ( $1 != 0 )
+                    ((AST_block*)$2)->add_statement((AST_statement*)$1);
+                $$ = $2;
             }
 ;
 

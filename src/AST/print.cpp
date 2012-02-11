@@ -71,7 +71,7 @@ void AST_function::print(int indentation){
     print_indentation(indentation);
     
     cout << "Declaration of Function " 
-         << identifier
+         << func->getName()
          << " -> "
          << func->getTypeName()
          << endl;
@@ -121,8 +121,8 @@ void AST_block::print(int indentation){
     cout << "{\n";
     
     vector<AST_statement*>::iterator it;
-    for (it = statements.begin(); it != statements.end(); ++it){
-        (*it)->print(indentation+1);
+    for (int i=statements.size()-1; i >= 0; i--){
+        statements[i]->print(indentation+1);
     }
     
     printf("%3d: ",statements.size() ? statements.back()->line : line );

@@ -1,16 +1,48 @@
-{- Implementacion de programa que calcula fibonacci -}
+{- Implementacion de programa que calcula recursiva e iterativamente los
+   fibonacci desde 0 hasta 10^6
+-}
 
 int n=3;
 
-fun int fib(int n){
+fun int fibRec(int n){
+    int z=0;
     if ( n == 0 ){
         return 0;
     } elif ( n == 1 ){
         return 1;
     }
-    return fib(n-1)+fib(n-2);
+    return fibRec(n-1)+fibRec(n-2);
+}
+
+fun int fibIter(int n){
+    
+    if ( n == 0 ){
+        return 0;
+    } elif ( n == 1 ){
+        return 1;
+    } else {
+        
+        int fPrev = 0;
+        int fCurr = fPrev+1;
+        int i=1;
+        
+        while ( i < n ){
+            int tmp = fPrev;
+            fPrev = fCurr;
+            fCurr = tmp + fCurr;
+            i = i+1;
+        }
+        
+        return fCurr;
+        
+    }
+    
 }
 
 fun none main(){
-    fib(5);
+    
+    for i in (0,1000000){
+        fibRec(i);
+        fibIter(i);
+    }
 }
