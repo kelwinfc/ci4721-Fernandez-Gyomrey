@@ -5,6 +5,17 @@
 
 extern bool error;
 
+int columnline = 0, column = 0, lastlength = 0;
+
+void updatecol(){
+    column += lastlength;
+    if (columnline != yylineno){
+        columnline = yylineno;
+        column = 0;
+    }
+    lastlength = yyleng;
+}
+
 %}
 
 DIGIT    [0-9]
@@ -14,146 +25,152 @@ ID       [a-zA-Z][a-zA-Z0-9]*
 
 %%
 
-<<EOF>>                             {
+<<EOF>>                             {   updatecol();
                                         yyterminate();
                                         return TK_END_OF_FILE;
                                     }
 
-[ \t\r\n]                                             /* Ignore whitespace */
---[^\r\n]*                                            /* Ignore line comment */
-"{-"([^-]|[\r\n]|(-+([^}]|\r\n])))*-+"}"              /* Ignore block comment */
+[ \t\r\n]                                             /* Ignore whitespace */{ updatecol(); }
+--[^\r\n]*                                            /* Ignore line comment */{ updatecol(); }
+"{-"([^-]|[\r\n]|(-+([^}]|\r\n])))*-+"}"              /* Ignore block comment */{ updatecol(); }
 
-";"|"="|"("|")"|"{"|"}"|"," { yylval.tk = new token(yylineno);
+";"|"="|"("|")"|"{"|"}"|"," { updatecol();
+                              yylval.tk = new token(yylineno, column);
                               return yytext[0];
                             }
 
-"+"|"-"|"*"|"/"             {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"+"|"-"|"*"|"/"             { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return yytext[0];
                             }
 
-"&&"                        {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"&&"                        { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_AND;
                             }
 
-"||"                        {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"||"                        { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_OR;
                             }
 
-"==>"                       {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"==>"                       { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_IMP;
                             }
 
-"<=="                       {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"<=="                       { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_CONSEQ;
                             }
 
-"=="                        {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"=="                        { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_EQ;
                             }
 
-"!="                        {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"!="                        { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_UNEQ;
                             }
 
-"!"                         {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"!"                         { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_NOT;
                             }
 
-"<"                         {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"<"                         { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_LESS;
                             }
 
-"<="                        {
-                              yylval.tk = new tokenId(yylineno, yytext);
+"<="                        { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_LESS_EQ;
                             }
 
-">"                         {
-                              yylval.tk = new tokenId(yylineno, yytext);
+">"                         { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_GREAT;
                             }
 
-">="                        {
-                              yylval.tk = new tokenId(yylineno, yytext);
+">="                        { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_GREAT_EQ;
                             }
 
-"int"|"float"|"char"|"boolean" { yylval.tk = new tokenType(yylineno, yytext);
+"int"|"float"|"char"|"boolean" { updatecol();
+                                 yylval.tk = new tokenType(yylineno, column, yytext);
                                  return TK_TYPE;
                                }
 
-"true"|"false"                 { yylval.tk = new tokenBoolean(yylineno, yytext);
+"true"|"false"                 { updatecol();
+                                 yylval.tk = new tokenBoolean(yylineno, column, yytext);
                                  return TK_BOOLEAN;
                                }
 
-'.?'|'"\\".'                   {
-                                 yylval.tk = new tokenId(yylineno, yytext);
+'.?'|'"\\".'                   { updatecol();
+                                 yylval.tk = new tokenId(yylineno, column, yytext);
                                  return TK_CHAR;
                                }
 
-"none"                         { yylval.tk = new token(yylineno);
+"none"                         { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_NONE;
                                }
 
-"fun"                          { yylval.tk = new token(yylineno);
+"fun"                          { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_FUNCTION;
                                }
 
-if                             {
-                                 yylval.tk = new token(yylineno);
+if                             { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_IF;
                                }
 
-elif                           {
-                                 yylval.tk = new token(yylineno);
+elif                           { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_ELIF;
                                }
 
-else                           {
-                                 yylval.tk = new token(yylineno);
+else                           { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_ELSE;
                                }
 
-while                          {
-                                 yylval.tk = new token(yylineno);
+while                          { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_WHILE;
                                }
 
-for                            {
-                                 yylval.tk = new token(yylineno);
+for                            { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_FOR;
                                }
 
-in                             {
-                                 yylval.tk = new token(yylineno);
+in                             { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_IN;
                                }
                                
-break                          {
-                                 yylval.tk = new token(yylineno);
+break                          { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_BREAK;
                                }
 
-continue                       {
-                                 yylval.tk = new token(yylineno);
+continue                       { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_CONTINUE;
                                }
 
-return                         {
-                                 yylval.tk = new token(yylineno);
+return                         { updatecol();
+                                 yylval.tk = new token(yylineno, column);
                                  return TK_RETURN;
                                }
 
-[0-9a-zA-Z]*"_"{DIGIT}+         { yylval.tk = new tokenInt(yylineno, yytext);
+[0-9a-zA-Z]*"_"{DIGIT}+         { updatecol();
+                                  yylval.tk = new tokenInt(yylineno, column, yytext);
                                   if ( ((tokenInt*)yylval.tk)->number == -1 ){
                                       fprintf(stderr,
                                               "Line %d: Invalid constant %s.\n",
@@ -165,15 +182,18 @@ return                         {
                                   return TK_INT;
                                 }
 
-{DIGIT}+\.{DIGIT}*              { yylval.tk = new tokenFloat(yylineno, yytext);
+{DIGIT}+\.{DIGIT}*              { updatecol();
+                                  yylval.tk = new tokenFloat(yylineno, column, yytext);
                                   return TK_FLOAT;
                                 }
 
-{DIGIT}+                        { yylval.tk = new tokenInt(yylineno, yytext);
+{DIGIT}+                        { updatecol();
+                                  yylval.tk = new tokenInt(yylineno, column, yytext);
                                   return TK_INT;
                                 }
 
-{ID}                            { yylval.tk = new tokenId(yylineno, yytext);
+{ID}                            { updatecol();
+                                  yylval.tk = new tokenId(yylineno, column, yytext);
                                   return TK_IDENT;
                                 }
 

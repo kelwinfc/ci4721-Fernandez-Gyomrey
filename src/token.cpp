@@ -2,17 +2,22 @@
 
 using namespace std;
 
-token::token(int l){
+token::token(){}
+
+token::token(int l, int c){
     line = l;
+    column = c;
 }
 
-tokenFloat::tokenFloat(int l, char* num){
+tokenFloat::tokenFloat(int l, int c, char* num){
     line = l;
+    column = c;
     number = atof(num);
 }
 
-tokenBoolean::tokenBoolean(int l, char* val){
+tokenBoolean::tokenBoolean(int l, int c, char* val){
     line = l;
+    column = c;
     
     if ( strcmp(val,"true") == 0 ){
         value = true;
@@ -21,15 +26,17 @@ tokenBoolean::tokenBoolean(int l, char* val){
     }
 }
 
-tokenId::tokenId(int l, char* id){
+tokenId::tokenId(int l, int c, char* id){
     line = l;
+    column = c;
     
     ident = string(id);
 }
 
-tokenType::tokenType(int l, char* id){
+tokenType::tokenType(int l, int c, char* id){
     
     line = l;
+    column = c;
     if ( strcmp(id, "int") == 0 ){
         ident = symbol::INT;
     } else if ( strcmp(id, "float") == 0 ){
@@ -43,8 +50,9 @@ tokenType::tokenType(int l, char* id){
     }
 }
 
-tokenInt::tokenInt(int l, char* num){
+tokenInt::tokenInt(int l, int c, char* num){
     line = l;
+    column = c;
     
     int length = strlen(num);
     bool has_underscore = false;

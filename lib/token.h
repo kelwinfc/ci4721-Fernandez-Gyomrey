@@ -17,7 +17,9 @@ class token{
 
         int column;
 
-        token(int l = 0);
+        token();
+
+        token(int l, int c);
 };
 
 class tokenId : public token{
@@ -25,7 +27,7 @@ class tokenId : public token{
 
         string ident;
 
-        tokenId(int l, char* id);
+        tokenId(int l, int c, char* id);
 };
 
 class tokenType : public token {
@@ -33,7 +35,7 @@ class tokenType : public token {
 
         symbol::TYPE ident;
 
-        tokenType(int l, char* id);
+        tokenType(int l, int c, char* id);
 
         void print();
 };
@@ -43,7 +45,7 @@ class tokenInt : public token {
 
         int number;
 
-        tokenInt(int l, char* num);
+        tokenInt(int l, int c, char* num);
 };
 
 class tokenFloat : public token {
@@ -51,7 +53,7 @@ class tokenFloat : public token {
 
         float number;
 
-        tokenFloat(int l, char* num);
+        tokenFloat(int l, int c, char* num);
 };
 
 class tokenBoolean : public token {
@@ -59,7 +61,7 @@ class tokenBoolean : public token {
 
         bool value;
 
-        tokenBoolean(int l, char* val);
+        tokenBoolean(int l, int c, char* val);
 };
 
 #endif
