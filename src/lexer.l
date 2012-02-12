@@ -7,13 +7,18 @@ extern bool error;
 
 int columnline = 0, column = 0, lastlength = 0;
 
-void updatecol(){
+void updatecol(bool containsLinebreaks = false){
     column += lastlength;
+    lastlength = yyleng;
+    if (containsLinebreaks){
+        int i = yyleng;
+        while (0 < i && yytext[i - 1] != '\n') --i;
+        lastlength = yyleng - i;
+    }
     if (columnline != yylineno){
         columnline = yylineno;
-        column = 0;
+        column = 1;
     }
-    lastlength = yyleng;
 }
 
 %}
@@ -30,9 +35,9 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                                         return TK_END_OF_FILE;
                                     }
 
-[ \t\r\n]                                             { updatecol(); }
---[^\r\n]*                                            { updatecol(); }
-"{-"([^-]|[\r\n]|(-+([^}]|\r\n])))*-+"}"              { updatecol(); }
+[ \t\r\n]                                             { updatecol(true); }
+--[^\r\n]*                                            { updatecol(true); }
+"{-"([^-]|[\r\n]|(-+([^}]|\r\n])))*-+"}"              { updatecol(true); }
 
 ";"|"="|"("|")"|"{"|"}"|"," { updatecol();
                               yylval.tk = new token(yylineno, column);

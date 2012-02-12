@@ -348,7 +348,9 @@ de gran utilidad la memorización de valores de retorno de funciones.
 * se permiten instrucciones vacías
 * ejemplo de instrucción vacía
 * definir tipo unión y registro en 143
-* cuál va a ser el ancho máximo de este documento?
 * agregar memorizacion
 * Se permite la sobrecarga de funciones siempre que las firmas de éstas no
   coincidan (en número de argumentos o en sus tipos).
+
+* considerar saltos de líneas dentro de comentarios que alteren la columna
+* cuando el archivo de entrada no existe, lanzar un error

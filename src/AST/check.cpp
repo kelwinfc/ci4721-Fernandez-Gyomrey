@@ -312,7 +312,7 @@ void AST_ident::fill_and_check(symbol_table* st){
         /* El simbolo es una function, uso incorrecto como variable */
         if ( sym->is_function ){
             fprintf(stderr,
-                    "Error %d:%d: Identificador '%s' definido como función en línea %d, columna %d.\n",
+                    "Error %d:%d: Identificador '%s' definido como función en línea %d, columna %d (se esperaba variable).\n",
                     line, column, sym->getName().c_str(),
                     sym->getLine(),
                     sym->getColumn() 
@@ -388,8 +388,8 @@ void AST_function_call::fill_and_check(symbol_table* st){
         if ( params->elem.size() != f->params.size() ){
             fprintf(stderr,
                 "Error %d:%d: Se esperaban %d argumentos para la función %s, %d recibidos.\n",
-                line, column, f->params.size(),
-                name.c_str(), params->elem.size() );
+                line, column, (int)f->params.size(),
+                name.c_str(), (int)params->elem.size() );
             error = true;
         } else {
             uint nsize = params->elem.size();
@@ -424,7 +424,7 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
         if ( previous->is_function ){
             fprintf(stderr,
                     "Error %d:%d: Identificador '%s' definido como función en línea %d, columna %d.\n",
-                    line, column, sym->getName().c_str(),
+                    sym->getLine(), sym->getColumn(), sym->getName().c_str(),
                     previous->getLine(),
                     previous->getColumn() 
                    );
@@ -432,7 +432,7 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
         } else if ( level == 0 ){
             fprintf(stderr,
                     "Error %d:%d: Identificador '%s' definido previamente en línea %d, columna %d.\n",
-                    line, column, sym->getName().c_str(),
+                    sym->getLine(), sym->getColumn(), sym->getName().c_str(),
                     previous->getLine(),
                     previous->getColumn() 
                    );
@@ -501,11 +501,13 @@ void AST_program::fill_and_check(symbol_table* st){
         if ( typeid(*declarations[i]) == typeid(AST_function) ){
             
             AST_function* f = (AST_function*)declarations[i];
+            symbol_function* sf = (symbol_function*)st->lookup( f->func->getName() );
             
-            if ( st->lookup( f->func->getName() ) ){
+            if ( sf ){
                 fprintf(stderr,
-                        "Error %d:%d: Función '%s' con nombre repetido.\n",
-                        line, column, f->func->getName().c_str()
+                        "Error %d:%d: Función '%s' con nombre repetido (primera declaración en %d:%d).\n",
+                        f->func->getLine(), f->func->getColumn(), f->func->getName().c_str(),
+                        sf->getLine(), sf->getColumn()
                        );
                 error = true;
             } else {
@@ -576,7 +578,7 @@ void AST_conditional::fill_and_check(symbol_table* st){
         if ( expr->type != symbol::BOOLEAN ){
             fprintf(stderr,
                 "Error %d:%d:%s",
-                line, column,
+                expr->line, expr->column,
                 "Se esperaba boolean.\n");
             error = true;
         }
