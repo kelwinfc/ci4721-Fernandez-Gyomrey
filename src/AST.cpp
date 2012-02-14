@@ -306,3 +306,19 @@ AST_print::AST_print(){}
 void AST_print::add_argument(AST_expression* e){
     list.push_back(e);
 }
+
+bool AST_expression::has_functions(){
+    return false; 
+}
+
+bool AST_op::has_functions(){
+    return left->has_functions() || right->has_functions();
+}
+
+bool AST_un_op::has_functions(){
+    return expr->has_functions(); 
+}
+
+bool AST_function_call::has_functions(){
+    return true;
+}

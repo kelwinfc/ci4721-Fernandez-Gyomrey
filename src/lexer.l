@@ -215,7 +215,7 @@ return                         { updatecol();
                                   return TK_FLOAT;
                                 }
 
-{DIGIT}+(\.{DIGIT}*)?([eE][-\+]?[0-9]+)? { updatecol();
+{DIGIT}+(\.{DIGIT}*)?[eE]([-\+]?[0-9]+)? { updatecol();
                                            yylval.tk = new tokenFloat(yylineno, column, yytext);
                                            return TK_FLOAT;
                                          }

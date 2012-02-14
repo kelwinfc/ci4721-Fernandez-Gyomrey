@@ -542,8 +542,27 @@ void AST_program::fill_and_check(symbol_table* st){
         }
     }
     
+    int i=0;
     for ( it = declarations.begin(); it != declarations.end(); it++){
         (*it)->fill_and_check(st);
+        
+        if ( typeid(*declarations[i]) == typeid(AST_variable_declaration) ){
+            AST_variable_declaration* var = 
+                (AST_variable_declaration*)declarations[i];
+            
+            if (    var->value
+                 && var->value->type != symbol::INVALID 
+                 && var->value->has_functions()
+               )
+            {
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Inicialización de variable %s involucra llamada a función.",
+                         var->sym->getName().c_str());
+                logger->error(var->line, var->column, e);
+            }
+        }
+        i++;
     }
 }
 

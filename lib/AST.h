@@ -44,6 +44,8 @@ class AST_expression : public AST_node{
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual bool has_functions();
 };
 
 class AST_op : public AST_expression {
@@ -65,6 +67,8 @@ class AST_op : public AST_expression {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual bool has_functions();
 };
 
 class AST_un_op : public AST_expression {
@@ -84,6 +88,8 @@ class AST_un_op : public AST_expression {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual bool has_functions();
 };
 
 class AST_int : public AST_expression{
@@ -183,6 +189,8 @@ class AST_function_call : public AST_expression {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual bool has_functions();
 };
 
 class AST_declaration : public AST_statement {
