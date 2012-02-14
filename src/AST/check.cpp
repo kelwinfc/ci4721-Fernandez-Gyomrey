@@ -57,6 +57,20 @@ void AST_op::fill_and_check(symbol_table* st){
         
         switch( oper_type ){
             
+            case MOD:
+                type = symbol::INT;
+                
+                if ( valido->type != symbol::INT ){
+                    fprintf(
+                        stderr,
+                        "Error %d:%d: Operando %s de tipo %s, esperado int.\n",
+                        line, column, nombre_valido,
+                        symbol::getTypeName(valido->type).c_str()
+                    );
+                    error = true;
+                }
+                break;
+            
             /* Operadores aritmeticos: suma, resta, multiplicacion y division */
             case PLUS:
             case MINUS:
@@ -71,8 +85,10 @@ void AST_op::fill_and_check(symbol_table* st){
                 } else {
                     fprintf(
                         stderr,
-                        "Error %d:%d: Operando %s de tipo inválido, esperado float o int.\n",
-                        line, column, nombre_valido);
+                        "Error %d:%d: Operando %s de tipo %s, esperado float o int.\n",
+                        line, column, nombre_valido,
+                        symbol::getTypeName(valido->type).c_str()
+                    );
                     type = symbol::INVALID;
                     error = true;
                 }
@@ -84,13 +100,15 @@ void AST_op::fill_and_check(symbol_table* st){
             case IMP:
             case CONSEQ:
                 
-                if ( valido->type == symbol::BOOLEAN ){
-                    type = symbol::BOOLEAN;
-                } else {
+                type = symbol::BOOLEAN;
+                
+                if ( valido->type != symbol::BOOLEAN ){
                     fprintf(
                         stderr,
-                        "Error %d:%d: Operando %s de tipo inválido, esperado boolean.\n",
-                        line, column, nombre_valido);
+                        "Error %d:%d: Operando %s de tipo %s, esperado boolean.\n",
+                        line, column, nombre_valido,
+                        symbol::getTypeName(valido->type).c_str()
+                    );
                     type = symbol::INVALID;
                     error = true;
                 }
@@ -126,6 +144,26 @@ void AST_op::fill_and_check(symbol_table* st){
     // Ambos argumentos validos    
     switch( oper_type ){
         
+        case MOD:
+            type = symbol::INT;
+            
+            if ( left->type != symbol::INT ){
+                fprintf(
+                    stderr,
+                    "Error %d:%d: Operando izquierdo de tipo %s, esperado int.\n",
+                    line, column, symbol::getTypeName(left->type).c_str()
+                );
+                error = true;
+            } else if ( right->type != symbol::INT ){
+                fprintf(
+                    stderr,
+                    "Error %d:%d: Operando derecho de tipo %s, esperado int.\n",
+                    line, column, symbol::getTypeName(right->type).c_str()
+                );
+                error = true;
+            }
+            
+            break;
         /* Operadores aritmeticos: suma, resta, multiplicacion y division */
         case PLUS:
         case MINUS:
@@ -140,8 +178,10 @@ void AST_op::fill_and_check(symbol_table* st){
                     // Error de ambos argumentos con tipos invalidos
                     fprintf(
                         stderr,
-                        "Error %d:%d: Operandos de tipo inválido, esperado float o int.\n",
-                        line, column);
+                        "Error %d:%d: Operandos de tipo %s, esperado float o int.\n",
+                        line, column,
+                        symbol::getTypeName(left->type).c_str()
+                       );
                     type = symbol::INVALID;
                     error = true;
                 }
@@ -149,8 +189,11 @@ void AST_op::fill_and_check(symbol_table* st){
             } else {
                 // Argumento derecho con tipo invalido
                 fprintf(stderr,
-                        "Error %d:%d: Argumentos de tipos incompatibles.\n",
-                        line, column);
+                        "Error %d:%d: Argumentos de tipos incompatibles %s y %s.\n",
+                        line, column,
+                        symbol::getTypeName(left->type).c_str(),
+                        symbol::getTypeName(right->type).c_str()
+                       );
                 type = symbol::INVALID;
                 error = true;
             }
@@ -164,24 +207,25 @@ void AST_op::fill_and_check(symbol_table* st){
             
             if ( left->type == right->type )
             {
-                if ( left->type  == symbol::BOOLEAN )
+                type = symbol::BOOLEAN;
+                if ( left->type  != symbol::BOOLEAN )
                 {
-                    type = symbol::BOOLEAN;
-                } else {
                     // Error de ambos argumentos con tipos invalidos
                     fprintf(
                         stderr,
-                        "Error %d:%d: Operandos de tipo inválido, esperado boolean.\n",
-                        line, column);
-                    type = symbol::INVALID;
+                        "Error %d:%d: Operandos de tipo %s, esperado boolean.\n",
+                        line, column, symbol::getTypeName(left->type).c_str());
                     error = true;
                 }
                 
             } else {
                 // Error de ambos argumentos con tipos invalidos
                 fprintf(stderr,
-                        "Error %d:%d: Argumentos de tipos incompatibles.\n",
-                        line, column);
+                        "Error %d:%d: Argumentos de tipos incompatibles %s y %s. Esperado boolean.\n",
+                        line, column,
+                        symbol::getTypeName(left->type).c_str(),
+                        symbol::getTypeName(right->type).c_str()
+                       );
                 type = symbol::INVALID;
                 error = true;
             }
@@ -192,16 +236,18 @@ void AST_op::fill_and_check(symbol_table* st){
         case EQ:
         case UNEQ:
             
-            if ( left->type == right->type )
+            type = symbol::BOOLEAN;
+            if ( left->type != right->type )
             {
-                type = symbol::BOOLEAN;
-            } else {
                 // Error de ambos argumentos con tipos invalidos
                 fprintf(
                     stderr,
-                    "Error %d:%d: Operandos de tipos incompatibles.\n",
-                    line, column);
-                type = symbol::INVALID;
+                    "Error %d:%d: Operandos de tipos incompatibles %s y %s.\n",
+                    line, column,
+                    symbol::getTypeName(left->type).c_str(),
+                    symbol::getTypeName(right->type).c_str()
+                   );
+                
                 error = true;
             }
             
@@ -213,21 +259,19 @@ void AST_op::fill_and_check(symbol_table* st){
         case GREAT:
         case GREAT_EQ:
             
+            type = symbol::BOOLEAN;
             if ( left->type == right->type )
             {
-                if (    left->type  == symbol::INT
-                     || left->type == symbol::FLOAT
-                     || left->type == symbol::CHAR
+                if (    left->type != symbol::INT
+                     && left->type != symbol::FLOAT
+                     && left->type != symbol::CHAR
                    )
                 {
-                    type = symbol::BOOLEAN;
-                } else {
                      // Error de ambos argumentos con tipos invalidos
                     fprintf(
                         stderr,
-                        "Error %d:%d: Operandos de tipo inválido, esperado float, int o char.\n",
-                        line, column);
-                    type = symbol::INVALID;
+                        "Error %d:%d: Operandos de tipo %s, esperado float, int o char.\n",
+                        line, column, symbol::getTypeName(left->type).c_str());
                     error = true;
                 }
                 
@@ -235,15 +279,14 @@ void AST_op::fill_and_check(symbol_table* st){
                 // Error de ambos argumentos con tipos invalidos
                 fprintf(
                     stderr,
-                    "Error %d:%d: Operandos de tipos incompatibles.\n",
-                    line, column);
-                type = symbol::INVALID;
+                    "Error %d:%d: Operandos de tipos incompatibles %s y %s.\n",
+                    line, column,
+                    symbol::getTypeName(left->type).c_str(),
+                    symbol::getTypeName(right->type).c_str()
+                   );
                 error = true;
             }
             
-            break;
-        
-        default:
             break;
     }
 }
@@ -257,7 +300,7 @@ void AST_un_op::fill_and_check(symbol_table* st){
         if ( oper_type == NOT ){
             type = symbol::BOOLEAN;
         } else {
-            
+            type = symbol::INVALID;
             // Reportar error de argumento booleano y operando menos unario
             fprintf(
                stderr,
@@ -270,19 +313,22 @@ void AST_un_op::fill_and_check(symbol_table* st){
         if ( oper_type == NEG ){
             type = expr->type;
         } else {
+            type = symbol::INVALID;
             // Reportar error de argumento numero y operando negacion
             fprintf(
                stderr,
                "Error %d:%d: Operando de tipo %s, esperado boolean.\n",
-               line, column, ( expr->type == symbol::INT ? "int": "float") );
+               line, column, symbol::getTypeName(expr->type).c_str() );
             error = true;
         }
     } else {
+        type = symbol::INVALID;
         // Reportar error de tipo de argumento
         fprintf(
            stderr,
-           "Error %d:%d: Operando de tipo inválido, esperado %s.\n",
-           line, column, ( oper_type == NOT ? "boolean": "float o int") );
+           "Error %d:%d: Operando de tipo %s, esperado %s.\n",
+           line, column, symbol::getTypeName(expr->type).c_str(),
+           ( oper_type == NOT ? "boolean": "float o int") );
         error = true;
     }
 }
@@ -327,7 +373,7 @@ void AST_ident::fill_and_check(symbol_table* st){
         type = symbol::INVALID;
         
         fprintf(stderr,
-                "Error %d:%d: Identificador %s no definido previamente.\n",
+                "Error %d:%d: Identificador '%s' no definido previamente.\n",
                 line, column, value.c_str() );
         error = true;
     }
@@ -372,14 +418,14 @@ void AST_function_call::fill_and_check(symbol_table* st){
     
     if ( !sym ){
         fprintf(stderr,
-                "Error %d:%d: Función %s no definida.\n",
+                "Error %d:%d: Función '%s' no definida.\n",
                 line, column, name.c_str() );
         error = true;
     } else if ( !sym->is_function ){
         sym = 0;
         
         fprintf(stderr,
-                "Error %d:%d: Identificador %s no es un nombre de función.\n",
+                "Error %d:%d: Identificador '%s' no es un nombre de función.\n",
                 line, column, name.c_str() );
         error = true;
     } else {
@@ -387,7 +433,7 @@ void AST_function_call::fill_and_check(symbol_table* st){
         
         if ( params->elem.size() != f->params.size() ){
             fprintf(stderr,
-                "Error %d:%d: Se esperaban %d argumentos para la función %s, %d recibidos.\n",
+                "Error %d:%d: Se esperaban %d argumentos para la función '%s', %d recibidos.\n",
                 line, column, (int)f->params.size(),
                 name.c_str(), (int)params->elem.size() );
             error = true;
@@ -398,8 +444,11 @@ void AST_function_call::fill_and_check(symbol_table* st){
                      && params->elem[i]->type != f->params[i] )
                 {
                     fprintf(stderr,
-                            "Error %d:%d: Argumento %d de '%s' de tipo inválido.\n",
-                            line, column, i, name.c_str() );
+                            "Error %d:%d: Argumento %d de '%s' de tipo %s, esperado %s.\n",
+                            line, column, i, name.c_str(),
+                            symbol::getTypeName(params->elem[i]->type).c_str(),
+                            symbol::getTypeName(f->params[i]).c_str()
+                           );
                     error = true;
                 }
             }
@@ -529,7 +578,7 @@ void AST_assignment::fill_and_check(symbol_table* st){
     
     if ( !sym ){
         fprintf(stderr,
-                "Error %d:%d: Identificador %s no definido previamente.\n",
+                "Error %d:%d: Identificador '%s' no definido previamente.\n",
                 line, column, variable.c_str() );
         error = true;
     } else if ( sym->isConst() ){
@@ -540,9 +589,9 @@ void AST_assignment::fill_and_check(symbol_table* st){
         error = true;
     } else if ( expr->type != sym->getType() && expr->type != symbol::INVALID ){
         fprintf(stderr,
-            "Error %d:%d:%s",
-            line, column,
-            " Lado derecho e izquierdo de asignación de distintos tipos.\n");
+            "Error %d:%d: Lado derecho de asignación de tipo %s, esperado %s.\n",
+            line, column, symbol::getTypeName(expr->type).c_str(),
+            sym->getTypeName().c_str());
         error = true;
     }
 }
@@ -556,15 +605,18 @@ void AST_return::fill_and_check(symbol_table* st){
         error = true;
     } else if ( expected_return != symbol::NONE && !expr ){
         fprintf(stderr,
-            "Error %d:%d: Se esperaba valor de retorno.\n",
-            line, column);
+            "Error %d:%d: Se esperaba valor de retorno de tipo %s.\n",
+            line, column, symbol::getTypeName(expected_return).c_str());
         error = true;
     } else if ( expected_return != symbol::NONE && expr ){
         expr->fill_and_check(st);
         if ( expr->type != expected_return ){
             fprintf(stderr,
-            "Error %d:%d: Tipo de valor de retorno inválido.\n",
-            line, column);
+            "Error %d:%d: Tipo de valor de retorno %s, esperado %s.\n",
+            line, column,
+            symbol::getTypeName(expr->type).c_str(),
+            symbol::getTypeName(expected_return).c_str()
+            );
             error = true;
         }
     }

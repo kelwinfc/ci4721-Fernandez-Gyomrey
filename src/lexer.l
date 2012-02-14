@@ -44,6 +44,11 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return yytext[0];
                             }
 
+"%"                         { updatecol();
+                              yylval.tk = new tokenId(yylineno, column, yytext);
+                              return TK_MOD;
+                            }
+
 "+"|"-"|"*"|"/"             { updatecol();
                               yylval.tk = new tokenId(yylineno, column, yytext);
                               return yytext[0];
@@ -181,14 +186,6 @@ return                         { updatecol();
 
 [0-9a-zA-Z]*"_"{DIGIT}+         { updatecol();
                                   yylval.tk = new tokenInt(yylineno, column, yytext);
-                                  if ( ((tokenInt*)yylval.tk)->number == -1 ){
-                                      fprintf(stderr,
-                                              "Line %d: Invalid constant %s.\n",
-                                              yylineno,
-                                              yytext
-                                             );
-                                      error = true;
-                                  }
                                   return TK_INT;
                                 }
 

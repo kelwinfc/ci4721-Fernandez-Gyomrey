@@ -146,6 +146,8 @@ string AST_op::binary_operator(){
             return "*";
         case DIV:
             return "/";
+        case MOD:
+            return "%";
         case AND:
             return "&&";
         case OR:

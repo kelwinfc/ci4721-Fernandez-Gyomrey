@@ -47,7 +47,7 @@ class AST_expression : public AST_node{
 class AST_op : public AST_expression {
     public:
         
-        enum TYPE { PLUS, MINUS, PROD, DIV, AND, OR, IMP, CONSEQ,
+        enum TYPE { PLUS, MINUS, PROD, DIV, MOD, AND, OR, IMP, CONSEQ,
                     EQ, UNEQ, LESS, LESS_EQ, GREAT, GREAT_EQ     };
         
         int line_op, column_op, line_rop, column_rop;

@@ -32,6 +32,7 @@ bool error = false;
 %token TK_IF TK_ELSE TK_ELIF
 %token TK_WHILE TK_FOR TK_IN TK_BREAK TK_CONTINUE TK_RETURN
 %token TK_CONST
+%token TK_MOD
 
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
@@ -42,7 +43,7 @@ bool error = false;
 %left TK_EQ TK_UNEQ
 %nonassoc TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
 %left '-' '+'
-%left '*' '/'
+%left '*' '/' TK_MOD
 %left NEG
 
 
@@ -56,7 +57,7 @@ bool error = false;
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
-          '(' ')' '+' '-' '*' '/' '=' ';' ',' '{' '}'
+          '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}'
 
 %%
 
@@ -354,6 +355,8 @@ aritmetic_expression:
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
 
     |   expression '/' expression
+            { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
+    |   expression TK_MOD expression
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
 ;
 

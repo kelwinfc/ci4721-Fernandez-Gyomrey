@@ -63,6 +63,9 @@ tokenInt::tokenInt(int l, int c, char* num){
         }
     }
     
+    // Previene overflow en el numero
+    unsigned long long int number_long = 0;
+    
     if ( has_underscore ){
         int i=length-1;
         int base = 0;
@@ -72,14 +75,23 @@ tokenInt::tokenInt(int l, int c, char* num){
             base += pow*(num[i] - '0');
             pow *= 10;
             i--;
+            
+            // Previene overflow en la base
+            if ( base > 36 ){
+                break;
+            }
         }
         
         number = 0;
         pow = 1;
         
-        //TODO chequeo de overflow
-        //TODO agregar al documento el rango válido de enteros (32 bits)
         if ( base > 36 || base == 0 ){
+            
+            fprintf(stderr,
+                    "Error %d:%d: La base debe estar comprendida en el intervalo [0,36].\n",
+                    line, column);
+            number = -1;
+            error = true;
             number = -1;
         } else if ( base != 1 ){
             i--;
@@ -97,7 +109,11 @@ tokenInt::tokenInt(int l, int c, char* num){
                     number = -1;
                     break;
                 } else {
-                    number += pow*diff;
+                    number_long += pow*diff;
+                    
+                    if ( number_long > (long long int)2147483647LL ){
+                        break;
+                    }
                 }
                 pow *= base;
                 i--;
@@ -107,11 +123,38 @@ tokenInt::tokenInt(int l, int c, char* num){
             for (int j=0; j<i; j++){
                 check = check && ( num[j] == '0' );
             }
-            number = i;
+            number_long = i;
         }
         
     } else {
-        number = atoi (num);
+        
+        int i=length-1;
+        int pow=1;
+        while( i >= 0 ){
+            int diff = 0;
+            if ( '0' <= num[i] && num[i] <= '9' ){
+                diff = num[i] - '0';
+            }
+            
+            number_long += pow*diff;
+            
+            if ( number_long > (long long int)2147483647LL ){
+                break;
+            }
+            
+            pow *= 10;
+            i--;
+        }
+    }
+    
+    if ( number != -1 && number_long > (long long int)2147483647LL )
+    {
+        fprintf(stderr, "Error %d:%d: Constante entera '%s' muy grande.\n",
+                line, column,num);
+        number = -1;
+        error = true;
+    } else if ( number != -1 ){
+        number = (int)number_long;
     }
 }
 

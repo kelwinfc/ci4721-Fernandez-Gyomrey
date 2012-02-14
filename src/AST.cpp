@@ -18,6 +18,8 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
         oper_type = PROD;
     } else if ( o->ident.compare("/") == 0 ){
         oper_type = DIV;
+    } else if ( o->ident.compare("%") == 0 ){
+        oper_type = MOD;
     } else if ( o->ident.compare("&&") == 0 ){
         oper_type = AND;
     } else if ( o->ident.compare("||") == 0 ){

@@ -10,6 +10,8 @@
 
 using namespace std;
 
+extern bool error;
+
 class token{
     public:
 
