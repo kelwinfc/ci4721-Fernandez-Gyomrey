@@ -8,10 +8,12 @@
 #include "token.h"
 #include "symbol.h"
 #include "symbol_table.h"
+#include "llog.h"
+#include "utils.h"
 
 using namespace std;
 
-extern bool error;
+extern llog* logger;
 
 /* Clase raiz de la jerarquia del AST */
 class AST_node{
@@ -388,5 +390,30 @@ class AST_continue: public AST_statement {
         virtual void fill_and_check(symbol_table* st);
 };
 
+class AST_read : public AST_statement {
+    public:
+    
+        string variable;
+        symbol* sym;
+        
+        AST_read(tokenId* t);
+
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+};
+
+class AST_print : public AST_statement {
+    public:
+        vector<AST_expression*> list;
+        
+        AST_print();
+        
+        void add_argument(AST_expression* e);
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+};
 
 #endif

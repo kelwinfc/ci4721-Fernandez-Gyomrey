@@ -9,9 +9,10 @@ FILES=token\
       AST\
       utils\
       symbol\
-      symbol_table
+      symbol_table\
+      llog
 
-DEP_AST=token utils symbol symbol_table
+DEP_AST=token utils symbol symbol_table llog
 DEP_token=utils
 DEP_symbol_table=symbol
 
@@ -35,6 +36,7 @@ bin/token.o: $(DEP_token:%=src/%.cpp) $(DEP_token:%=lib/%.h)
 bin/utils.o: $(DEP_utils:%=src/%.cpp) $(DEP_utils:%=lib/%.h)
 bin/symbol.o: $(DEP_symbol:%=src/%.cpp) $(DEP_symbol:%=lib/%.h)
 bin/symbol_table.o: $(DEP_symbol_table:%=src/%.cpp) $(DEP_symbol_table:%=lib/%.h)
+bin/llog.o: $(DEP_llog:%=src/%.cpp) $(DEP_llog:%=lib/%.h)
 
 doc:
 	markdown2pdf doc/especificacion.mdwn -o doc/especificacion.pdf

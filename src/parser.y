@@ -5,14 +5,15 @@
 #include "lib/AST.h"
 #include "lib/symbol.h"
 #include "lib/symbol_table.h"
+#include "lib/llog.h"
 
 int yylex (void);
 void yyerror (char const *);
 
 extern FILE *yyin;
 
-AST_program * p;
-bool error = false;
+AST_program* p;
+llog* logger;
 
 %}
 
@@ -33,6 +34,7 @@ bool error = false;
 %token TK_WHILE TK_FOR TK_IN TK_BREAK TK_CONTINUE TK_RETURN
 %token TK_CONST
 %token TK_MOD
+%token TK_READ TK_PRINT
 
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
@@ -49,14 +51,14 @@ bool error = false;
 
 %type<nd> input declaration variable_declaration block statement
           parameters_instance parameters_instance_non_empty
-          arg_list non_empty_arg_list
+          arg_list non_empty_arg_list lista_ident
           block_statement loop_statement loop_block loop_block_statement
           else_statements expression aritmetic_expression boolean_expression
 %type<tk> TK_TYPE TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE
           TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
-          TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
+          TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ TK_READ TK_PRINT
           '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}'
 
 %%
@@ -264,7 +266,28 @@ statement :
                                delete $2;
                                delete $4;
                              }
+    | TK_READ TK_IDENT ';'  {
+                                $$ = new AST_read( (tokenId*)$2 );
+                                delete $1;
+                                delete $3;
+                            }
+    | TK_PRINT lista_ident ';'  {
+                                    $$ = $2;
+                                    delete $1;
+                                    delete $3;
+                                }
 ;
+
+lista_ident : expression                 {
+                                            $$ = new AST_print();
+                                            ((AST_print*)$$)->add_argument( (AST_expression*)$1 );
+                                         }
+            | lista_ident ',' expression {
+                                            ((AST_print*)$1)->add_argument( (AST_expression*)$3 );
+                                            $$ = $1;
+                                            delete $2;
+                                         }
+            ;
 
 // Loop blocks: includes break and continue to statements
 loop_block:
@@ -420,13 +443,13 @@ parameters_instance_non_empty:
 
 void yyerror (char const *s)
 {
-    error = true;
+    logger->error(0, 0, s);
 }
 
 int main (int argc,char **argv)
 {
+    logger = new llog();
     p = new AST_program();
-    error = false;
 
     if (argc == 1){
         yyparse();
@@ -436,20 +459,21 @@ int main (int argc,char **argv)
             yyparse();
         } while (!feof(yyin));
     }
-    if ( error ){
-        fprintf (stderr, "Epic fail!\n");
-    } else {
-        symbol_table st;
-        p->fill_and_check(&st);
-        p->print(0);
-        
-        if ( !error ){
-            cout << "Like a boss!\n";
-            cout << "-------------------------------------------------------\n";
-        } else {
-            fprintf (stderr, "Epic fail!\n");
-        }
+    if ( logger->exists_registered_error() ){
+        logger->failure("lexer");
+        return 0;
     }
+
+    symbol_table st;
+    p->fill_and_check(&st);
+    p->print(0);
+    
+    if ( logger->exists_registered_error() ){
+        logger->failure("parser");
+        return 0;
+    }
+
+    logger->success();
     
     return 0;
 }

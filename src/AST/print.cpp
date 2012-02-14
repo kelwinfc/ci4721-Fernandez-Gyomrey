@@ -1,4 +1,3 @@
-#include "AST.h"
 
 void AST_node::print(int indentation){
     
@@ -399,4 +398,41 @@ void AST_bounded_loop::print(int indentation){
     cout << "     )\n";
     
     block->print(indentation+1);
+}
+
+void AST_read::print(int indentation){
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    
+    cout << "Read " << variable;
+    
+    if ( sym ){
+        cout << " ["
+             << symbol::getTypeName(sym->getType())
+             << ":"
+             << sym->getLine()
+             << ":"
+             << sym->getColumn()
+             << "]";
+    } else {
+        cout << " [UNDEFINED]";
+    }
+    cout << endl;
+}
+
+void AST_print::print(int indentation){
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    
+    cout << "Print" << endl;
+    vector<AST_expression*>::iterator it;
+    for (it=list.begin(); it!=list.end(); ++it){
+        
+        if ( it != list.begin() ){
+            print_indentation(indentation+1);
+            cout << "     ,\n";
+        }
+        
+        (*it)->print(indentation+1);
+    }
 }

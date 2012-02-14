@@ -86,12 +86,7 @@ tokenInt::tokenInt(int l, int c, char* num){
         pow = 1;
         
         if ( base > 36 || base == 0 ){
-            
-            fprintf(stderr,
-                    "Error %d:%d: La base debe estar comprendida en el intervalo [0,36].\n",
-                    line, column);
-            number = -1;
-            error = true;
+            logger->error(line, column, "La base debe estar comprendida en el intervalo [0,36]");
             number = -1;
         } else if ( base != 1 ){
             i--;
@@ -149,10 +144,12 @@ tokenInt::tokenInt(int l, int c, char* num){
     
     if ( number != -1 && number_long > (long long int)2147483647LL )
     {
-        fprintf(stderr, "Error %d:%d: Constante entera '%s' muy grande.\n",
-                line, column,num);
+        char e[llog::ERR_LEN];
+        snprintf(e, llog::ERR_LEN, "Constante entera '%s' muy grande.", num);
+        logger->error(line, column, e);
+        
         number = -1;
-        error = true;
+        
     } else if ( number != -1 ){
         number = (int)number_long;
     }

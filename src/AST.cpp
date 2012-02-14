@@ -1,5 +1,4 @@
 #include "AST.h"
-#include "utils.h"
 #include "AST/print.cpp"
 #include "AST/check.cpp"
 
@@ -41,7 +40,7 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
     } else if ( o->ident.compare(">=") == 0 ){
         oper_type = GREAT_EQ;
     } else {
-        throw "Error de implementación en identificación de operador de expresión binaria";
+        logger->critical("Error de implementación en identificación de operador de expresión binaria");
     }
 
     line_op = o->line;
@@ -61,7 +60,7 @@ AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
     } else if ( o->ident.compare("-") == 0 ){
         oper_type = NEG;
     } else {
-        throw "Error de implementación en identificación de operador de expresión unaria";
+        logger->critical("Error de implementación en identificación de operador de expresión unaria");
     }
 
     line = o->line;
@@ -294,21 +293,16 @@ AST_continue::AST_continue(token* t){
 }
 
 
-/*
-AST_declaration::AST_declaration(tokenType* t, tokenId* i){
+AST_read::AST_read(tokenId* t){
     line = t->line;
+    column = t->line;
     
-    id = (char*)malloc( strlen(i->ident)*sizeof(char) );
-    memset(id, 0, sizeof(i->ident));
-    strcpy(id, i->ident);
-    
-    val = 0;
+    variable = string(t->ident);
+    delete t;
 }
 
-AST_declaration::AST_declaration(tokenType* t, tokenId* i, AST_expression* expr)
-{
-    AST_declaration(t,i);
-    val = expr;
-}
+AST_print::AST_print(){}
 
-*/
+void AST_print::add_argument(AST_expression* e){
+    list.push_back(e);
+}

@@ -1,9 +1,10 @@
 %{
 #include <math.h>
 #include "lib/AST.h"
+#include "lib/llog.h"
 #include "y.tab.h"
 
-extern bool error;
+extern llog* logger;
 
 int columnline = 0, column = 0, lastlength = 0;
 
@@ -109,6 +110,26 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_GREAT;
                             }
 
+"string"|"fill"|"map"|"foldr"|"foldl" { updatecol();
+                                        fprintf(stderr,"Warning: Palabra reservada %s aún sin implementarse.\n",
+                                        yytext);
+                                      }
+
+"["|"]"|":"|"."                { updatecol();
+                                 fprintf(stderr,"Warning: Operador o caracter %s aún sin implementarse.\n",
+                                 yytext);
+                               }
+
+"read"                         { updatecol();
+                                 yylval.tk = new token(yylineno, column);
+                                 return TK_READ;
+                               }
+
+"print"                        { updatecol();
+                                 yylval.tk = new token(yylineno, column);
+                                 return TK_PRINT;
+                               }
+
 "const"                        { updatecol();
                                  yylval.tk = new token(yylineno, column);
                                  return TK_CONST;
@@ -193,6 +214,11 @@ return                         { updatecol();
                                   yylval.tk = new tokenFloat(yylineno, column, yytext);
                                   return TK_FLOAT;
                                 }
+
+{DIGIT}+(\.{DIGIT}*)?([eE][-\+]?[0-9]+)? { updatecol();
+                                           yylval.tk = new tokenFloat(yylineno, column, yytext);
+                                           return TK_FLOAT;
+                                         }
 
 {DIGIT}+                        { updatecol();
                                   yylval.tk = new tokenInt(yylineno, column, yytext);
