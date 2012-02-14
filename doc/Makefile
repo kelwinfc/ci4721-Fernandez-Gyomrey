@@ -1,2 +1,2 @@
 all:
-	markdown2pdf especificacion.mdwn; evince especificacion.pdf &
+	markdown2pdf especificacion_primera_entrega.mdwn; evince especificacion_primera_entrega.pdf &

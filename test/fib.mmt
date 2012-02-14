@@ -41,9 +41,12 @@ fun int fibIter(int n){
 }
 
 fun none main(){
-    
-    for i in (0,1000000){
-        fibRec(i);
-        fibIter(i);
+    int a;
+    read a;
+    for i in (0,a){
+        int fR = fibRec(i);
+        int fI = fibIter(i);
+        
+        print fR, fI;
     }
 }

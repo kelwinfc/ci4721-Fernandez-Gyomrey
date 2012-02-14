@@ -13,7 +13,7 @@ FILES=token\
       llog
 
 DEP_AST=token utils symbol symbol_table llog
-DEP_token=utils
+DEP_token=utils llog
 DEP_symbol_table=symbol
 
 all: bla
