@@ -8,10 +8,12 @@
 #include "token.h"
 #include "symbol.h"
 #include "symbol_table.h"
+#include "llog.h"
+#include "utils.h"
 
 using namespace std;
 
-extern bool error;
+extern llog* logger;
 
 /* Clase raiz de la jerarquia del AST */
 class AST_node{

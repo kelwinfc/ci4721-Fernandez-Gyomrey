@@ -1,9 +1,10 @@
 %{
 #include <math.h>
 #include "lib/AST.h"
+#include "lib/llog.h"
 #include "y.tab.h"
 
-extern bool error;
+extern llog* logger;
 
 int columnline = 0, column = 0, lastlength = 0;
 
@@ -182,12 +183,9 @@ return                         { updatecol();
 [0-9a-zA-Z]*"_"{DIGIT}+         { updatecol();
                                   yylval.tk = new tokenInt(yylineno, column, yytext);
                                   if ( ((tokenInt*)yylval.tk)->number == -1 ){
-                                      fprintf(stderr,
-                                              "Line %d: Invalid constant %s.\n",
-                                              yylineno,
-                                              yytext
-                                             );
-                                      error = true;
+                                      char e[llog::ERR_LEN];
+                                      snprintf(e, llog::ERR_LEN, "Invalid constant %s.\n", yytext);
+                                      logger->error(yylineno, column, e);
                                   }
                                   return TK_INT;
                                 }

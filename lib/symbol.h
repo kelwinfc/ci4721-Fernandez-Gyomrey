@@ -1,5 +1,5 @@
-#ifndef __SYMBOL
-#define __SYMBOL
+#ifndef _SYMBOL
+#define _SYMBOL
 
 #include <string>
 #include <vector>

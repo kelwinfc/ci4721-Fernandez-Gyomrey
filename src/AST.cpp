@@ -1,5 +1,4 @@
 #include "AST.h"
-#include "utils.h"
 #include "AST/print.cpp"
 #include "AST/check.cpp"
 
@@ -39,7 +38,7 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
     } else if ( o->ident.compare(">=") == 0 ){
         oper_type = GREAT_EQ;
     } else {
-        throw "Error de implementación en identificación de operador de expresión binaria";
+        logger->critical("Error de implementación en identificación de operador de expresión binaria");
     }
 
     line_op = o->line;
@@ -59,7 +58,7 @@ AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
     } else if ( o->ident.compare("-") == 0 ){
         oper_type = NEG;
     } else {
-        throw "Error de implementación en identificación de operador de expresión unaria";
+        logger->critical("Error de implementación en identificación de operador de expresión unaria");
     }
 
     line = o->line;

@@ -5,14 +5,15 @@
 #include "lib/AST.h"
 #include "lib/symbol.h"
 #include "lib/symbol_table.h"
+#include "lib/llog.h"
 
 int yylex (void);
 void yyerror (char const *);
 
 extern FILE *yyin;
 
-AST_program * p;
-bool error = false;
+AST_program* p;
+llog* logger;
 
 %}
 
@@ -417,13 +418,13 @@ parameters_instance_non_empty:
 
 void yyerror (char const *s)
 {
-    error = true;
+    logger->error(0, 0, s);
 }
 
 int main (int argc,char **argv)
 {
+    logger = new llog();
     p = new AST_program();
-    error = false;
 
     if (argc == 1){
         yyparse();
@@ -433,20 +434,21 @@ int main (int argc,char **argv)
             yyparse();
         } while (!feof(yyin));
     }
-    if ( error ){
-        fprintf (stderr, "Epic fail!\n");
-    } else {
-        symbol_table st;
-        p->fill_and_check(&st);
-        p->print(0);
-        
-        if ( !error ){
-            cout << "Like a boss!\n";
-            cout << "-------------------------------------------------------\n";
-        } else {
-            fprintf (stderr, "Epic fail!\n");
-        }
+    if ( logger->exists_registered_error() ){
+        logger->failure("lexer");
+        return 0;
     }
+
+    symbol_table st;
+    p->fill_and_check(&st);
+    p->print(0);
+    
+    if ( logger->exists_registered_error() ){
+        logger->failure("parser");
+        return 0;
+    }
+
+    logger->success();
     
     return 0;
 }
