@@ -39,6 +39,6 @@ bin/symbol_table.o: $(DEP_symbol_table:%=src/%.cpp) $(DEP_symbol_table:%=lib/%.h
 bin/llog.o: $(DEP_llog:%=src/%.cpp) $(DEP_llog:%=lib/%.h)
 
 doc:
-	markdown2pdf doc/especificacion.mdwn -o doc/especificacion.pdf
+	markdown2pdf doc/especificacion_primera_entrega.mdwn -o doc/especificacion_primera_entrega.pdf
 clean:
 		rm -f bin/*.o *~ bin/*~ src/*~ lib/*~ test/*~ bla y.tab.h lex.yy.c y.tab.c src/AST/*~

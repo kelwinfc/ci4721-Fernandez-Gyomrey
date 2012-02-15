@@ -1,3 +1,8 @@
+/* 
+ * Constructores del tipo AST
+ * 
+ */
+
 #include "AST.h"
 #include "AST/print.cpp"
 #include "AST/check.cpp"
@@ -140,6 +145,17 @@ AST_function_call::AST_function_call(tokenId* tk, AST_parameters_list* p){
     delete tk;
 
     params = p;
+}
+
+AST_conversion::AST_conversion(tokenType* t, AST_expression* e){
+    line = t->line;
+    column = t->column;
+    
+    this->type = t->ident;
+    this->expr = e;
+    this->original_type = symbol::UNDEFINED;
+    
+    delete t;
 }
 
 AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
@@ -321,4 +337,8 @@ bool AST_un_op::has_functions(){
 
 bool AST_function_call::has_functions(){
     return true;
+}
+
+bool AST_conversion::has_functions(){
+    return expr->has_functions();
 }

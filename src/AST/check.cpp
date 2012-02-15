@@ -1,3 +1,9 @@
+/* 
+ * Verifica para cada tipo de nodo del AST que los tipos sean consistentes,
+ * llena la tabla de simbolos.
+ * 
+ */
+
 /* Tipo esperado de retorno, util para verificar la validez de los return en
 * el cuerpos de las funciones. Valido como manejo global dado que no se
 * permiten funciones anidadas
@@ -367,12 +373,17 @@ void AST_ident::fill_and_check(symbol_table* st){
     }
 }
 
+void AST_conversion::fill_and_check(symbol_table* st){
+    expr->fill_and_check(st);
+    original_type = expr->type;
+}
+
 void AST_block::fill_and_check(symbol_table* st){
     
     /* Verificar cada statement del bloque, se asume que la tabla de
-* simbolos es nueva o que tiene los argumentos de la funcion en caso
-* de ser el cuerpo de una
-*/
+     * simbolos es nueva o que tiene los argumentos de la funcion en caso
+     * de ser el cuerpo de una
+     */
     vector<AST_statement*>::iterator it;
     
     for (int i=statements.size()-1; i>=0; i--){
@@ -456,9 +467,14 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
     }
     
     if ( previous ){
-        if ( previous->is_function || level == 0 ){
+        if ( previous->is_function ){
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "Identificador '%s' definido como función en línea %d, columna %d.",
+                sym->getName().c_str(), previous->getLine(), previous->getColumn());
+            logger->error(sym->getLine(), sym->getColumn(), e);
+        } else if ( level == 0 ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Identificador '%s' definido en alcance en línea %d, columna %d.",
                 sym->getName().c_str(), previous->getLine(), previous->getColumn());
             logger->error(sym->getLine(), sym->getColumn(), e);
         } else {
@@ -524,6 +540,7 @@ void AST_function::fill_and_check(symbol_table* st){
 void AST_program::fill_and_check(symbol_table* st){
     vector<AST_declaration*>::iterator it;
     
+    // Declaracion previa de todas las funciones
     uint nsize = declarations.size();
     for ( uint i = 0; i != nsize; i++){
         if ( typeid(*declarations[i]) == typeid(AST_function) ){
@@ -542,6 +559,26 @@ void AST_program::fill_and_check(symbol_table* st){
         }
     }
     
+    // Verificacion de existencia de main
+    {
+        symbol_function* sf = (symbol_function*)st->lookup( "main" );
+        
+        if ( !sf ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Falta declaración de función main.");
+            logger->error(0, 0, e);
+        } else if ( sf->getType() != symbol::NONE ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "main debe tener tipo de retorno none.");
+            logger->error(sf->getLine(), sf->getColumn(), e);
+        } else if ( sf->params.size() ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "main no debe recibir argumentos.");
+            logger->error(sf->getLine(), sf->getColumn(), e);
+        }
+    }
+    
+    // Verificacion del programa
     int i=0;
     for ( it = declarations.begin(); it != declarations.end(); it++){
         (*it)->fill_and_check(st);

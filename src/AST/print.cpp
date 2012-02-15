@@ -1,3 +1,7 @@
+/* 
+ * Imprime el AST, asume que se ha ejecutado anteriormente el llenado de tipos
+ * 
+ */
 
 void AST_node::print(int indentation){
     
@@ -283,6 +287,17 @@ void AST_parameters_list::print(int indentation){
             cout << ",\n";
         }
     }
+}
+
+void AST_conversion::print(int indentation){
+    
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    
+    cout << "Conversion from " << symbol::getTypeName(original_type).c_str()
+         << " to " << symbol::getTypeName(type).c_str() << endl;
+     
+     expr->print(indentation+1);
 }
 
 void AST_program::print(int indentation){

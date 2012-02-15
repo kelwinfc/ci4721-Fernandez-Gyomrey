@@ -32,7 +32,7 @@ permitido en un comentario exceptuando la secuencia `-}`, la cual tiene
 la función única de finalizar el comentario actual.
 
 Las constantes booleanas son `true` y `false` correspondientes respectivamente
-a los valores de verdadero y falso.
+a los valores de verdadero y falso. Los booleanos se representan en un byte.
 
 Un entero puede ser especificado con o sin su base. Un entero con base
 es una secuencia de dígitos decimales (0-9) y caracteres (a-zA-Z), seguido
@@ -50,6 +50,7 @@ cualquier secuencia de dígitos. La segunda secuencia puede estar vacía.
 Adicionalmente, se pueden escribir en notación científica.
 El signo del exponente es opcional, en caso de no especificarse se asume
 positivo y `E` puede estar expresado en mayúsculas o minúsculas.
+Los flotantes son de precisión de 32 bits.
 
 Son ejemplo de flotantes válidos:
 
@@ -73,8 +74,112 @@ siguientes:
 
 ## Gramática de *BLA*
 
-TODO: definir la gramática. Idea: ir definiéndola a medida que vayamos
-estableciendo los elementos de abajo
+Input ::= Declaration | Input Declaration
+
+Declaration ::= VariableDeclaration
+
+Declaration ::= `fun` Type `ident` ( ArgList ) Block
+
+Declaration ::= `fun` `none` `ident` ( ArgList ) Block
+
+Type ::= `int` | `float` | `char` | `boolean`
+
+VariableDeclaration ::=  `const` Type `ident` = Expression `;`
+
+VariableDeclaration ::=  Type `ident` = Expression `;`
+
+VariableDeclaration ::=  Type `ident` `;`
+
+ArgList: lambda | NonEmptyArgList
+
+NonEmptyArgList ::= `const` Type `ident` | Type `ident`
+
+NonEmptyArgList ::= NonEmptyArgList `,` Type `ident`
+
+NonEmptyArgList ::= NonEmptyArgList `,` `const` Type `ident`
+
+Block ::= `{` BlockStatement `}` | `{ }`
+
+BlockStatement ::= Statement | Statement BlockStatement
+
+Statement ::= VariableDeclaration | `ident =` Expression `;` | `;`
+
+Statement ::= `if (` Expression `)` Block ElseStatements
+
+Statement ::= `while (` Expression `)` LoopBlock
+
+Statement ::= `for ident int (` Expression `,` Expression `)` LoopBlock
+
+Statement ::= Block
+
+Statement ::= `return ;` | `return` Expression `;`
+
+Statement ::= `ident (` ParametersInstance `)`
+
+Statement ::= `read ident ;` | `print` ListIdent `;`
+
+ListaIdent ::= Expression | ListIdent `,` Expression
+
+LoopBlock ::= `{` LoopBlockStatement `}` | `{ }`
+
+LoopBlockStatement ::= LoopStatement | LoopStatement LoopBlockStatement
+
+LoopStatement ::= Statement | `break ;` | `continue ;`
+
+ElseStatements ::= lambda | `elif (` Expression `)` Block ElseStatements
+
+ElseStatements ::=  `else` Block
+
+Expression ::= `intConstant` | `floatConstant`
+            | `charConstant` | `booleanConstant`
+
+Expression ::= `(` Expression `)`
+
+Expression ::= `ident` | `ident (` ParametersInstance `)`
+
+Expression ::= Type `(` Expression `)`
+
+Expression ::= AritmeticExpression | BooleanExpression
+
+AritmeticExpression ::= `-` Expression
+
+AritmeticExpression ::= Expression `+` Expression
+
+AritmeticExpression ::= Expression `-` Expression
+
+AritmeticExpression ::= Expression `*` Expression
+
+AritmeticExpression ::= Expression `/` Expression
+
+AritmeticExpression ::= Expression `%` Expression
+
+BooleanExpression ::= Expression `&&` Expression
+
+BooleanExpression ::= Expression `||` Expression
+
+BooleanExpression ::= Expression `==>` Expression
+
+BooleanExpression ::= Expression `<==` Expression
+
+BooleanExpression ::= `!` Expression
+
+BooleanExpression ::= Expression `==` Expression
+
+BooleanExpression ::= Expression `!=` Expression
+
+BooleanExpression ::= Expression `<` Expression
+
+BooleanExpression ::= Expression `<=` Expression
+
+BooleanExpression ::= Expression `>` Expression
+
+BooleanExpression ::= Expression `>=` Expression
+
+ParametersInstance ::= lambda | ParametersInstanceNonEmpty
+
+ParametersInstanceNonEmpty ::= Expression
+
+ParametersInstanceNonEmpty ::= ParametersInstanceNonEmpty `,` Expression
 
 ## Estructura de un Programa
 
@@ -276,8 +381,10 @@ Las estructuras de control de *BLA* están basadas en las de *Python*.
 
 * Una cláusula `else` o `elif` siempre se asocia al `if` más cercano aún sin
   cerrar.
-* Las expresiones condicionales de las declaraciones `if`, `elif`, `while` y
-  `for` deben ser de tipo `boolean`.
+* Las expresiones condicionales de las declaraciones `if`, `elif` y `while`
+  deben ser de tipo `boolean`.
+* La variable de iteración de un ciclo acotado `for` debe ser de un valor
+  escalar discreto: `int`, `char`, `boolean`
 * Una declaración de tipo `break` o `continue` sólo pueden aparecer en el
   cuerpo de ciclos `while` o `for`.
 * La variable de iteración en un ciclo acotado `for` no puede ser utilizada como
@@ -319,6 +426,51 @@ entre ellos.
   Para convertir un entero, caracter o booleano a flotante se utiliza `float(E)`.
   Para convertir de entero a booleano se utiliza `boolean(E)`, el cual devolverá
   `false` en caso de ser cero y `true` en caso contrario.
+* Es posible realizar conversiones explícitas para todos los tipos básicos,
+  utilizando la forma `T(E)`, donde `T` es el tipo destino y `E` la expresión
+  a convertir.
+
+### Precedencia de Operadores
+
+La precedencia de los operadores, de menor a mayor es:
+
+* `== !=`     (igualdad, asocia a izquierda)
+* `==>`       (implicación, asocia a derecha)
+* `<==`       (consecuencia, asocia a izquierda)
+* `&& ||`     (operadores lógicos y, o. Asocian a izquierda)
+* `< <= > >=` (relacionales, no asocian)
+* `- +`       (suma, resta, asocian a izquierda)
+* `* / %`     (multiplicación, división entera o con decimales, módulo, asocial a izquierda)
+* `- !`       (negación unaria aritmética y booleana)
+
+La razón de esta precedencia es respetar la la precedencia natural de
+expresiones como `true && false == false`, considerando la igualdad como
+equivalencia, dicha expresión debe evaluar `(true && false) == false`, a
+diferencia de lenguajes como C que evalúa `true && (false == false)`.
+
+### Conversiones Explícitas
+
+Todos los tipos básicos son convertibles a cualquier otro tipo básico. A 
+continuación se muestran las convenciones de conversión:
+
+* `int`: Si desea convertir una expresión de tipo `boolean` a `int` el resultado
+         será cero en caso de `false` y uno en caso contrario. Para la
+         conversión desde `char` el resultado será el índice correspondiente del
+         caracter en la tabla ASCII. Al convertir de `float` a `int`, se
+         truncará la mantisa, en caso de overflow se asignará el máximo entero o
+         el mínimo entero según sea el caso.
+* `float`: Las conversiones para `char` y `boolean` son análogas a los casos
+           de conversión a entero. La conversión de `int` a `float` es la
+           conversión real del valor, no la copia directa de bits.
+* `char` : Puede asumir que la conversión a `char` se efectúa para los casos
+           `boolean` y `float` como si realizara la conversión inicial a `int`
+           y luego utilizar dicho valor como índice en la tabla ASCII. En caso
+           de que el índice sea negativo o supere el rango permitido, se
+           utilizarán los caracteres extremos en la tabla.
+* `boolean` : Al igual que las conversiones a `char`, puede asumir que las
+              conversiones a `boolean` son el equivalente a convertir
+              inicialmente a `int`, luego, si el valor resultante es cero, el
+              booleano será `false`, en caso contrario será `true`.
 
 ## Verificaciones a Tiempo de Ejecución
 

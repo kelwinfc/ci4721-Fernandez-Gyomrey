@@ -75,6 +75,11 @@ symbol_function::symbol_function(string name, int line, int column,
     this->column = column;
     this->initialized = false;
     this->is_function = true;
+    
+    vector< TYPE >::iterator it;
+    for ( it = types.begin(); it != types.end(); ++it ){
+        this->params.push_back( *it );
+    }
 }
 
 symbol_function::symbol_function(string name, TYPE type, int line, int column,

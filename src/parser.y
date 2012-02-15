@@ -39,15 +39,20 @@ llog* logger;
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
 
-%left TK_AND TK_OR
-%right TK_IMP
-%left TK_CONSEQ
+/* 
+ * La razón de esta precedencia es respetar la la precedencia natural de
+ * expresiones como true && false == false, considerando la igualdad como
+ * equivalencia dicha expresion debe evaluar (true && false) == false, a
+ * diferencia de lenguajes como C que evalua true && (false == false).
+ */
 %left TK_EQ TK_UNEQ
+%left TK_CONSEQ
+%right TK_IMP
+%left TK_AND TK_OR
 %nonassoc TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
 %left '-' '+'
 %left '*' '/' TK_MOD
-%left NEG
-
+%left NEG TK_NOT
 
 %type<nd> input declaration variable_declaration block statement
           parameters_instance parameters_instance_non_empty
@@ -360,6 +365,13 @@ expression :
                                delete $2;
                                delete $4;
                              }
+    |   TK_TYPE '(' expression ')' {
+                                        $$ = new AST_conversion( (tokenType*) $1,
+                                                                 (AST_expression*) $3
+                                                               );
+                                        delete $2;
+                                        delete $4;
+                                   }
     |   aritmetic_expression { $$ = $1; }
     |   boolean_expression   { $$ = $1; }
 ;
@@ -463,16 +475,21 @@ int main (int argc,char **argv)
         logger->failure("lexer");
         return 0;
     }
-
-    symbol_table st;
-    p->fill_and_check(&st);
-    p->print(0);
     
     if ( logger->exists_registered_error() ){
         logger->failure("parser");
         return 0;
     }
 
+    symbol_table st;
+    p->fill_and_check(&st);
+    p->print(0);
+    
+    if ( logger->exists_registered_error() ){
+        logger->failure("context");
+        return 0;
+    }
+    
     logger->success();
     
     return 0;

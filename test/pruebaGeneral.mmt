@@ -1,0 +1,57 @@
+{- Programa con prueba exhaustiva de errores -}
+
+int a = b;  -- Identificador b no definido previamente
+int b = a;
+
+float c = float( a + b * foo() ); -- Uso de funcion en declaracion global
+float c;
+
+fun int foo(){
+    a = 1;                  -- Uso de variable global
+    {
+        a = 2;              -- Uso de variable global
+        int a = 3;
+        a = 4;              -- Uso de variable local
+        
+        {
+            a = 5;          -- Uso de variable local de nivel anterior
+            float a = 6.0;
+            a = 7.0;        -- Uso de variable local
+        }
+        
+        a = 8;              -- Uso de variable local
+    }
+    a = 9;                  -- Uso de variable global
+    
+    if ( 2 ){               -- Condicional en ciclo de tipo boolean
+        return 3.0;         -- Retorno de tipo invalido
+    } elif ( true ==> false ){
+        return ;            -- Retorno invalido
+    }
+    
+    bar(2,3);               -- Llamada a funcion definida posteriormente
+    bar(2.0);               -- Numero de argumentos invalidos
+    bar(2,3.0)              -- Tipo de un argumento invalido
+    return 42;              -- Retorno valido
+    
+    a = foo() + 4 + int(3.0);   {- Asignacion de variable global con llamada a
+                                   funcion, en este punto es valido dado que no
+                                   es en la inicializacion
+                                -}
+}
+
+fun none bar(const int a, int b){
+    a = 3;                  -- Asignacion a argumento constante
+    b = a;
+    
+    for i in ('a',1){       -- Limites de distinto tipo
+        i = 2;              -- Asignacion a variable de iteracion
+    }
+}
+
+-- Error de declaracion de funcion main, debe ser de tipo none y no debe recibir
+-- argumentos por ahora
+fun int main(int c){
+    read a;
+    print a, b, c;
+}

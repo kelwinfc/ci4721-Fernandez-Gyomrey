@@ -424,4 +424,19 @@ class AST_print : public AST_statement {
         virtual void fill_and_check(symbol_table* st);
 };
 
+class AST_conversion : public AST_expression {
+    
+    public:
+        symbol::TYPE original_type;
+        AST_expression* expr;
+        
+        AST_conversion(tokenType* t, AST_expression* e);
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual bool has_functions();
+};
+
 #endif

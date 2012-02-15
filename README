@@ -1,0 +1,19 @@
+
+Requerimientos:
+    - gcc compiler
+    - flex++ bison++
+    - make
+
+Requerimientos para la documentacion:
+    - markdown
+    - markdown2pdf
+
+Ejemplos:
+    - test/fib.mmt implementación recursiva e iterativa de fibonacci.
+    - pruebaGeneral.mmt verificación exhaustiva de errores de contexto.
+
+Para verificar un archivo:
+    ./bla archivo
+
+Para abrir el modo de lectura por entrada estandar:
+    ./bla
