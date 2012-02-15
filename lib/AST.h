@@ -229,7 +229,7 @@ class AST_block : public AST_node {
 
         vector<AST_statement*> statements;
 
-        AST_block();
+        AST_block(int l, int c);
 
         void add_statement(AST_statement* s);
 

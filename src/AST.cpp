@@ -174,7 +174,9 @@ AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
     value = v;
 }
 
-AST_block::AST_block(){
+AST_block::AST_block(int l, int c){
+    line = l;
+    column = c;
     statements.clear();
 }
 

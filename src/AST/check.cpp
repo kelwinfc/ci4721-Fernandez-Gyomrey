@@ -386,13 +386,13 @@ void AST_block::fill_and_check(symbol_table* st){
      */
     vector<AST_statement*>::iterator it;
     
-    for (int i=statements.size()-1; i>=0; i--){
-        if ( typeid(*statements[i]) == typeid(AST_block) ){
+    for (vector<AST_statement*>::iterator it = statements.begin(); it != statements.end(); ++ it){
+        if ( typeid(**it) == typeid(AST_block) ){
             symbol_table* nested_block = st->new_son();
-            statements[i]->fill_and_check(nested_block);
+            (*it)->fill_and_check(nested_block);
             delete nested_block;
         } else {
-            statements[i]->fill_and_check(st);
+            (*it)->fill_and_check(st);
         }
     }
     
@@ -401,10 +401,9 @@ void AST_block::fill_and_check(symbol_table* st){
 void AST_parameters_list::fill_and_check(symbol_table* st){
     
     /* Verifica el tipo de cada uno de los parametros reales de la llamada de
-* una funcion
-*/
-    vector<AST_expression*>::iterator it;
-    for (it=elem.begin(); it != elem.end(); ++it){
+     * una funcion
+     */
+    for (vector<AST_expression*>::iterator it=elem.begin(); it != elem.end(); ++it){
         (*it)->fill_and_check(st);
     }
 }
@@ -501,9 +500,8 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
 }
 
 void AST_arg_list::fill_and_check(symbol_table* st){
-    vector<symbol*>::iterator it;
-    
-    for ( it=args.begin(); it != args.end(); ++it){
+
+    for ( vector<symbol*>::iterator it =args.begin(); it != args.end(); ++it){
         
         int level = 0;
         symbol* prev = st->lookup( (*it)->getName(), &level );
@@ -538,7 +536,6 @@ void AST_function::fill_and_check(symbol_table* st){
 }
 
 void AST_program::fill_and_check(symbol_table* st){
-    vector<AST_declaration*>::iterator it;
     
     // Declaracion previa de todas las funciones
     uint nsize = declarations.size();
@@ -579,13 +576,13 @@ void AST_program::fill_and_check(symbol_table* st){
     }
     
     // Verificacion del programa
-    int i=0;
+    vector<AST_declaration*>::iterator it;
     for ( it = declarations.begin(); it != declarations.end(); it++){
         (*it)->fill_and_check(st);
         
-        if ( typeid(*declarations[i]) == typeid(AST_variable_declaration) ){
+        if ( typeid(**it) == typeid(AST_variable_declaration) ){
             AST_variable_declaration* var = 
-                (AST_variable_declaration*)declarations[i];
+                (AST_variable_declaration*)*it;
             
             if (    var->value
                  && var->value->type != symbol::INVALID 
@@ -599,7 +596,6 @@ void AST_program::fill_and_check(symbol_table* st){
                 logger->error(var->line, var->column, e);
             }
         }
-        i++;
     }
 }
 

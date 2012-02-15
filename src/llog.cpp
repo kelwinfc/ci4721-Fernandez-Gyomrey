@@ -16,13 +16,14 @@ void llog::error(int l, int c, const char* e){
 }
 
 void llog::critical(const char* m){
-    throw m;
+    fprintf(stderr, "%s", m);
+    abort();
 }
 
 void llog::failure(const char* c){
     fprintf(stderr, "-------------------------------------------------------\n"
            );
-    fprintf(stderr, "\n\n\nEpic fail !(%s)\n", c);
+    fprintf(stderr, "\n\n\nEpic fail! (%s)\n", c);
 }
 
 void llog::success(){

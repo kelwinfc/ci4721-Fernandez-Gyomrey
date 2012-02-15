@@ -1,6 +1,7 @@
 #ifndef _LLOG
 #define _LLOG
-#include<string>
+#include <string>
+#include <stdlib.h>
 
 using namespace std;
 

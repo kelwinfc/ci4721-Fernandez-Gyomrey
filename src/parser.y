@@ -186,7 +186,7 @@ block :
             }
     |   '{' '}'
             { 
-                $$ = new AST_block();
+                $$ = new AST_block(((tokenId*)$1)->line, ((tokenId*)$1)->column);
                 delete $1;
                 delete $2;
             }
@@ -196,16 +196,16 @@ block :
 block_statement :
         statement
             {
-                AST_block* b = new AST_block();
+                AST_block* b = new AST_block(((AST_statement*)$1)->line, ((AST_statement*)$1)->column);
                 if ( $1 != 0 )
                     b->add_statement( (AST_statement*)$1 );
                 $$ = b;
             }
-    |   statement block_statement
+    |   block_statement statement
             {
-                if ( $1 != 0 )
-                    ((AST_block*)$2)->add_statement((AST_statement*)$1);
-                $$ = $2;
+                if ( $2 != 0 )
+                    ((AST_block*)$1)->add_statement((AST_statement*)$2);
+                $$ = $1;
             }
 ;
 
@@ -304,7 +304,7 @@ loop_block:
             }
     |   '{' '}'
             {
-                $$ = new AST_block();
+                $$ = new AST_block(((tokenId*)$1)->line, ((tokenId*)$1)->column);
                 delete $1;
                 delete $2;
             }
@@ -313,16 +313,16 @@ loop_block:
 loop_block_statement:
         loop_statement
             {
-                AST_block* b = new AST_block();
+                AST_block* b = new AST_block(((AST_statement*)$1)->line, ((AST_statement*)$1)->column);
                 if ( $1 != 0 )
                     b->add_statement((AST_statement*)$1);
                 $$ = b;
             }
-    |   loop_statement loop_block_statement
+    |   loop_block_statement loop_statement
             {
-                if ( $1 != 0 )
-                    ((AST_block*)$2)->add_statement((AST_statement*)$1);
-                $$ = $2;
+                if ( $2 != 0 )
+                    ((AST_block*)$1)->add_statement((AST_statement*)$2);
+                $$ = $1;
             }
 ;
 

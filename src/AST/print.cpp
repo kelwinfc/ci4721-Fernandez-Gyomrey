@@ -119,13 +119,13 @@ void AST_statement::print(int indentation){
 
 void AST_block::print(int indentation){
     
-    printf("%3d: ",statements.size() ? statements[0]->line : line );
+    printf("%3d: ", line );
     print_indentation(indentation);
     cout << "{\n";
     
     vector<AST_statement*>::iterator it;
-    for (int i=statements.size()-1; i >= 0; i--){
-        statements[i]->print(indentation+1);
+    for (it = statements.begin(); it != statements.end(); ++ it){
+        (*it)->print(indentation+1);
     }
     
     printf("%3d: ",statements.size() ? statements.back()->line : line );
