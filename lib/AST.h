@@ -15,6 +15,8 @@ using namespace std;
 
 extern llog* logger;
 
+enum RETURN {YES, NO, MAYBE};
+
 /* Clase raiz de la jerarquia del AST */
 class AST_node{
     public:
@@ -29,8 +31,11 @@ class AST_node{
 };
 
 class AST_statement : public AST_node{
+    
     public:
-
+        
+        RETURN has_return;
+        
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
@@ -41,11 +46,15 @@ class AST_expression : public AST_node{
         
         symbol::TYPE type;
         
+        bool is_constant;
+        
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
         virtual bool has_functions();
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_op : public AST_expression {
@@ -69,6 +78,8 @@ class AST_op : public AST_expression {
         virtual void fill_and_check(symbol_table* st);
         
         virtual bool has_functions();
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_un_op : public AST_expression {
@@ -90,6 +101,8 @@ class AST_un_op : public AST_expression {
         virtual void fill_and_check(symbol_table* st);
         
         virtual bool has_functions();
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_int : public AST_expression{
@@ -103,6 +116,8 @@ class AST_int : public AST_expression{
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_float : public AST_expression{
@@ -116,6 +131,8 @@ class AST_float : public AST_expression{
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_boolean : public AST_expression{
@@ -129,6 +146,8 @@ class AST_boolean : public AST_expression{
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_char : public AST_expression {
@@ -142,6 +161,8 @@ class AST_char : public AST_expression {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_ident : public AST_expression {
@@ -157,6 +178,8 @@ class AST_ident : public AST_expression {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_parameters_list : public AST_node {
@@ -177,7 +200,9 @@ class AST_parameters_list : public AST_node {
 class AST_function_call : public AST_expression {
 
     public:
-
+        
+        RETURN has_return;
+        
         string name;
 
         symbol* sym;
@@ -191,6 +216,8 @@ class AST_function_call : public AST_expression {
         virtual void fill_and_check(symbol_table* st);
         
         virtual bool has_functions();
+        
+        virtual AST_expression* constant_folding();
 };
 
 class AST_declaration : public AST_statement {
@@ -226,7 +253,9 @@ class AST_variable_declaration : public AST_declaration {
 class AST_block : public AST_node {
 
     public:
-
+        
+        RETURN has_return;
+        
         vector<AST_statement*> statements;
 
         AST_block(int l, int c);
@@ -254,7 +283,7 @@ class AST_arg_list : public AST_node {
 
 class AST_function : public AST_declaration {
     public:
-
+        
         symbol_function* func;
 
         AST_arg_list* formal_parameters;

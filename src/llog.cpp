@@ -7,6 +7,12 @@ llog::llog(){
     registered_error = false;
 }
 
+void llog::warning(int l, int c, const char* e){
+    if ( e ){
+        fprintf(stderr, "Warning %d:%d: %s\n", l, c, e);
+    }
+}
+
 void llog::error(int l, int c, const char* e){
     //TODO hay que copiar e si queremos que no se pierda al eliminar e del contexto padre
     if ( e ){

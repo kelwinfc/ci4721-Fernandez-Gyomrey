@@ -313,7 +313,9 @@ loop_block:
 loop_block_statement:
         loop_statement
             {
-                AST_block* b = new AST_block(((AST_statement*)$1)->line, ((AST_statement*)$1)->column);
+                AST_block* b = new AST_block(((AST_statement*)$1)->line,
+                                             ((AST_statement*)$1)->column
+                                            );
                 if ( $1 != 0 )
                     b->add_statement((AST_statement*)$1);
                 $$ = b;
@@ -357,7 +359,19 @@ expression :
                                delete $1;
                                delete $3;
                              }
-    |   TK_IDENT             { $$ = new AST_ident((tokenId*)$1); }
+    |   TK_IDENT             { 
+                                AST_expression* e = new AST_ident((tokenId*)$1);
+                                
+                                $$ = e;
+                                
+                                if ( e->is_constant ){
+                                    $$ = e->constant_folding();
+                                }
+                                
+                                if ( $$ != e ){
+                                    delete e;
+                                }
+                             }
     |   TK_IDENT '(' parameters_instance ')'
                              { $$ = new AST_function_call( (tokenId*) $1,
                                                            (AST_parameters_list*) $3
@@ -372,8 +386,24 @@ expression :
                                         delete $2;
                                         delete $4;
                                    }
-    |   aritmetic_expression { $$ = $1; }
-    |   boolean_expression   { $$ = $1; }
+    |   aritmetic_expression { 
+                                $$ = 
+                                      ((AST_expression*)$1)->constant_folding();
+                                
+                                if ( $$ != $1 ){
+                                    delete $1;
+                                }
+                              }
+    |   boolean_expression   { 
+                                $$ = $1;
+                                
+                                $$ = 
+                                  ((AST_expression*)$1)->constant_folding();
+                                
+                                if ( $$ != $1 ){
+                                    delete $1;
+                                }
+                             }
 ;
 
 aritmetic_expression:

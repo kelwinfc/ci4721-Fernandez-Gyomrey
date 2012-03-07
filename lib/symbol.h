@@ -16,13 +16,13 @@ class symbol{
         string name;
 
         bool constant;
-
+        
         TYPE type;
-
+        
         int line;
-
+        
         int column;
-
+        
         bool initialized;
         
     public:
@@ -31,7 +31,8 @@ class symbol{
         
         symbol();
         
-        symbol(string name, bool constant, TYPE type, int line, int column, bool initialized);
+        symbol(string name, bool constant, TYPE type, int line, int column,
+               bool initialized);
         
         string getName();
 

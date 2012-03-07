@@ -17,6 +17,8 @@ class llog{
 
         llog();
 
+        void warning(int l, int c, const char* e=0);
+        
         void error(int l, int c, const char* e=0);
 
         void critical(const char* m);

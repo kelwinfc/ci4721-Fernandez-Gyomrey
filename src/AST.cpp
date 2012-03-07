@@ -6,6 +6,7 @@
 #include "AST.h"
 #include "AST/print.cpp"
 #include "AST/check.cpp"
+#include "AST/constant_folding.cpp"
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
@@ -78,6 +79,7 @@ AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
 AST_int::AST_int(tokenInt* tk){
     
     type = symbol::INT;
+    is_constant = true;
     
     line = tk->line;
     column = tk->column;
@@ -88,6 +90,7 @@ AST_int::AST_int(tokenInt* tk){
 AST_float::AST_float(tokenFloat* tk){
 
     type = symbol::FLOAT;
+    is_constant = true;
     
     line = tk->line;
     column = tk->column;
@@ -98,6 +101,7 @@ AST_float::AST_float(tokenFloat* tk){
 AST_boolean::AST_boolean(tokenBoolean* tk){
     
     type = symbol::BOOLEAN;
+    is_constant = true;
     
     line = tk->line;
     column = tk->column;
@@ -108,6 +112,7 @@ AST_boolean::AST_boolean(tokenBoolean* tk){
 AST_char::AST_char(tokenId* tk){
 
     type = symbol::CHAR;
+    is_constant = true;
     
     line = tk->line;
     column = tk->column;
@@ -118,6 +123,7 @@ AST_char::AST_char(tokenId* tk){
 AST_ident::AST_ident(tokenId* tk){
 
     type = symbol::UNDEFINED;
+    is_constant = false;
     
     line = tk->line;
     column = tk->column;
@@ -139,21 +145,28 @@ void AST_parameters_list::add_element( AST_expression* e ){
 }
 
 AST_function_call::AST_function_call(tokenId* tk, AST_parameters_list* p){
+    
+    is_constant = false;
+    
     line = tk->line;
     column = tk->column;
     name = string(tk->ident);
     delete tk;
 
     params = p;
+    has_return = NO;
 }
 
 AST_conversion::AST_conversion(tokenType* t, AST_expression* e){
+    
     line = t->line;
     column = t->column;
     
     this->type = t->ident;
     this->expr = e;
     this->original_type = symbol::UNDEFINED;
+    
+    is_constant = e->is_constant;
     
     delete t;
 }
@@ -170,17 +183,42 @@ AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
                     );
     delete t;
     delete id;
-
+    
     value = v;
+    has_return = NO;
 }
 
 AST_block::AST_block(int l, int c){
     line = l;
     column = c;
     statements.clear();
+    has_return = NO;
 }
 
 void AST_block::add_statement(AST_statement* s){
+    
+    if ( statements.size() != 0 ){
+        if ( statements.back()->has_return == YES ){
+            if (    ( statements.size() > 1 
+                      && statements[statements.size() - 2]->has_return != YES)
+                 || ( statements.size() == 1 )
+               )
+            {
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN, 
+                             "Codigo inalcanzable");
+                    logger->warning(s->line, s->column, e);
+            }
+            s->has_return = YES;
+        } else if (    statements.back()->has_return == MAYBE 
+                    && s->has_return != YES )
+        {
+            s->has_return = MAYBE;
+        }
+    }
+    
+    has_return = s->has_return;
+    
     statements.push_back(s);
 }
 
@@ -226,6 +264,26 @@ AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
     
     formal_parameters = args;
     instructions = code;
+    
+    if ( func->getType() != symbol::NONE ){
+        if ( code->has_return == NO ){
+            // Reportar error de tipo de argumento
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, 
+                     "Función %s sin retorno",
+                     id->ident.c_str()
+                    );
+            logger->error(line, column, e);
+        } else if ( code->has_return == MAYBE ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, 
+                     "Función %s posiblemente sin retorno",
+                     id->ident.c_str()
+                    );
+            logger->warning(line, column, e);
+        }
+    }
+    
 }
 
 AST_program::AST_program(){
@@ -244,6 +302,7 @@ AST_assignment::AST_assignment(tokenId* i, AST_expression* e){
     delete i;
 
     expr = e;
+    has_return = NO;
 }
 
 AST_return::AST_return(token* tk, AST_expression* e){
@@ -253,6 +312,7 @@ AST_return::AST_return(token* tk, AST_expression* e){
     delete tk;
 
     expr = e;
+    has_return = YES;
 }
 
 AST_conditional::AST_conditional(token* tk, AST_expression* e, AST_block* b,
@@ -265,6 +325,28 @@ AST_conditional::AST_conditional(token* tk, AST_expression* e, AST_block* b,
     expr = e;
     block = b;
     else_if = branches;
+    
+    has_return = b->has_return;
+    
+    if ( branches ){
+        if ( has_return == YES ){
+            if ( branches->has_return == NO ){
+                has_return = MAYBE;
+            } else {
+                has_return = branches->has_return;
+            }
+        } else if ( has_return == NO ){
+            if ( branches->has_return != NO ){
+                has_return = MAYBE;
+            }
+        } else {
+            has_return = MAYBE;
+        }
+    } else if ( !e ) {
+        has_return = b->has_return;
+    } else if ( b->has_return != NO ){
+        has_return = MAYBE;
+    }
 }
 
 AST_loop::AST_loop(token* tk, AST_expression* e, AST_block* b)
@@ -275,6 +357,12 @@ AST_loop::AST_loop(token* tk, AST_expression* e, AST_block* b)
 
     expr = e;
     block = b;
+    
+    if ( block->has_return != NO ){
+        has_return = MAYBE;
+    } else {
+        has_return = NO;
+    }
 }
 
 AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id,
@@ -296,20 +384,29 @@ AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id,
     
     sym = 0;
     block = b;
+    
+    if ( block->has_return != NO ){
+        has_return = MAYBE;
+    } else {
+        has_return = NO;
+    }
 }
 
 AST_break::AST_break(token* t){
     line = t->line;
     column = t->column;
     delete t;
+    
+    has_return = NO;
 }
 
 AST_continue::AST_continue(token* t){
     line = t->line;
     column = t->column;
     delete t;
+    
+    has_return = NO;
 }
-
 
 AST_read::AST_read(tokenId* t){
     line = t->line;
@@ -317,9 +414,13 @@ AST_read::AST_read(tokenId* t){
     
     variable = string(t->ident);
     delete t;
+    
+    has_return = NO;
 }
 
-AST_print::AST_print(){}
+AST_print::AST_print(){
+    has_return = NO;
+}
 
 void AST_print::add_argument(AST_expression* e){
     list.push_back(e);

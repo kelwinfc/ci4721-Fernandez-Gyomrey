@@ -71,6 +71,7 @@ symbol_function::symbol_function(string name, int line, int column,
     this->name = name;
     this->type = NONE;
     this->constant = true;
+    
     this->line = line;
     this->column = column;
     this->initialized = false;
