@@ -35,16 +35,6 @@ class tokenId : public token{
         ~tokenId(){ ident.clear(); }
 };
 
-class tokenType : public token {
-    public:
-
-        TYPE ident;
-
-        tokenType(int l, int c, char* id);
-
-        void print();
-};
-
 class tokenInt : public token {
     public:
 

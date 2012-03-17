@@ -25,7 +25,7 @@ bla: lex.yy.c y.tab.c $(FILES:%=bin/%.o)
 	g++ $^ -o $@
 
 y.tab.c: src/parser.y $(FILES:%=bin/%.o)
-	bison -dy $<
+	bison -v -dy $<
 
 lex.yy.c: src/lexer.l $(FILES:%=bin/%.o) $(FILES:%=lib/%.h)
 	flex $< 
@@ -46,4 +46,4 @@ bin/type_table.o: $(DEP_type_table:%=src/%.cpp) $(DEP_type_table:%=lib/%.h)
 doc:
 	markdown2pdf doc/especificacion_primera_entrega.mdwn -o doc/especificacion_primera_entrega.pdf
 clean:
-		rm -f bin/*.o *~ bin/*~ src/*~ lib/*~ test/*~ bla y.tab.h lex.yy.c y.tab.c src/AST/*~
+		rm -f bin/*.o *~ bin/*~ src/*~ lib/*~ test/*~ bla y.tab.h lex.yy.c y.tab.c src/AST/*~ y.output

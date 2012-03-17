@@ -16,6 +16,7 @@ extern FILE *yyin;
 AST_program* p;
 llog* logger;
 type_table types;
+TYPE array_type = UNDEFINED;
 
 %}
 
@@ -23,12 +24,12 @@ type_table types;
     AST_node* nd;
     token* tk;
     symbol_table* tt;
+    int t;
 }
 
 /* Bison declarations.  */
 %token TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR 
 %token TK_IDENT
-%token TK_TYPE
 %token TK_FUNCTION
 %token TK_NONE
 %token TK_END
@@ -39,6 +40,7 @@ type_table types;
 %token TK_MOD
 %token TK_READ TK_PRINT
 %token TK_ALIAS TK_NEW_TYPE
+%token TK_AS
 
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
@@ -57,21 +59,25 @@ type_table types;
 %left '-' '+'
 %left '*' '/' TK_MOD
 %left NEG TK_NOT
+%left TK_AS
 
 %type<nd> input declaration variable_declaration block statement
           parameters_instance parameters_instance_non_empty
           arg_list non_empty_arg_list lista_ident
           block_statement loop_statement loop_block loop_block_statement
           else_statements expression aritmetic_expression boolean_expression
-%type<tk> TK_TYPE TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE
+          
+%type<tk> TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE
           TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ TK_READ TK_PRINT
           '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}'
-          TK_ALIAS TK_NEW_TYPE
+          TK_ALIAS TK_NEW_TYPE TK_AS
 
-%type<tt> struct_fields;
+%type<tt> struct_fields
+
+%type<t> type_def index_list
 
 %%
 
@@ -85,12 +91,160 @@ input:
                           }
 ;
 
+type_def:
+      TK_IDENT   {
+                    $$ = types.index_of( ((tokenId*)$1)->ident );
+                    delete $1;
+                 }
+      | TK_IDENT
+          {
+              tokenId* t = (tokenId*)$1;
+              if ( !types.has_type( t->ident ) ){
+                  char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo '%s' con identificador no definido previamente.",
+                             (char*)t->ident.c_str());
+                    logger->error(t->line, t->column, e);
+                    array_type = UNDEFINED;
+              } else {
+                  array_type = types.index_of( t->ident );
+              }
+          }
+          index_list
+          {
+              $$ = array_type;
+              array_type = UNDEFINED;
+          }
+    ;
+
+// Este punto es intencionalmente recursivo a derecha para que los corchetes
+// se aniden como se espera y asi poder hacer el modelo S-atribuido
+index_list :
+      '[' expression ']'
+          {
+              int up = 0;
+              if ( typeid(*$2) != typeid(AST_int) ){
+                  char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Indice de arreglo debe evaluar una constante entera.");
+                    logger->error($2->line, $2->column, e);
+              } else {
+                  up = ((AST_int*)$2)->value;
+              }
+              
+              array_descriptor* at;
+              at = new array_descriptor( types.types[ array_type ],
+                                         array_type, up, 0 );
+              
+              if ( types.has_type( at->name ) ){
+                  $$ = types.index_of( at->name );
+              } else {
+                  types.add_type( at );
+                  $$ = types.index_of( at->name );
+              }
+              array_type = $$;
+          }
+    | '[' expression ':' expression ']'
+          { 
+              int up = 0;
+              int low = 0;
+              if ( typeid(*$2) != typeid(AST_int)
+                   || typeid(*$4) != typeid(AST_int)
+                 )
+              {
+                  char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Indice de arreglo debe evaluar una constante entera.");
+                    logger->error($2->line, $2->column, e);
+              } else {
+                  low = ((AST_int*)$2)->value;
+                  up = ((AST_int*)$4)->value;
+              }
+              
+              array_descriptor* at;
+              at = new array_descriptor( types.types[ array_type ],
+                                         array_type, up, low );
+              
+              if ( types.has_type( at->name ) ){
+                  $$ = types.index_of( at->name );
+              } else {
+                  types.add_type( at );
+                  $$ = types.index_of( at->name );
+              }
+              array_type = $$;
+          }
+    | '[' expression ']' index_list
+          { 
+              int up = 0;
+              int low = 0;
+              if ( typeid(*$2) != typeid(AST_int)
+                 )
+              {
+                  char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Indice de arreglo debe evaluar una constante entera.");
+                    logger->error($2->line, $2->column, e);
+              } else {
+                  up = ((AST_int*)$2)->value;
+              }
+              
+              array_descriptor* at;
+              at = new array_descriptor( types.types[ array_type ],
+                                         array_type, up, low );
+              
+              if ( types.has_type( at->name ) ){
+                  $$ = types.index_of( at->name );
+              } else {
+                  types.add_type( at );
+                  $$ = types.index_of( at->name );
+              }
+              array_type = $$;
+          }
+    | '[' expression ':' expression ']' index_list
+          { 
+              int up = 0;
+              int low = 0;
+              if ( typeid(*$2) != typeid(AST_int)
+                   || typeid(*$4) != typeid(AST_int)
+                 )
+              {
+                  char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Indice de arreglo debe evaluar una constante entera.");
+                    logger->error($2->line, $2->column, e);
+              } else {
+                  low = ((AST_int*)$2)->value;
+                  up = ((AST_int*)$4)->value;
+              }
+              
+              array_descriptor* at;
+              at = new array_descriptor( types.types[ array_type ],
+                                         array_type, up, low );
+              
+              if ( types.has_type( at->name ) ){
+                  $$ = types.index_of( at->name );
+              } else {
+                  types.add_type( at );
+                  $$ = types.index_of( at->name );
+              }
+              array_type = $$;
+          }
+    ;
+
 // Declaracion de variables y funciones
 declaration:
         variable_declaration                               
             { $$ = $1 }
-    |   TK_FUNCTION TK_TYPE TK_IDENT '(' arg_list ')' block
-            { $$ = new AST_function( (tokenType*)$2,
+    |   TK_FUNCTION type_def TK_IDENT '(' arg_list ')' block
+            {
+              if ( !types.is_base( $2 ) ){
+                  char e[llog::ERR_LEN];
+                  snprintf(e, llog::ERR_LEN,
+                           "Funcion '%s' con tipo de retorno no primitivo.",
+                           (char*)((tokenId*)$3)->ident.c_str());
+                  logger->error($3->line, $3->column, e);
+              }
+              $$ = new AST_function( $2,
                                      (tokenId*)$3,
                                      (AST_arg_list*)$5,
                                      (AST_block*)$7
@@ -112,7 +266,7 @@ declaration:
             }
     |   TK_ALIAS TK_IDENT TK_IDENT ';'
             {
-                if ( types.has_type( (char*)((tokenId*)$2)->ident.c_str() ) ){
+                if ( types.has_type( ((tokenId*)$2)->ident ) ){
                     types.add_alias( ((tokenId*)$2)->ident,
                                      ((tokenId*)$3)->ident
                                    );
@@ -121,7 +275,7 @@ declaration:
                     snprintf(e, llog::ERR_LEN,
                              "Tipo '%s' con identificador no definido previamente.",
                              (char*)((tokenId*)$2)->ident.c_str());
-                    logger->error($3->line, $3->column, e);
+                    logger->error($2->line, $2->column, e);
 
                 }
                 delete $1;
@@ -132,7 +286,7 @@ declaration:
             }
     |   TK_NEW_TYPE TK_IDENT '{' struct_fields '}'
             {
-                if ( types.has_type( (char*)((tokenId*)$2)->ident.c_str() ) ){
+                if ( types.has_type( ((tokenId*)$2)->ident ) ){
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                              "Tipo '%s' con identificador repetido.",
@@ -154,6 +308,7 @@ declaration:
             }
 ;
 
+// Campos internos de los struct
 struct_fields :     {
                         $$ = new symbol_table();
                     }
@@ -197,8 +352,8 @@ struct_fields :     {
 
 // Declaracion de variables
 variable_declaration :
-      TK_CONST TK_TYPE TK_IDENT '=' expression ';'
-            { $$ = new AST_variable_declaration( (tokenType*)$2,
+      TK_CONST type_def TK_IDENT '=' expression ';'
+            { $$ = new AST_variable_declaration( $2,
                                                  (tokenId*)$3,
                                                  (AST_expression*)$5,
                                                  true
@@ -207,16 +362,16 @@ variable_declaration :
             delete $4;
             delete $6;
             }
-    | TK_TYPE TK_IDENT '=' expression ';'
-            { $$ = new AST_variable_declaration( (tokenType*)$1,
+    | type_def TK_IDENT '=' expression ';'
+            { $$ = new AST_variable_declaration( $1,
                                                  (tokenId*)$2,
                                                  (AST_expression*)$4
                                                );
             delete $3;
             delete $5;
             }
-    |   TK_TYPE TK_IDENT ';'
-            { $$ = new AST_variable_declaration( (tokenType*)$1,
+    | type_def TK_IDENT ';'
+            { $$ = new AST_variable_declaration( $1,
                                                  (tokenId*)$2,
                                                  0
                                                );
@@ -232,35 +387,35 @@ arg_list:
 
 // Lista de parámetros que no puede ser vacía
 non_empty_arg_list :
-        TK_CONST TK_TYPE TK_IDENT
+        TK_CONST type_def TK_IDENT
             {
                 AST_arg_list* ar = new AST_arg_list();
-                ar->add_argument( (tokenType*)$2,
+                ar->add_argument( $2,
                                   (tokenId*)$3,
                                   true
                                 );
                 $$ = ar;
                 delete $1;
             }
-    |   TK_TYPE TK_IDENT
+    |   type_def TK_IDENT
             {
                 AST_arg_list* ar = new AST_arg_list();
-                ar->add_argument( (tokenType*)$1,
+                ar->add_argument( $1,
                                   (tokenId*)$2
                                 );
                 $$ = ar;
             }
-    |   non_empty_arg_list ',' TK_TYPE TK_IDENT
+    |   non_empty_arg_list ',' type_def TK_IDENT
             {
-                ((AST_arg_list*)$1)->add_argument( (tokenType*)$3,
+                ((AST_arg_list*)$1)->add_argument( $3,
                                                    (tokenId*)$4
                                                  );
                 $$ = $1;
                 delete $2;
             }
-    |   non_empty_arg_list ',' TK_CONST TK_TYPE TK_IDENT
+    |   non_empty_arg_list ',' TK_CONST type_def TK_IDENT
             {
-                ((AST_arg_list*)$1)->add_argument( (tokenType*)$4,
+                ((AST_arg_list*)$1)->add_argument( $4,
                                                    (tokenId*)$5,
                                                    true
                                                  );
@@ -473,13 +628,25 @@ expression :
                                delete $2;
                                delete $4;
                              }
-    |   TK_TYPE '(' expression ')' {
-                                        $$ = new AST_conversion( (tokenType*) $1,
-                                                                 (AST_expression*) $3
-                                                               );
-                                        delete $2;
-                                        delete $4;
-                                   }
+    |    expression TK_AS type_def 
+        {
+            if ( TK_AS == 0 ){
+                char e[llog::ERR_LEN];
+                  snprintf(e, llog::ERR_LEN,
+                           "Conversión a tipo no definido previamente.\n");
+                  logger->error($2->line, $2->column, e);
+            } else if ( !types.is_base( $3 ) ){
+                char e[llog::ERR_LEN];
+                  snprintf(e, llog::ERR_LEN,
+                           "Conversión a tipo no primitivo '%s'.\n",
+                           types.types[$3]->name.c_str());
+                  logger->error($2->line, $2->column, e);
+            }
+            $$ = new AST_conversion( $3,
+                                     (AST_expression*) $1
+                                   );
+            delete $2;
+       }
     |   aritmetic_expression { 
                                 $$ = 
                                       ((AST_expression*)$1)->constant_folding();
@@ -610,6 +777,14 @@ int main (int argc,char **argv)
     
     p->fill_and_check(&st);
     p->print(0);
+    
+    fprintf(stderr, "-------------------------------------------------------\n"
+           );
+    fprintf(stderr, "\n\n TYPES:\n");
+    for (int i=0; i<types.types.size(); i++){
+        types.types[i]->print(stderr);
+        
+    }
     
     if ( logger->exists_registered_error() ){
         logger->failure("context");

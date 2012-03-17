@@ -120,14 +120,19 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_NEW_TYPE;
                             }
 
+"as"                        { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_AS;
+                            }
+
 "string"|"fill"|"map"|"foldr"|"foldl" { updatecol();
                                         fprintf(stderr,"Warning: Palabra reservada %s aún sin implementarse.\n",
                                         yytext);
                                       }
 
 "["|"]"|":"|"."                { updatecol();
-                                 fprintf(stderr,"Warning: Operador o caracter %s aún sin implementarse.\n",
-                                 yytext);
+                                 yylval.tk = new token(yylineno, column);
+                                 return yytext[0];
                                }
 
 "read"                         { updatecol();
@@ -146,8 +151,8 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                                }
 
 "int"|"float"|"char"|"boolean" { updatecol();
-                                 yylval.tk = new tokenType(yylineno, column, yytext);
-                                 return TK_TYPE;
+                                 yylval.tk = new tokenId(yylineno, column, yytext);
+                                 return TK_IDENT;
                                }
 
 "true"|"false"                 { updatecol();

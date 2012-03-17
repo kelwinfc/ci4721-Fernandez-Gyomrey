@@ -1,4 +1,7 @@
 #include "type_table.h"
+#include <iostream>
+
+using namespace std;
 
 type_table::type_table(){
     add_type( new type_descriptor("_undefined") );
@@ -22,10 +25,11 @@ bool type_table::is_base( int n ){
     return INT <= n && n <= BOOLEAN;
 }
 
-bool type_table::index_of( string s ){
+int type_table::index_of( string s ){
     if ( names.find(s) == names.end() ){
         return UNDEFINED;
     }
+    
     return names[s];
 }
 

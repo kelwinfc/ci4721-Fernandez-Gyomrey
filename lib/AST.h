@@ -8,12 +8,14 @@
 #include "token.h"
 #include "symbol.h"
 #include "symbol_table.h"
+#include "type_table.h"
 #include "llog.h"
 #include "utils.h"
 
 using namespace std;
 
 extern llog* logger;
+extern type_table types;
 
 enum RETURN {YES, NO, MAYBE};
 
@@ -238,7 +240,7 @@ class AST_variable_declaration : public AST_declaration {
 
         AST_expression* value;
 
-        AST_variable_declaration(tokenType* t, tokenId* id,
+        AST_variable_declaration(TYPE t, tokenId* id,
                                  AST_expression* v = 0,
                                  bool constant = false
                                 );
@@ -274,7 +276,7 @@ class AST_arg_list : public AST_node {
 
         AST_arg_list();
 
-        void add_argument( tokenType* t, tokenId* id, bool constant = false );
+        void add_argument( TYPE t, tokenId* id, bool constant = false );
 
         virtual void print(int indentation);
         
@@ -289,10 +291,10 @@ class AST_function : public AST_declaration {
         AST_arg_list* formal_parameters;
 
         AST_block* instructions;
-
-        AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
+        
+        AST_function(TYPE t, tokenId* id, AST_arg_list* args,
                      AST_block* code);
-
+        
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
@@ -459,7 +461,7 @@ class AST_conversion : public AST_expression {
         TYPE original_type;
         AST_expression* expr;
         
-        AST_conversion(tokenType* t, AST_expression* e);
+        AST_conversion(TYPE t, AST_expression* e);
         
         virtual void print(int indentation);
         

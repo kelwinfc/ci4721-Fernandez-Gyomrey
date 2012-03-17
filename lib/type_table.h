@@ -18,7 +18,7 @@ class type_table{
         
         bool is_base( int n );
         
-        bool index_of( string n );
+        int index_of( string n );
         
         void add_type( type_descriptor* td );
         

@@ -33,33 +33,9 @@ void AST_variable_declaration::print(int indentation){
     AST_declaration::print(indentation);
     
     cout << "Declaration: " << sym->getName()
-         << " (";
-     
-    switch ( sym->getType() ) {
-        case INT:
-            cout << "int";
-            break;
-        case FLOAT:
-            cout << "float";
-            break;
-        case CHAR:
-            cout << "char";
-            break;
-        case BOOLEAN:
-            cout << "boolean";
-            break;
-        case NONE:
-            cout << "none";
-            break;
-        case INVALID:
-            cout << "invalid";
-            break;
-        case UNDEFINED:
-            cout << "undefined";
-            break;
-    }
-    
-    cout << ") ";
+         << " ("
+         << types.types[ sym->getType() ]->name
+         << ") ";
     
     if ( value != 0 ){
         cout << "initialized with\n";
@@ -178,7 +154,7 @@ string AST_op::binary_operator(){
 void AST_op::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
-    cout << binary_operator() << " [" << symbol::getTypeName(type) << "]\n";
+    cout << binary_operator() << " [" << types.types[type]->name << "]\n";
     
     left->print(indentation+1);
     right->print(indentation+1);
@@ -199,7 +175,7 @@ void AST_un_op::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
     cout << "Unary " << unary_operator()
-         << " [" << symbol::getTypeName(type) << "]\n";
+         << " [" << types.types[type]->name << "]\n";
     
     expr->print(indentation+1);
     
@@ -235,7 +211,7 @@ void AST_ident::print(int indentation){
     cout << "Identifier: " << value;
     if ( sym ){
         cout << " ["
-             << symbol::getTypeName(sym->getType())
+             << types.types[sym->getType()]->name
              << ":"
              << sym->getLine()
              << ":"
@@ -254,7 +230,7 @@ void AST_function_call::print(int indentation){
     cout << name;
     if ( sym ){
         cout << " ["
-             << symbol::getTypeName(sym->getType())
+             << types.types[sym->getType()]->name
              << ":"
              << sym->getLine()
              << ":"
@@ -294,8 +270,8 @@ void AST_conversion::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
     
-    cout << "Conversion from " << symbol::getTypeName(original_type).c_str()
-         << " to " << symbol::getTypeName(type).c_str() << endl;
+    cout << "Conversion from " << types.types[original_type]->name
+         << " to " << types.types[type]->name << endl;
      
      expr->print(indentation+1);
 }
@@ -315,7 +291,7 @@ void AST_assignment::print(int indentation){
     
     if ( sym ){
         cout << " ["
-             << symbol::getTypeName(sym->getType())
+             << types.types[sym->getType()]->name
              << ":"
              << sym->getLine()
              << ":"
@@ -335,7 +311,7 @@ void AST_return::print(int indentation){
     print_indentation(indentation);
     
     if ( expr ){
-        cout << "Return [" << symbol::getTypeName(expr->type) << "]" << endl;
+        cout << "Return [" << types.types[expr->type]->name << "]" << endl;
         expr->print(indentation+1);
     } else {
         cout << "Empty return" << endl;
@@ -423,7 +399,7 @@ void AST_read::print(int indentation){
     
     if ( sym ){
         cout << " ["
-             << symbol::getTypeName(sym->getType())
+             << types.types[sym->getType()]->name
              << ":"
              << sym->getLine()
              << ":"

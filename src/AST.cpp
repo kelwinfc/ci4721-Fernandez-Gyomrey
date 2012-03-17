@@ -157,31 +157,30 @@ AST_function_call::AST_function_call(tokenId* tk, AST_parameters_list* p){
     has_return = NO;
 }
 
-AST_conversion::AST_conversion(tokenType* t, AST_expression* e){
+AST_conversion::AST_conversion(TYPE t, AST_expression* e){
     
-    line = t->line;
-    column = t->column;
+    line = e->line;
+    column = e->column;
     
-    this->type = t->ident;
+    this->type = t;
     this->expr = e;
     this->original_type = UNDEFINED;
     
     is_constant = e->is_constant;
     
-    delete t;
 }
 
-AST_variable_declaration::AST_variable_declaration(tokenType* t, tokenId* id,
+AST_variable_declaration::AST_variable_declaration(TYPE t, tokenId* id,
                                                    AST_expression* v,
                                                    bool constant
                                                   )
 {
-    line = t->line;
+    line = id->line;
     
-    sym = new symbol(string(id->ident), constant, t->ident, id->line,
+    sym = new symbol(string(id->ident), constant, t, id->line,
                      id->column, 0 != v
                     );
-    delete t;
+    
     delete id;
     
     value = v;
@@ -226,20 +225,19 @@ AST_arg_list::AST_arg_list(){
 
 }
 
-void AST_arg_list::add_argument( tokenType* t, tokenId* id, bool constant ){
-    symbol* next_arg = new symbol(id->ident, constant, t->ident,
-                                  t->line, t->column, false);
+void AST_arg_list::add_argument( TYPE t, tokenId* id, bool constant ){
+    symbol* next_arg = new symbol(id->ident, constant, t,
+                                  id->line, id->column, false);
     
     args.push_back( next_arg );
     
     line = args[0]->getLine();
     
-    delete t;
     delete id;
 }
 
 
-AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
+AST_function::AST_function(TYPE t, tokenId* id, AST_arg_list* args,
                            AST_block* code
                           )
 {
@@ -253,13 +251,12 @@ AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
     }
     
     if ( t ){
-        func = new symbol_function(id->ident, t->ident, id->line, id->column,
+        func = new symbol_function(id->ident, t, id->line, id->column,
                                    types);
     } else {
         func = new symbol_function(id->ident, id->line, id->column, types );
     }
     
-    delete t;
     delete id;
     
     formal_parameters = args;

@@ -13,11 +13,10 @@ extern bool error;
 class symbol_table {
     private:
 
-        map<string, symbol*> table;
-
         symbol_table* parent;
 
     public:
+        map<string, symbol*> table;
         
         symbol_table();
         
