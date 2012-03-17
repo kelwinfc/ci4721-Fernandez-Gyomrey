@@ -37,6 +37,14 @@ void type_table::add_type( type_descriptor* td ){
     }
 }
 
+void type_table::add_type( string t ){
+    
+    if ( names.find( t ) == names.end() ){
+        names[ t ] = types.size();
+        types.push_back( new type_descriptor(t) );
+    }
+}
+
 void type_table::add_alias( string a, string b ){
     names[b] = index_of(a);
 }

@@ -110,6 +110,16 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_GREAT;
                             }
 
+"alias"                     { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_ALIAS;
+                            }
+
+"type"                      { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_NEW_TYPE;
+                            }
+
 "string"|"fill"|"map"|"foldr"|"foldl" { updatecol();
                                         fprintf(stderr,"Warning: Palabra reservada %s aún sin implementarse.\n",
                                         yytext);

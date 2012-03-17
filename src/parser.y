@@ -6,6 +6,7 @@
 #include "lib/symbol.h"
 #include "lib/symbol_table.h"
 #include "lib/llog.h"
+#include "lib/type_table.h"
 
 int yylex (void);
 void yyerror (char const *);
@@ -14,12 +15,14 @@ extern FILE *yyin;
 
 AST_program* p;
 llog* logger;
+type_table types;
 
 %}
 
 %union{
     AST_node* nd;
     token* tk;
+    symbol_table* tt;
 }
 
 /* Bison declarations.  */
@@ -35,6 +38,7 @@ llog* logger;
 %token TK_CONST
 %token TK_MOD
 %token TK_READ TK_PRINT
+%token TK_ALIAS TK_NEW_TYPE
 
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
@@ -65,13 +69,20 @@ llog* logger;
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ TK_READ TK_PRINT
           '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}'
+          TK_ALIAS TK_NEW_TYPE
+
+%type<tt> struct_fields;
 
 %%
 
 // Definicion de un programa
 input:
-        declaration       { p->add_declaration((AST_declaration*)$1); }
-    |   input declaration { p->add_declaration((AST_declaration*)$2); }
+        declaration       { if ( $1 )
+                                p->add_declaration((AST_declaration*)$1);
+                          }
+    |   input declaration { if ( $2 )
+                                p->add_declaration((AST_declaration*)$2);
+                          }
 ;
 
 // Declaracion de variables y funciones
@@ -99,7 +110,90 @@ declaration:
             delete $4;
             delete $6;
             }
+    |   TK_ALIAS TK_IDENT TK_IDENT ';'
+            {
+                if ( types.has_type( (char*)((tokenId*)$2)->ident.c_str() ) ){
+                    types.add_alias( ((tokenId*)$2)->ident,
+                                     ((tokenId*)$3)->ident
+                                   );
+                } else {
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo '%s' con identificador no definido previamente.",
+                             (char*)((tokenId*)$2)->ident.c_str());
+                    logger->error($3->line, $3->column, e);
+
+                }
+                delete $1;
+                delete $2;
+                delete $3;
+                
+                $$ = 0;
+            }
+    |   TK_NEW_TYPE TK_IDENT '{' struct_fields '}'
+            {
+                if ( types.has_type( (char*)((tokenId*)$2)->ident.c_str() ) ){
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo '%s' con identificador repetido.",
+                             (char*)((tokenId*)$2)->ident.c_str());
+                    logger->error($1->line, $1->column, e);
+                    
+                    delete $2;
+                    delete $4;
+                } else {
+                    types.add_type( new struct_type( ((tokenId*)$2)->ident, 
+                                                     $4)
+                                  );
+                }
+                delete $1;
+                delete $3;
+                delete $5;
+                             
+                $$ = 0;
+            }
 ;
+
+struct_fields :     {
+                        $$ = new symbol_table();
+                    }
+              | struct_fields TK_IDENT TK_IDENT ';'
+                    {
+                        if ( !types.has_type( ((tokenId*)$2)->ident ) )
+                        {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Tipo '%s' no definido previamente.",
+                                     (char*)((tokenId*)$2)->ident.c_str());
+                            logger->error($2->line, $2->column, e);
+                            
+                            delete $2;
+                            delete $4;
+                            
+                            $1->insert(new symbol( ((tokenId*)$3)->ident, false,
+                                               UNDEFINED,
+                                               $2->line, $2->column,
+                                               false) );
+                        } else if ( $1->lookup(((tokenId*)$3)->ident) ){
+                            
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Campo '%s' en el tipo '%s' duplicado.",
+                                     (char*)((tokenId*)$3)->ident.c_str(),
+                                     ((tokenId*)($-1.tk))->ident.c_str()
+                                    );
+                            logger->error($2->line, $2->column, e);
+                        } else {
+                            $1->insert(new symbol( ((tokenId*)$3)->ident, false,
+                                               types.index_of(
+                                                   ((tokenId*)$2)->ident),
+                                               $2->line, $2->column,
+                                               false) );
+                        }
+                        
+                        $$ = $1;
+                    }
+              ;
 
 // Declaracion de variables
 variable_declaration :
@@ -501,6 +595,7 @@ int main (int argc,char **argv)
             yyparse();
         } while (!feof(yyin));
     }
+    
     if ( logger->exists_registered_error() ){
         logger->failure("lexer");
         return 0;
@@ -510,8 +605,9 @@ int main (int argc,char **argv)
         logger->failure("parser");
         return 0;
     }
-
+    
     symbol_table st;
+    
     p->fill_and_check(&st);
     p->print(0);
     

@@ -15,12 +15,12 @@ class type_descriptor{
         type_descriptor(string n, int w = 0, int a = 1);
 };
 
-class struct_descriptor : public type_descriptor {
+class struct_type : public type_descriptor {
     
     public:
         symbol_table* fields;
 
-        struct_descriptor(string n, symbol_table* st);
+        struct_type(string n, symbol_table* st);
 };
 
 #endif

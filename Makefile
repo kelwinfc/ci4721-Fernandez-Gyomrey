@@ -10,12 +10,15 @@ FILES=token\
       utils\
       symbol\
       symbol_table\
+      type_descriptor\
+      type_table\
       llog
 
 DEP_AST=token utils symbol symbol_table llog
 DEP_token=utils llog
 DEP_symbol_table=symbol
-
+DEP_type_descriptor=utils symbol symbol_table
+DEP_type_table=utils symbol symbol_table type_descriptor
 all: bla
 
 bla: lex.yy.c y.tab.c $(FILES:%=bin/%.o)
@@ -37,6 +40,8 @@ bin/utils.o: $(DEP_utils:%=src/%.cpp) $(DEP_utils:%=lib/%.h)
 bin/symbol.o: $(DEP_symbol:%=src/%.cpp) $(DEP_symbol:%=lib/%.h)
 bin/symbol_table.o: $(DEP_symbol_table:%=src/%.cpp) $(DEP_symbol_table:%=lib/%.h)
 bin/llog.o: $(DEP_llog:%=src/%.cpp) $(DEP_llog:%=lib/%.h)
+bin/type_descriptor.o: $(DEP_type_descriptor:%=src/%.cpp) $(DEP_type_descriptor:%=lib/%.h)
+bin/type_table.o: $(DEP_type_table:%=src/%.cpp) $(DEP_type_table:%=lib/%.h)
 
 doc:
 	markdown2pdf doc/especificacion_primera_entrega.mdwn -o doc/especificacion_primera_entrega.pdf

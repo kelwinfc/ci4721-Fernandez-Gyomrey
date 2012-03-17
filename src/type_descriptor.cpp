@@ -6,7 +6,7 @@ type_descriptor::type_descriptor(string n, int w, int a){
     alignment = a;
 }
 
-struct_descriptor::struct_descriptor(string n, symbol_table* st){
+struct_type::struct_type(string n, symbol_table* st){
     name = n;
     width = 0;
     alignment = 1;
