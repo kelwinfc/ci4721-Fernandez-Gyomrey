@@ -3,14 +3,12 @@
 
 #include <string>
 #include <vector>
+#include "utils.h"
 
 using namespace std;
 
 class symbol{
-    public:
-
-        enum TYPE { INT, FLOAT, CHAR, BOOLEAN, NONE, UNDEFINED, INVALID };
-
+    
     protected:
 
         string name;

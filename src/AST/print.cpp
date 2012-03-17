@@ -36,25 +36,25 @@ void AST_variable_declaration::print(int indentation){
          << " (";
      
     switch ( sym->getType() ) {
-        case symbol::INT:
+        case INT:
             cout << "int";
             break;
-        case symbol::FLOAT:
+        case FLOAT:
             cout << "float";
             break;
-        case symbol::CHAR:
+        case CHAR:
             cout << "char";
             break;
-        case symbol::BOOLEAN:
+        case BOOLEAN:
             cout << "boolean";
             break;
-        case symbol::NONE:
+        case NONE:
             cout << "none";
             break;
-        case symbol::INVALID:
+        case INVALID:
             cout << "invalid";
             break;
-        case symbol::UNDEFINED:
+        case UNDEFINED:
             cout << "undefined";
             break;
     }

@@ -44,7 +44,7 @@ class AST_statement : public AST_node{
 class AST_expression : public AST_node{
     public:
         
-        symbol::TYPE type;
+        TYPE type;
         
         bool is_constant;
         
@@ -60,14 +60,14 @@ class AST_expression : public AST_node{
 class AST_op : public AST_expression {
     public:
         
-        enum TYPE { PLUS, MINUS, PROD, DIV, MOD, AND, OR, IMP, CONSEQ,
-                    EQ, UNEQ, LESS, LESS_EQ, GREAT, GREAT_EQ     };
+        enum OPER_TYPE { PLUS, MINUS, PROD, DIV, MOD, AND, OR, IMP, CONSEQ,
+                         EQ, UNEQ, LESS, LESS_EQ, GREAT, GREAT_EQ     };
         
         int line_op, column_op, line_rop, column_rop;
         
         AST_expression *left, *right;
         
-        TYPE oper_type;
+        OPER_TYPE oper_type;
         
         AST_op(AST_expression* l, tokenId* o, AST_expression* r);
         
@@ -86,9 +86,9 @@ class AST_un_op : public AST_expression {
 
     public:
 
-        enum TYPE { NEG, NOT };
+        enum OPER_TYPE { NEG, NOT };
 
-        TYPE oper_type;
+        OPER_TYPE oper_type;
 
         AST_expression *expr;
 
@@ -456,7 +456,7 @@ class AST_print : public AST_statement {
 class AST_conversion : public AST_expression {
     
     public:
-        symbol::TYPE original_type;
+        TYPE original_type;
         AST_expression* expr;
         
         AST_conversion(tokenType* t, AST_expression* e);

@@ -10,7 +10,7 @@
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
-    type = symbol::UNDEFINED;
+    type = UNDEFINED;
 
     line = l->line;
     column = l->column;
@@ -59,7 +59,7 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
 AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
 
-    type = symbol::UNDEFINED;
+    type = UNDEFINED;
     
     if ( o->ident.compare("!") == 0 ){
         oper_type = NOT;
@@ -78,7 +78,7 @@ AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
 
 AST_int::AST_int(tokenInt* tk){
     
-    type = symbol::INT;
+    type = INT;
     is_constant = true;
     
     line = tk->line;
@@ -89,7 +89,7 @@ AST_int::AST_int(tokenInt* tk){
 
 AST_float::AST_float(tokenFloat* tk){
 
-    type = symbol::FLOAT;
+    type = FLOAT;
     is_constant = true;
     
     line = tk->line;
@@ -100,7 +100,7 @@ AST_float::AST_float(tokenFloat* tk){
 
 AST_boolean::AST_boolean(tokenBoolean* tk){
     
-    type = symbol::BOOLEAN;
+    type = BOOLEAN;
     is_constant = true;
     
     line = tk->line;
@@ -111,7 +111,7 @@ AST_boolean::AST_boolean(tokenBoolean* tk){
 
 AST_char::AST_char(tokenId* tk){
 
-    type = symbol::CHAR;
+    type = CHAR;
     is_constant = true;
     
     line = tk->line;
@@ -122,7 +122,7 @@ AST_char::AST_char(tokenId* tk){
 
 AST_ident::AST_ident(tokenId* tk){
 
-    type = symbol::UNDEFINED;
+    type = UNDEFINED;
     is_constant = false;
     
     line = tk->line;
@@ -152,7 +152,7 @@ AST_function_call::AST_function_call(tokenId* tk, AST_parameters_list* p){
     column = tk->column;
     name = string(tk->ident);
     delete tk;
-
+    
     params = p;
     has_return = NO;
 }
@@ -164,7 +164,7 @@ AST_conversion::AST_conversion(tokenType* t, AST_expression* e){
     
     this->type = t->ident;
     this->expr = e;
-    this->original_type = symbol::UNDEFINED;
+    this->original_type = UNDEFINED;
     
     is_constant = e->is_constant;
     
@@ -247,7 +247,7 @@ AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
     column = id->column;
     
     vector< symbol* >::iterator it;
-    vector< symbol::TYPE > types;
+    vector< TYPE > types;
     for (it = args->args.begin(); it != args->args.end(); ++ it){
         types.push_back( (*it)->getType() );
     }
@@ -265,7 +265,7 @@ AST_function::AST_function(tokenType* t, tokenId* id, AST_arg_list* args,
     formal_parameters = args;
     instructions = code;
     
-    if ( func->getType() != symbol::NONE ){
+    if ( func->getType() != NONE ){
         if ( code->has_return == NO ){
             // Reportar error de tipo de argumento
             char e[llog::ERR_LEN];

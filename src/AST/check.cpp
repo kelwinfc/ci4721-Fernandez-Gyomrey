@@ -8,7 +8,7 @@
 * el cuerpos de las funciones. Valido como manejo global dado que no se
 * permiten funciones anidadas
 */
-symbol::TYPE expected_return = symbol::UNDEFINED;
+TYPE expected_return = UNDEFINED;
 
 /* Clase ficticia en la jerarquia, solo necesaria por semantica. No requiere
 * manejo de tabla de simbolos
@@ -38,8 +38,8 @@ void AST_op::fill_and_check(symbol_table* st){
     right->fill_and_check(st);
     
     // Ambos argumentos son invalidos
-    if ( left->type == symbol::INVALID && right->type == symbol::INVALID ){
-        type = symbol::INVALID;
+    if ( left->type == INVALID && right->type == INVALID ){
+        type = INVALID;
         logger->error(line, column);
         return;
     }
@@ -47,11 +47,11 @@ void AST_op::fill_and_check(symbol_table* st){
     /* Un solo argumento invalido, tratar de validar el otro y colocar el valor
     * de la expresion segun el valor de ese argumento
     */
-    else if ( left->type == symbol::INVALID || right->type == symbol::INVALID ){
+    else if ( left->type == INVALID || right->type == INVALID ){
         AST_expression* valido;
         char* nombre_valido;
         
-        if ( left->type != symbol::INVALID ){
+        if ( left->type != INVALID ){
             valido = left;
             nombre_valido = (char*)"izquierdo";
         } else {
@@ -63,9 +63,9 @@ void AST_op::fill_and_check(symbol_table* st){
             
             case MOD:
                 
-                type = symbol::INT;
+                type = INT;
                 
-                if ( valido->type != symbol::INT ){
+                if ( valido->type != INT ){
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                              "Operando '%s' de tipo %s, esperado int.",
@@ -82,8 +82,8 @@ void AST_op::fill_and_check(symbol_table* st){
             case PROD:
             case DIV:
                 
-                if ( valido->type == symbol::INT
-                     || valido->type == symbol::FLOAT
+                if ( valido->type == INT
+                     || valido->type == FLOAT
                    )
                 {
                     type = valido->type;
@@ -104,8 +104,8 @@ void AST_op::fill_and_check(symbol_table* st){
             case IMP:
             case CONSEQ:
                 
-                if ( valido->type == symbol::BOOLEAN ){
-                    type = symbol::BOOLEAN;
+                if ( valido->type == BOOLEAN ){
+                    type = BOOLEAN;
                 } else {
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
@@ -121,7 +121,7 @@ void AST_op::fill_and_check(symbol_table* st){
             case EQ:
             case UNEQ:
             
-                type = symbol::BOOLEAN;
+                type = BOOLEAN;
                 break;
             
             /* Operadores de relación de orden: <, <=, >, >= */
@@ -130,10 +130,10 @@ void AST_op::fill_and_check(symbol_table* st){
             case GREAT:
             case GREAT_EQ:
             
-                type = symbol::BOOLEAN;
-                if (    valido->type != symbol::INT
-                     && valido->type != symbol::FLOAT
-                     && valido->type != symbol::CHAR
+                type = BOOLEAN;
+                if (    valido->type != INT
+                     && valido->type != FLOAT
+                     && valido->type != CHAR
                    )
                 {
                     char e[llog::ERR_LEN];
@@ -155,15 +155,15 @@ void AST_op::fill_and_check(symbol_table* st){
     switch( oper_type ){
         
         case MOD:
-            type = symbol::INT;
+            type = INT;
             
             char e[llog::ERR_LEN];
             
-            if ( left->type != symbol::INT ){
+            if ( left->type != INT ){
                 snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado int.",
                 symbol::getTypeName(left->type).c_str());
                 logger->error(line, column, e);
-            } else if ( right->type != symbol::INT ) {
+            } else if ( right->type != INT ) {
                 snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado int.",
                 symbol::getTypeName(right->type).c_str());
                 logger->error(line, column, e);
@@ -178,7 +178,7 @@ void AST_op::fill_and_check(symbol_table* st){
         case DIV:
             
             if ( left->type == right->type ) {
-                if ( left->type == symbol::INT || left->type == symbol::FLOAT )
+                if ( left->type == INT || left->type == FLOAT )
                 {
                     type = left->type;
                 } else {
@@ -190,7 +190,7 @@ void AST_op::fill_and_check(symbol_table* st){
                             );
                     logger->error(line, column, e);
                     
-                    type = symbol::INVALID;
+                    type = INVALID;
                 }
                 
             } else {
@@ -202,7 +202,7 @@ void AST_op::fill_and_check(symbol_table* st){
                             symbol::getTypeName(right->type).c_str()
                             );
                     logger->error(line, column, e);
-                type = symbol::INVALID;
+                type = INVALID;
             }
             break;
         
@@ -214,8 +214,8 @@ void AST_op::fill_and_check(symbol_table* st){
             
             if ( left->type == right->type )
             {
-                type = symbol::BOOLEAN;
-                if ( left->type != symbol::BOOLEAN )
+                type = BOOLEAN;
+                if ( left->type != BOOLEAN )
                 {
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
@@ -243,7 +243,7 @@ void AST_op::fill_and_check(symbol_table* st){
         case EQ:
         case UNEQ:
             
-            type = symbol::BOOLEAN;
+            type = BOOLEAN;
             if ( left->type != right->type )
             {
                 // Error de ambos argumentos con tipos invalidos
@@ -264,13 +264,13 @@ void AST_op::fill_and_check(symbol_table* st){
         case GREAT:
         case GREAT_EQ:
             
-            type = symbol::BOOLEAN;
+            type = BOOLEAN;
             
             if ( left->type == right->type )
             {
-                if (    left->type != symbol::INT
-                     && left->type != symbol::FLOAT
-                     && left->type != symbol::CHAR
+                if (    left->type != INT
+                     && left->type != FLOAT
+                     && left->type != CHAR
                    )
                 {
                     // Error de ambos argumentos con tipos invalidos
@@ -302,14 +302,14 @@ void AST_op::fill_and_check(symbol_table* st){
 void AST_un_op::fill_and_check(symbol_table* st){
     expr->fill_and_check(st);
     
-    if ( expr->type == symbol::BOOLEAN ){
+    if ( expr->type == BOOLEAN ){
         if ( oper_type == NOT ){
-            type = symbol::BOOLEAN;
+            type = BOOLEAN;
         } else {
             // Reportar error de argumento booleano y operando menos unario
             logger->error(line, column, "Operando de tipo boolean, esperado float o int.");
         }
-    } else if ( expr->type == symbol::INT || expr->type == symbol::FLOAT ){
+    } else if ( expr->type == INT || expr->type == FLOAT ){
         
         if ( oper_type == NEG ){
             type = expr->type;
@@ -317,7 +317,7 @@ void AST_un_op::fill_and_check(symbol_table* st){
             // Reportar error de argumento numero y operando negacion
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado boolean.",
-                expr->type == symbol::INT ? "int": "float");
+                expr->type == INT ? "int": "float");
             logger->error(line, column, e);
         }
     } else {
@@ -331,19 +331,19 @@ void AST_un_op::fill_and_check(symbol_table* st){
 }
 
 void AST_int::fill_and_check(symbol_table* st){
-    type = symbol::INT;
+    type = INT;
 }
 
 void AST_float::fill_and_check(symbol_table* st){
-    type = symbol::FLOAT;
+    type = FLOAT;
 }
 
 void AST_char::fill_and_check(symbol_table* st){
-    type = symbol::CHAR;
+    type = CHAR;
 }
 
 void AST_boolean::fill_and_check(symbol_table* st){
-    type = symbol::BOOLEAN;
+    type = BOOLEAN;
 }
 
 void AST_ident::fill_and_check(symbol_table* st){
@@ -365,7 +365,7 @@ void AST_ident::fill_and_check(symbol_table* st){
         }
     } else {
         /* El simbolo no existe en la tabla */
-        type = symbol::INVALID;
+        type = INVALID;
 
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN, "Identificador '%s' no definido previamente.", value.c_str());
@@ -419,12 +419,16 @@ void AST_function_call::fill_and_check(symbol_table* st){
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN, "Función '%s' no definida.", name.c_str());
         logger->error(line, column, e);
+        
+        type = UNDEFINED;
     } else if ( !sym->is_function ){
         sym = 0;
 
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN, "Identificador '%s' no es un nombre de función.", name.c_str());
         logger->error(line, column, e);
+        
+        type = UNDEFINED;
     } else {
         symbol_function* f = (symbol_function*)sym;
         
@@ -436,7 +440,7 @@ void AST_function_call::fill_and_check(symbol_table* st){
         } else {
             uint nsize = params->elem.size();
             for (uint i=0; i<nsize; i++){
-                if ( params->elem[i]->type != symbol::INVALID
+                if ( params->elem[i]->type != INVALID
                      && params->elem[i]->type != f->params[i] )
                 {
                     char e[llog::ERR_LEN];
@@ -449,6 +453,8 @@ void AST_function_call::fill_and_check(symbol_table* st){
                 }
             }
         }
+        
+        type = f->getType();
     }
 }
 
@@ -485,7 +491,7 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
     
     if ( value
          && value->type != sym->getType()
-         && value->type != symbol::INVALID
+         && value->type != INVALID
        )
     {
         char e[llog::ERR_LEN];
@@ -530,7 +536,7 @@ void AST_function::fill_and_check(symbol_table* st){
     formal_parameters->fill_and_check(nested_block);
     instructions->fill_and_check(nested_block);
     
-    expected_return = symbol::UNDEFINED;
+    expected_return = UNDEFINED;
     
     delete nested_block;
 }
@@ -564,7 +570,7 @@ void AST_program::fill_and_check(symbol_table* st){
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "Falta declaración de función main.");
             logger->error(0, 0, e);
-        } else if ( sf->getType() != symbol::NONE ){
+        } else if ( sf->getType() != NONE ){
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "main debe tener tipo de retorno none.");
             logger->error(sf->getLine(), sf->getColumn(), e);
@@ -585,7 +591,7 @@ void AST_program::fill_and_check(symbol_table* st){
                 (AST_variable_declaration*)*it;
             
             if (    var->value
-                 && var->value->type != symbol::INVALID 
+                 && var->value->type != INVALID 
                  && var->value->has_functions()
                )
             {
@@ -613,7 +619,7 @@ void AST_assignment::fill_and_check(symbol_table* st){
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN, "Intento de asignación a constante '%s'.", variable.c_str());
         logger->error(line, column, e);
-    } else if ( expr->type != sym->getType() && expr->type != symbol::INVALID ){
+    } else if ( expr->type != sym->getType() && expr->type != INVALID ){
         
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN,
@@ -627,16 +633,16 @@ void AST_assignment::fill_and_check(symbol_table* st){
 
 void AST_return::fill_and_check(symbol_table* st){
     
-    if ( expected_return == symbol::NONE && expr ){
+    if ( expected_return == NONE && expr ){
         logger->error(line, column, "No se esperaba retorno con valor.");
-    } else if ( expected_return != symbol::NONE && !expr ){
+    } else if ( expected_return != NONE && !expr ){
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN,
                  "Se esperaba retorno de tipo %s.",
                  symbol::getTypeName(expected_return).c_str()
                 );
         logger->error(line, column, e);
-    } else if ( expected_return != symbol::NONE && expr ){
+    } else if ( expected_return != NONE && expr ){
         expr->fill_and_check(st);
         if ( expr->type != expected_return ){
             char e[llog::ERR_LEN];
@@ -655,7 +661,7 @@ void AST_conditional::fill_and_check(symbol_table* st){
     if ( expr ){
         expr->fill_and_check(st);
         
-        if ( expr->type != symbol::BOOLEAN ){
+        if ( expr->type != BOOLEAN ){
             logger->error(expr->line, expr->column, "Se esperaba boolean.");
         }
     }
@@ -672,7 +678,7 @@ void AST_conditional::fill_and_check(symbol_table* st){
 
 void AST_loop::fill_and_check(symbol_table* st){
     expr->fill_and_check(st);
-    if ( expr->type != symbol::INVALID && expr->type != symbol::BOOLEAN ){
+    if ( expr->type != INVALID && expr->type != BOOLEAN ){
         logger->error(line, column, "Se esperaba boolean");
     }
     
@@ -686,15 +692,15 @@ void AST_bounded_loop::fill_and_check(symbol_table* st){
     left_bound->fill_and_check(st);
     right_bound->fill_and_check(st);
     
-    if ( left_bound->type == symbol::INVALID
-        || right_bound->type == symbol::INVALID )
+    if ( left_bound->type == INVALID
+        || right_bound->type == INVALID )
     {
         return;
     } else if ( left_bound->type != right_bound->type ){
         logger->error(line, column, "Ambos límites deben tener el mismo tipo.");
-    } else if ( left_bound->type != symbol::INT
-                && left_bound->type != symbol::CHAR
-                && left_bound->type != symbol::BOOLEAN
+    } else if ( left_bound->type != INT
+                && left_bound->type != CHAR
+                && left_bound->type != BOOLEAN
               )
     {
         logger->error(line, column, "Se esperaba un tipo discreto int, char, boolean.");

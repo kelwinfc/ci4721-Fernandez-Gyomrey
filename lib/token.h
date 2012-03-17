@@ -38,7 +38,7 @@ class tokenId : public token{
 class tokenType : public token {
     public:
 
-        symbol::TYPE ident;
+        TYPE ident;
 
         tokenType(int l, int c, char* id);
 

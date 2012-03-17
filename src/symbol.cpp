@@ -1,4 +1,3 @@
-
 #include "symbol.h"
 
 symbol::symbol(){}
@@ -22,7 +21,7 @@ bool symbol::isConst(){
     return constant;
 }
 
-symbol::TYPE symbol::getType(){
+TYPE symbol::getType(){
     return type;
 }
 
@@ -30,21 +29,21 @@ string symbol::getTypeName(){
     return getTypeName(type);
 }
 
-string symbol::getTypeName(symbol::TYPE t){
+string symbol::getTypeName(TYPE t){
     switch (t){
-        case symbol::INT:
+        case INT:
             return "int";
-        case symbol::FLOAT:
+        case FLOAT:
             return "float";
-        case symbol::CHAR:
+        case CHAR:
             return "char";
-        case symbol::BOOLEAN:
+        case BOOLEAN:
             return "boolean";
-        case symbol::NONE:
+        case NONE:
             return "none";
-        case symbol::UNDEFINED:
+        case UNDEFINED:
             return "undefined";
-        case symbol::INVALID:
+        case INVALID:
             return "invalid";
     }
     return "";

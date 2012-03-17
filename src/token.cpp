@@ -38,13 +38,13 @@ tokenType::tokenType(int l, int c, char* id){
     line = l;
     column = c;
     if ( strcmp(id, "int") == 0 ){
-        ident = symbol::INT;
+        ident = INT;
     } else if ( strcmp(id, "float") == 0 ){
-        ident = symbol::FLOAT;
+        ident = FLOAT;
     } else if ( strcmp(id, "char") == 0 ){
-        ident = symbol::CHAR;
+        ident = CHAR;
     } else if ( strcmp(id, "boolean") == 0 ){
-        ident = symbol::BOOLEAN;
+        ident = BOOLEAN;
     } else {
         throw "El tipo no existe";
     }
@@ -156,13 +156,13 @@ tokenInt::tokenInt(int l, int c, char* num){
 }
 
 void tokenType::print(){
-    if ( ident == symbol::INT ){
+    if ( ident == INT ){
         cout << "int";
-    } else if ( ident == symbol::FLOAT ){
+    } else if ( ident == FLOAT ){
         cout << "float";
-    } else if ( ident == symbol::BOOLEAN ){
+    } else if ( ident == BOOLEAN ){
         cout << "boolean";
-    } else if ( ident == symbol::CHAR ){
+    } else if ( ident == CHAR ){
         cout << "char";
     } else {
         
