@@ -120,6 +120,19 @@ AST_char::AST_char(tokenId* tk){
     delete tk;
 }
 
+AST_string::AST_string(tokenId* tk){
+
+    //type = new array_descriptor(new type_descriptor());
+    is_constant = true;
+    
+    line = tk->line;
+    column = tk->column;
+    value = tk->ident + "";
+
+    value = value.substr(1, value.length() - 1);
+    delete tk;
+}
+
 AST_ident::AST_ident(tokenId* tk){
 
     type = UNDEFINED;

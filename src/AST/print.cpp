@@ -205,6 +205,12 @@ void AST_char::print(int indentation){
     cout << "Constant char: " << value << endl;
 }
 
+void AST_string::print(int indentation){
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    cout << "Constant string: " << value << endl;
+}
+
 void AST_ident::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);

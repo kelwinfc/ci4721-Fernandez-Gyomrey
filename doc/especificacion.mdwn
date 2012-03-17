@@ -139,7 +139,18 @@ Los tipos nativos del lenguaje son `int`, `float`, `boolean`,
 Los arreglos pueden ser multi-dimensionales y de cualquier tipo
 distinto a `none`.
 
+## Tipos compuestos
+
+Los tipos compuestos se declaran usando `alias` *nombre* *tipo*. *nombre* es la
+representación corta que se puede usar en declaraciones de variables que se deseen
+de tipo *tipo*.
+
+* Los tipos compuestos sólo son declarables en alcance global.
+* Un tipo compuesto puede ser usado en cualquier lugar donde se declare una variable.
+
 *BLA* permite crear nuevos tipos de datos.
+
+TODO: definir tipo unión y registro
 
 ## Variables
 
@@ -235,15 +246,6 @@ identificador en el parámetro formal el caracter `&`.
   cuerpo o al alcanzar una instrucción `return`. Si el tipo de retorno es no
   vacío la función debe incluir un retorno por cada posible punto de salida.
 
-## Tipos compuestos
-
-Los tipos compuestos se declaran usando `alias` *nombre* *tipo*. *nombre* es la
-representación corta que se puede usar en declaraciones de variables que se deseen
-de tipo *tipo*.
-
-* Los tipos compuestos sólo son declarables en alcance global.
-* Un tipo compuesto puede ser usado en cualquier lugar donde se declare una variable.
-
 ## Equivalencia de Tipos, Compatibilidad
 
 *BLA* es un lenguaje fuertemente tipado. La equivalencia de tipos se da por
@@ -326,31 +328,30 @@ ejecución para indicar la falla:
 
 ## TODO
 
+* cuando el archivo de entrada no existe, lanzar un error
+* se permiten instrucciones vacías. incluir un ejemplo
+* las referencias se van a tratar originalmente como si fueran la misma variable
+  luego se van a hacer apuntadores
+* strings char array
+* reuperación de errores
+* asignación de subconjuntos de arreglos
+
+## WISHLIST
+
 * Agregar a la definición del lenguaje:
 *BLA* es un lenguaje especialmente diseñado para facilitar la
 labor de los programadores en problemas de programación dinámica, donde sea
 de gran utilidad la memorización de valores de retorno de funciones.
-
 * conversión automática de strings a enteros (por ejemplo leídos de entrada)
-* tamaño de arreglo conocido en tiempo de ejecución
 * comenzar con una sóla firma por función y luego expandirla a múltiples
-* agregar parámetros opcionasles al final de la firma. esto implica que la firma
+* agregar parámetros opcionales al final de la firma. esto implica que la firma
   quedaría definida por los parámetros obligatorios
 * las instrucciones if/elif deberían comenzarse usando llaves y luego dar la opción de no
-* la función debe ser un tipo de bloque. esto para que la declaración de variables
-  no se pueda sobrescribir
-* implementar `fuzzy_boolean`
 * implementar expresiones booleanas con corto circuito.
-* asignación de subconjuntos de arreglos
-* foreach
-* las referencias se van a tratar originalmente como si fueran la misma variable
-  luego se van a hacer apuntadores
-* se permiten instrucciones vacías
-* ejemplo de instrucción vacía
-* definir tipo unión y registro en 143
 * agregar memorizacion
 * Se permite la sobrecarga de funciones siempre que las firmas de éstas no
   coincidan (en número de argumentos o en sus tipos).
-
-* considerar saltos de líneas dentro de comentarios que alteren la columna
-* cuando el archivo de entrada no existe, lanzar un error
+* los campos de struct puedan tener inicialización que incluye constantes y llamadas a funciones
+* switch case
+* tamaño de arreglo conocido en tiempo de ejecución
+* foreach

@@ -28,7 +28,7 @@ TYPE array_type = UNDEFINED;
 }
 
 /* Bison declarations.  */
-%token TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR 
+%token TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR TK_STRING
 %token TK_IDENT
 %token TK_FUNCTION
 %token TK_NONE
@@ -68,7 +68,7 @@ TYPE array_type = UNDEFINED;
           else_statements expression aritmetic_expression boolean_expression
           
 %type<tk> TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE
-          TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR
+          TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR TK_STRING
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ TK_READ TK_PRINT
@@ -604,6 +604,7 @@ expression :
     |   TK_FLOAT             { $$ = new AST_float( (tokenFloat*)$1); }
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
+    |   TK_STRING            { $$ = new AST_string( (tokenId*)$1); }
     |   '(' expression ')'   { $$ = (AST_expression*)$2;
                                delete $1;
                                delete $3;

@@ -342,6 +342,10 @@ void AST_char::fill_and_check(symbol_table* st){
     type = CHAR;
 }
 
+void AST_string::fill_and_check(symbol_table* st){
+    //TODO type = CHAR;
+}
+
 void AST_boolean::fill_and_check(symbol_table* st){
     type = BOOLEAN;
 }

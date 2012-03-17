@@ -164,6 +164,11 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                                  yylval.tk = new tokenId(yylineno, column, yytext);
                                  return TK_CHAR;
                                }
+"(?:\\.|[\x20-\x21\x23-\x5B\x5D-\x7F])*"|'(?:\\.|[\x20-\x26\x28-\x5B\x5D-\x7F])*' {
+                                 updatecol();
+                                 yylval.tk = new tokenId(yylineno, column, yytext);
+                                 return TK_STRING;
+                               }
 
 "none"                         { updatecol();
                                  yylval.tk = new token(yylineno, column);
