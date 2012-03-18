@@ -331,23 +331,23 @@ void AST_un_op::fill_and_check(symbol_table* st){
 }
 
 void AST_int::fill_and_check(symbol_table* st){
-    type = INT;
+
 }
 
 void AST_float::fill_and_check(symbol_table* st){
-    type = FLOAT;
+
 }
 
 void AST_char::fill_and_check(symbol_table* st){
-    type = CHAR;
+
 }
 
 void AST_string::fill_and_check(symbol_table* st){
-    //TODO type = CHAR;
+
 }
 
 void AST_boolean::fill_and_check(symbol_table* st){
-    type = BOOLEAN;
+
 }
 
 void AST_ident::fill_and_check(symbol_table* st){

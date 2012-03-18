@@ -125,7 +125,7 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_AS;
                             }
 
-"string"|"fill"|"map"|"foldr"|"foldl" { updatecol();
+"fill"|"map"|"foldr"|"foldl" { updatecol();
                                         fprintf(stderr,"Warning: Palabra reservada %s aún sin implementarse.\n",
                                         yytext);
                                       }
@@ -150,7 +150,7 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                                  return TK_CONST;
                                }
 
-"int"|"float"|"char"|"boolean" { updatecol();
+"int"|"float"|"char"|"string"|"boolean" { updatecol();
                                  yylval.tk = new tokenId(yylineno, column, yytext);
                                  return TK_IDENT;
                                }
@@ -164,7 +164,7 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                                  yylval.tk = new tokenId(yylineno, column, yytext);
                                  return TK_CHAR;
                                }
-"(?:\\.|[\x20-\x21\x23-\x5B\x5D-\x7F])*"|'(?:\\.|[\x20-\x26\x28-\x5B\x5D-\x7F])*' {
+L?\"(\\.|[^\\"])*\"            {
                                  updatecol();
                                  yylval.tk = new tokenId(yylineno, column, yytext);
                                  return TK_STRING;
