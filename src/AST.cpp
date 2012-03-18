@@ -256,7 +256,6 @@ void AST_arg_list::add_argument( TYPE t, tokenId* id, bool constant ){
     delete id;
 }
 
-
 AST_function::AST_function(TYPE t, tokenId* id, AST_arg_list* args,
                            AST_block* code
                           )

@@ -46,8 +46,9 @@ array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up,
        << "]";
     ss >> name;
     
-    width = 0;
-    alignment = 4;
+    width = b->width * ( up - low );
+    alignment = b->alignment;
+    
     lower_index = low;
     upper_index = up;
     num_elements = up - low;

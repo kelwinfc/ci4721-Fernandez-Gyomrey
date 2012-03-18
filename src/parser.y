@@ -17,6 +17,8 @@ AST_program* p;
 llog* logger;
 type_table types;
 TYPE array_type = UNDEFINED;
+vector<int> offset;
+vector<int> max_offset;
 
 %}
 
@@ -83,7 +85,11 @@ TYPE array_type = UNDEFINED;
 
 // Definicion de un programa
 input:
-        declaration       { if ( $1 )
+        declaration       { 
+                            offset.push_back(0);
+                            max_offset.push_back(0);
+                            
+                            if ( $1 )
                                 p->add_declaration((AST_declaration*)$1);
                           }
     |   input declaration { if ( $2 )
@@ -312,22 +318,20 @@ declaration:
 struct_fields :     {
                         $$ = new symbol_table();
                     }
-              | struct_fields TK_IDENT TK_IDENT ';'
+              | struct_fields type_def TK_IDENT ';'
                     {
-                        if ( !types.has_type( ((tokenId*)$2)->ident ) )
+                        if ( $2 == UNDEFINED )
                         {
                             char e[llog::ERR_LEN];
                             snprintf(e, llog::ERR_LEN,
-                                     "Tipo '%s' no definido previamente.",
-                                     (char*)((tokenId*)$2)->ident.c_str());
-                            logger->error($2->line, $2->column, e);
+                                     "Tipo no definido previamente.");
+                            logger->error($3->line, $3->column, e);
                             
-                            delete $2;
                             delete $4;
                             
                             $1->insert(new symbol( ((tokenId*)$3)->ident, false,
                                                UNDEFINED,
-                                               $2->line, $2->column,
+                                               $3->line, $3->column,
                                                false) );
                         } else if ( $1->lookup(((tokenId*)$3)->ident) ){
                             
@@ -337,12 +341,11 @@ struct_fields :     {
                                      (char*)((tokenId*)$3)->ident.c_str(),
                                      ((tokenId*)($-1.tk))->ident.c_str()
                                     );
-                            logger->error($2->line, $2->column, e);
+                            logger->error($3->line, $3->column, e);
                         } else {
                             $1->insert(new symbol( ((tokenId*)$3)->ident, false,
-                                               types.index_of(
-                                                   ((tokenId*)$2)->ident),
-                                               $2->line, $2->column,
+                                               $2,
+                                               $3->line, $3->column,
                                                false) );
                         }
                         
@@ -358,9 +361,9 @@ variable_declaration :
                                                  (AST_expression*)$5,
                                                  true
                                                );
-            delete $1;
-            delete $4;
-            delete $6;
+             delete $1;
+             delete $4;
+             delete $6;
             }
     | type_def TK_IDENT '=' expression ';'
             { $$ = new AST_variable_declaration( $1,
@@ -427,14 +430,32 @@ non_empty_arg_list :
 
 // Definicion de bloques de anidamiento
 block :
-        '{' block_statement '}' 
-            { 
-                $$ = $2;
+        '{'
+            {
+                if ( offset.size() == 1 ){
+                    offset.push_back(0);
+                    max_offset.push_back(0);
+                } else {
+                    offset.push_back(offset.back());
+                    max_offset.push_back(max_offset.back());
+                }
+            }
+        block_statement '}'
+            {
+                $$ = $3;
                 delete $1;
-                delete $3;
+                delete $4;
+                
+                if ( offset.size() > 1 ){
+                    max_offset[ max_offset.size() - 2 ] = 
+                                        max( max_offset[max_offset.size()-2],
+                                             max_offset.back());
+                }
+                offset.pop_back();
+                max_offset.pop_back();
             }
     |   '{' '}'
-            { 
+            {
                 $$ = new AST_block(((tokenId*)$1)->line, ((tokenId*)$1)->column);
                 delete $1;
                 delete $2;
@@ -445,7 +466,8 @@ block :
 block_statement :
         statement
             {
-                AST_block* b = new AST_block(((AST_statement*)$1)->line, ((AST_statement*)$1)->column);
+                AST_block* b = new AST_block(((AST_statement*)$1)->line,
+                                             ((AST_statement*)$1)->column);
                 if ( $1 != 0 )
                     b->add_statement( (AST_statement*)$1 );
                 $$ = b;
@@ -545,11 +567,21 @@ lista_ident : expression                 {
 
 // Loop blocks: includes break and continue to statements
 loop_block:
-        '{' loop_block_statement '}'
+        '{' 
+            {
+                if ( offset.size() == 1 ){
+                    offset.push_back(0);
+                    max_offset.push_back(0);
+                } else {
+                    offset.push_back(offset.back());
+                    max_offset.push_back(max_offset.back());
+                }
+            }
+        loop_block_statement '}'
             { 
-                $$ = $2;
+                $$ = $3;
                 delete $1;
-                delete $3;
+                delete $4;
             }
     |   '{' '}'
             {

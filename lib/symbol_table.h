@@ -5,6 +5,7 @@
 #include<string>
 #include "symbol.h"
 #include <typeinfo>
+#include <vector>
 
 using namespace std;
 
@@ -16,6 +17,7 @@ class symbol_table {
         symbol_table* parent;
 
     public:
+        
         map<string, symbol*> table;
         
         symbol_table();

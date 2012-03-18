@@ -2,7 +2,9 @@
 
 symbol::symbol(){}
 
-symbol::symbol(string name, bool constant, TYPE type, int line, int column, bool initialized){
+symbol::symbol(string name, bool constant, TYPE type, int line,
+               int column, bool initialized)
+{
     //al construir se puede validar que no sea NONE!
     this->name = name;
     this->constant = constant;
