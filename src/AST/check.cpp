@@ -411,6 +411,20 @@ void AST_address::fill_and_check(symbol_table* st){
     }
 }
 
+void AST_array_access::fill_and_check(symbol_table* st){
+    value->fill_and_check(st);
+    
+    if ( typeid(*(types.types[ value->type ])) != typeid(array_descriptor) ){
+        char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Intento de acceso indexado a tipo %s.",
+                     types.types[value->type]->name.c_str());
+            logger->error(line, column, e);
+        type = INVALID;
+    } else {
+        type = ((array_descriptor*)types.types[ value->type ])->base;
+    }
+}
+
 void AST_conversion::fill_and_check(symbol_table* st){
     expr->fill_and_check(st);
     original_type = expr->type;

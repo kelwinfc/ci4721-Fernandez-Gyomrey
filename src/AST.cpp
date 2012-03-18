@@ -166,6 +166,14 @@ AST_address::AST_address(AST_lval* v){
     column = v->column;
 }
 
+AST_array_access::AST_array_access(AST_lval* lvalue, AST_expression* ind ){
+    value = lvalue;
+    line = lvalue->line;
+    column = lvalue->column;
+    
+    index = ind;
+}
+
 AST_parameters_list::AST_parameters_list(){
     elem.clear();
 }

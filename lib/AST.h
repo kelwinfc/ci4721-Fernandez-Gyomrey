@@ -235,6 +235,20 @@ class AST_address : public AST_lval {
         virtual AST_expression* constant_folding();
 };
 
+class AST_array_access : public AST_lval {
+    public:
+        AST_lval* value;
+        AST_expression* index;
+        
+        AST_array_access( AST_lval* lvalue, AST_expression* ind);
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
+};
+
 class AST_parameters_list : public AST_node {
 
     public:

@@ -330,6 +330,10 @@ AST_expression* AST_address::constant_folding(){
     return this;
 }
 
+AST_expression* AST_array_access::constant_folding(){
+    return this;
+}
+
 AST_expression* AST_function_call::constant_folding(){
     return this;
 }

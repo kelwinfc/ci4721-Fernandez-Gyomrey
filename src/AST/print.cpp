@@ -134,6 +134,20 @@ void AST_address::print(int indentation){
     value->print(indentation+1);
 }
 
+void AST_array_access::print(int indentation){
+    printf("%3d: ", line );
+    print_indentation(indentation);
+    cout << "Get: [" << types.types[type]->name << "]\n";
+    
+    index->print(indentation+1);
+    
+    printf("%3d: ", line );
+    print_indentation(indentation);
+    cout << "From:\n";
+    
+    value->print(indentation+1);
+}
+
 string AST_op::binary_operator(){
     switch ( oper_type ){
         case PLUS:

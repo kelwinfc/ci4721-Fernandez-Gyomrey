@@ -710,8 +710,9 @@ lvalue :
              }
      | lvalue '[' expression ']'
              {
-                 $$ = new AST_int(new tokenInt(0,0,(char*)"3"));
-                 // TODO generar esto
+                 $$ = new AST_array_access( (AST_lval*)$1, (AST_expression*)$3);
+                 delete $2;
+                 delete $4;
              }
      | lvalue '.' TK_IDENT
              {
