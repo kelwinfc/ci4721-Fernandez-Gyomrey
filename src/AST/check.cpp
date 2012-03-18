@@ -31,6 +31,13 @@ void AST_expression::fill_and_check(symbol_table* st){
     // Empty check
 }
 
+/* Clase ficticia en la jerarquia, solo necesaria por semantica. No requiere
+* manejo de tabla de simbolos
+*/
+void AST_lval::fill_and_check(symbol_table* st){
+    // Empty check
+}
+
 /* Verificacion de ambos operandos de un operador binario
 */
 void AST_op::fill_and_check(symbol_table* st){
@@ -374,6 +381,33 @@ void AST_ident::fill_and_check(symbol_table* st){
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN, "Identificador '%s' no definido previamente.", value.c_str());
         logger->error(line, column, e);
+    }
+}
+
+void AST_dereference::fill_and_check(symbol_table* st){
+    value->fill_and_check(st);
+    
+    type_descriptor* td = types.types[value->type];
+    
+    if ( typeid(*td) == typeid(pointer_descriptor) ){
+        type = ((pointer_descriptor*)td)->base;
+    } else {
+        type = INVALID;
+    }
+}
+
+void AST_address::fill_and_check(symbol_table* st){
+    value->fill_and_check(st);
+    
+    pointer_descriptor* pd = new pointer_descriptor( value->type,
+                                                     types.types[
+                                                         value->type]->name);
+    
+    if ( !types.has_type( pd->name ) ){
+        type = types.add_type( pd );
+    } else {
+        type = types.index_of( pd->name );
+        delete pd;
     }
 }
 

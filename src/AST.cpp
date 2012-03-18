@@ -154,6 +154,18 @@ AST_ident::AST_ident(tokenId* tk){
     delete tk;
 }
 
+AST_dereference::AST_dereference(AST_lval* v){
+    value = v;
+    line = v->line;
+    column = v->column;
+}
+
+AST_address::AST_address(AST_lval* v){
+    value = v;
+    line = v->line;
+    column = v->column;
+}
+
 AST_parameters_list::AST_parameters_list(){
     elem.clear();
 }

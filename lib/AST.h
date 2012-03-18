@@ -182,7 +182,17 @@ class AST_string : public AST_expression {
         virtual AST_expression* constant_folding();
 };
 
-class AST_ident : public AST_expression {
+class AST_lval : public AST_expression {
+    public:
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
+};
+
+class AST_ident : public AST_lval {
 
     public:
 
@@ -191,7 +201,33 @@ class AST_ident : public AST_expression {
         symbol* sym;
 
         AST_ident(tokenId* tk);
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
+};
 
+class AST_dereference : public AST_lval {
+    public:
+        AST_lval* value;
+        
+        AST_dereference(AST_lval* l);
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
+};
+
+class AST_address : public AST_lval {
+    public:
+        AST_lval* value;
+        
+        AST_address(AST_lval* l);
+        
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);

@@ -115,6 +115,25 @@ void AST_expression::print(int indentation){
     cout << "Expression\n";
 }
 
+void AST_lval::print(int indentation){
+    print_indentation(indentation);
+    cout << "L-Value\n";
+}
+
+void AST_dereference::print(int indentation){
+    printf("%3d: ", line );
+    print_indentation(indentation);
+    cout << "Dereference [" << types.types[type]->name << "]\n";
+    value->print(indentation+1);
+}
+
+void AST_address::print(int indentation){
+    printf("%3d: ", line );
+    print_indentation(indentation);
+    cout << "Pointer to:\n";
+    value->print(indentation+1);
+}
+
 string AST_op::binary_operator(){
     switch ( oper_type ){
         case PLUS:

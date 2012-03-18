@@ -62,8 +62,8 @@ vector<int> max_offset;
 %left '*' '/' TK_MOD
 %left NEG TK_NOT
 %left TK_AS
-%left TK_POINTER
 %right TK_ADDRESS
+%left TK_POINTER
 %right '['
 %left '.'
 
@@ -586,7 +586,12 @@ expression :
                                delete $3;
                              }
     | lvalue                 {
-                                $$ = $1;
+                                $$ = 
+                                      ((AST_lval*)$1)->constant_folding();
+                                
+                                if ( $$ != $1 ){
+                                    delete $1;
+                                }
                              }
     |   TK_IDENT '(' parameters_instance ')'
                              { $$ = new AST_function_call( (tokenId*) $1,
@@ -715,13 +720,27 @@ lvalue :
              }
      | lvalue TK_POINTER
              {
-                 $$ = new AST_int(new tokenInt(0,0,(char*)"3"));
-                 //TODO generar esto
+                 AST_dereference* dref = new AST_dereference( (AST_lval*)$1 );
+                 
+                 $$ = dref->constant_folding();
+                 
+                 if ( $$ != dref ){
+                     delete dref;
+                 }
+                 
+                 delete $2;
              }
      | TK_ADDRESS lvalue
              {
-                 $$ = new AST_int(new tokenInt(0,0,(char*)"3"));
-                 //TODO generar esto
+                 AST_address* adr = new AST_address( (AST_lval*)$2 );
+                 
+                 $$ = adr->constant_folding();
+                 
+                 if ( $$ != adr ){
+                     delete adr;
+                 }
+                 
+                 delete $1;
              }
      ;
 
@@ -780,15 +799,17 @@ int main (int argc,char **argv)
     symbol_table st;
     
     p->fill_and_check(&st);
-    p->print(0);
     
-    fprintf(stderr, "-------------------------------------------------------\n"
-           );
     fprintf(stderr, "\n\n TYPES:\n");
     vector<type_descriptor*>::iterator it;
     for (it=types.types.begin(); it != types.types.end(); ++it){
         (*it)->print(stderr);
     }
+    
+    fprintf(stderr, "------------------------------------------------------\n\n"
+           );
+    
+    p->print(0);
     
     if ( logger->exists_registered_error() ){
         logger->failure("context");

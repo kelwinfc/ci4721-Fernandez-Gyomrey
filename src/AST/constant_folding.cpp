@@ -312,6 +312,24 @@ AST_expression* AST_expression::constant_folding(){
     return this;
 }
 
+AST_expression* AST_lval::constant_folding(){
+    return this;
+}
+
+AST_expression* AST_dereference::constant_folding(){
+    if ( typeid(*value) == typeid(AST_address) ){
+        return ((AST_address*)value)->value;
+    }
+    return this;
+}
+
+AST_expression* AST_address::constant_folding(){
+    if ( typeid(*value) == typeid(AST_dereference) ){
+        return ((AST_dereference*)value)->value;
+    }
+    return this;
+}
+
 AST_expression* AST_function_call::constant_folding(){
     return this;
 }
