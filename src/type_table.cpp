@@ -33,12 +33,22 @@ int type_table::index_of( string s ){
     return names[s];
 }
 
-void type_table::add_type( type_descriptor* td ){
-    
-    if ( names.find( td->name ) == names.end() ){
+type_descriptor* type_table::get_type( string s ){
+    if ( names.find(s) == names.end() ){
+        return 0;
+    }
+
+    return types[ names[ s ] ];
+}
+
+int type_table::add_type( type_descriptor* td ){
+
+    map<string, int>::iterator i = names.find( td->name );
+    if ( i == names.end() ){
         names[ td->name ] = types.size();
         types.push_back( td );
     }
+    return (*i).second;
 }
 
 void type_table::add_type( string t ){

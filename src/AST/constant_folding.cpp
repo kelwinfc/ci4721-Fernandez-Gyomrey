@@ -300,6 +300,10 @@ AST_expression* AST_char::constant_folding(){
     return this;
 }
 
+AST_expression* AST_string::constant_folding(){
+    return this;
+}
+
 AST_expression* AST_boolean::constant_folding(){
     return this;
 }

@@ -167,6 +167,21 @@ class AST_char : public AST_expression {
         virtual AST_expression* constant_folding();
 };
 
+class AST_string : public AST_expression {
+
+    public:
+
+        string value;
+
+        AST_string(tokenId* tk);
+
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
+};
+
 class AST_ident : public AST_expression {
 
     public:

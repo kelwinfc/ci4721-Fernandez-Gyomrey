@@ -20,9 +20,11 @@ class type_table{
         
         int index_of( string n );
         
-        void add_type( type_descriptor* td );
+        int add_type( type_descriptor* td );
         
         void add_type( string t );
+        
+        type_descriptor* get_type( string t );
         
         void add_alias( string a, string b );
 };

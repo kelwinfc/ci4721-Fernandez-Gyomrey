@@ -120,6 +120,26 @@ AST_char::AST_char(tokenId* tk){
     delete tk;
 }
 
+AST_string::AST_string(tokenId* tk){
+
+    is_constant = true;
+    
+    line = tk->line;
+    column = tk->column;
+    value = tk->ident + "";
+
+    value = value.substr(1, value.length() - 2);
+
+    type_descriptor* char_descriptor = types.get_type("char");
+    type_descriptor* string_descriptor = new array_descriptor(char_descriptor, 0, 0, value.length());
+    if (!types.has_type(string_descriptor->name)) {
+        types.add_type(string_descriptor);
+    };
+    delete string_descriptor;
+
+    delete tk;
+}
+
 AST_ident::AST_ident(tokenId* tk){
 
     type = UNDEFINED;
