@@ -52,7 +52,7 @@ void AST_function::print(int indentation){
     cout << "Declaration of Function " 
          << func->getName()
          << " -> "
-         << func->getTypeName()
+         << types.types[func->getType()]->name
          << endl;
     
     printf("%3d:     (\n",
@@ -77,7 +77,7 @@ void AST_arg_list::print(int indentation){
         printf("%3d: ", (*it)->getLine());
         print_indentation(indentation);
 
-        cout << (*it)->getTypeName() << "(";
+        cout << types.types[(*it)->getType()]->name << "(";
         cout << (*it)->getName();
         cout << ")";
         

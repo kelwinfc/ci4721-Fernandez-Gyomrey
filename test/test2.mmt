@@ -2,11 +2,21 @@ int[3] a;
 int[3:5] b;
 int[3:5][4] c;
 string d = "hola";
+float[3] e;
+^int f;
+^int g;
+^int[3] h;
+^int i;
+(^int)[3] z;
 
 type cuadrado {
     int a;
     float b;
     int[5][3:4] c;
+}
+
+fun none peru(cuadrado a){
+    
 }
 
 fun int hola(int c){
@@ -15,5 +25,5 @@ fun int hola(int c){
 }
 
 fun none main(){
-    
+    f = g;
 }

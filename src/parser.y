@@ -43,7 +43,8 @@ vector<int> max_offset;
 %token TK_READ TK_PRINT
 %token TK_ALIAS TK_NEW_TYPE
 %token TK_AS
-
+%token TK_POINTER
+%token TK_ADDRESS
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
 
@@ -75,7 +76,7 @@ vector<int> max_offset;
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ TK_READ TK_PRINT
           '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}'
-          TK_ALIAS TK_NEW_TYPE TK_AS
+          TK_ALIAS TK_NEW_TYPE TK_AS TK_POINTER
 
 %type<tt> struct_fields
 
@@ -98,10 +99,11 @@ input:
 ;
 
 type_def:
-      TK_IDENT   {
-                    $$ = types.index_of( ((tokenId*)$1)->ident );
-                    delete $1;
-                 }
+        TK_IDENT
+          {
+              $$ = types.index_of( ((tokenId*)$1)->ident );
+              delete $1;
+          }
       | TK_IDENT
           {
               tokenId* t = (tokenId*)$1;
@@ -120,6 +122,29 @@ type_def:
           {
               $$ = array_type;
               array_type = UNDEFINED;
+          }
+      | '(' type_def ')'
+          {
+              array_type = $2;
+              delete $1;
+              delete $3;
+          }
+          index_list
+          {
+              $$ = array_type;
+              array_type = UNDEFINED;
+          }
+      | TK_POINTER type_def
+          {
+              pointer_descriptor* pd = 
+                  new pointer_descriptor($2, types.types[$2]->name );
+              
+              if ( !types.has_type( pd->name ) ){
+                  types.add_type( pd );
+              }
+              
+              delete $1;
+              $$ = types.index_of( pd->name );
           }
     ;
 
@@ -814,9 +839,9 @@ int main (int argc,char **argv)
     fprintf(stderr, "-------------------------------------------------------\n"
            );
     fprintf(stderr, "\n\n TYPES:\n");
-    for (int i=0; i<types.types.size(); i++){
-        types.types[i]->print(stderr);
-        
+    vector<type_descriptor*>::iterator it;
+    for (it=types.types.begin(); it != types.types.end(); ++it){
+        (*it)->print(stderr);
     }
     
     if ( logger->exists_registered_error() ){

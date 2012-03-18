@@ -37,10 +37,6 @@ class symbol{
         bool isConst();
 
         TYPE getType();
-
-        string getTypeName();
-        
-        static string getTypeName(TYPE t);
         
         int getLine();
 

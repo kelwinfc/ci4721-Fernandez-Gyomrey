@@ -27,30 +27,6 @@ TYPE symbol::getType(){
     return type;
 }
 
-string symbol::getTypeName(){
-    return getTypeName(type);
-}
-
-string symbol::getTypeName(TYPE t){
-    switch (t){
-        case INT:
-            return "int";
-        case FLOAT:
-            return "float";
-        case CHAR:
-            return "char";
-        case BOOLEAN:
-            return "boolean";
-        case NONE:
-            return "none";
-        case UNDEFINED:
-            return "undefined";
-        case INVALID:
-            return "invalid";
-    }
-    return "";
-}
-
 int symbol::getLine(){
     return line;
 }

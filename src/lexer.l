@@ -45,6 +45,16 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return yytext[0];
                             }
 
+"^"                         { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_POINTER;
+                            }
+
+"@"                         { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_ADDRESS;
+                            }
+
 "%"                         { updatecol();
                               yylval.tk = new tokenId(yylineno, column, yytext);
                               return TK_MOD;

@@ -9,6 +9,7 @@
 #define FLOAT 4
 #define CHAR 5
 #define BOOLEAN 6
+#define STRING 7
 
 void print_indentation(int k);
 

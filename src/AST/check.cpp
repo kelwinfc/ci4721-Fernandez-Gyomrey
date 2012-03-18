@@ -70,7 +70,7 @@ void AST_op::fill_and_check(symbol_table* st){
                     snprintf(e, llog::ERR_LEN,
                              "Operando '%s' de tipo %s, esperado int.",
                              nombre_valido,
-                             symbol::getTypeName(valido->type).c_str()
+                             types.types[valido->type]->name.c_str()
                             );
                     logger->error(line, column, e);
                 }
@@ -92,7 +92,7 @@ void AST_op::fill_and_check(symbol_table* st){
                     snprintf(e, llog::ERR_LEN,
                              "Operando '%s' de tipo %s, esperado float o int.",
                              nombre_valido,
-                             symbol::getTypeName(valido->type).c_str()
+                             types.types[valido->type]->name.c_str()
                             );
                     logger->error(line, column, e);
                 }
@@ -111,7 +111,7 @@ void AST_op::fill_and_check(symbol_table* st){
                     snprintf(e, llog::ERR_LEN,
                              "Operando %s de tipo %s, esperado boolean.",
                              nombre_valido,
-                             symbol::getTypeName(valido->type).c_str()
+                             types.types[valido->type]->name.c_str()
                             );
                     logger->error(line, column, e);
                 }
@@ -140,7 +140,7 @@ void AST_op::fill_and_check(symbol_table* st){
                     snprintf(e, llog::ERR_LEN,
                              "Operando %s de tipo %s, esperado int, float o char.",
                              nombre_valido,
-                             symbol::getTypeName(valido->type).c_str()
+                             types.types[valido->type]->name.c_str()
                             );
                     logger->error(line, column, e);
                 }
@@ -161,11 +161,11 @@ void AST_op::fill_and_check(symbol_table* st){
             
             if ( left->type != INT ){
                 snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado int.",
-                symbol::getTypeName(left->type).c_str());
+                         types.types[left->type]->name.c_str());
                 logger->error(line, column, e);
             } else if ( right->type != INT ) {
                 snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado int.",
-                symbol::getTypeName(right->type).c_str());
+                         types.types[right->type]->name.c_str());
                 logger->error(line, column, e);
             }
             
@@ -186,7 +186,7 @@ void AST_op::fill_and_check(symbol_table* st){
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                              "Operandos de tipo %s, esperado float o int.",
-                            symbol::getTypeName(left->type).c_str()
+                            types.types[left->type]->name.c_str()
                             );
                     logger->error(line, column, e);
                     
@@ -198,8 +198,8 @@ void AST_op::fill_and_check(symbol_table* st){
                 char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                              "Operandos de tipos incompatibles %s y %s.",
-                            symbol::getTypeName(left->type).c_str(),
-                            symbol::getTypeName(right->type).c_str()
+                            types.types[left->type]->name.c_str(),
+                            types.types[right->type]->name.c_str()
                             );
                     logger->error(line, column, e);
                 type = INVALID;
@@ -220,7 +220,7 @@ void AST_op::fill_and_check(symbol_table* st){
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                              "Operandos de tipo %s, esperado boolean.",
-                            symbol::getTypeName(left->type).c_str()
+                             types.types[left->type]->name.c_str()
                             );
                     logger->error(line, column, e);
                     
@@ -231,8 +231,8 @@ void AST_op::fill_and_check(symbol_table* st){
                 char e[llog::ERR_LEN];
                 snprintf(e, llog::ERR_LEN,
                          "Operandos de tipos %s y %s, esperados boolean.",
-                         symbol::getTypeName(left->type).c_str(),
-                         symbol::getTypeName(right->type).c_str()
+                         types.types[left->type]->name.c_str(),
+                         types.types[right->type]->name.c_str()
                         );
                 logger->error(line, column, e);
             }
@@ -250,8 +250,8 @@ void AST_op::fill_and_check(symbol_table* st){
                 char e[llog::ERR_LEN];
                 snprintf(e, llog::ERR_LEN,
                          "Operandos de tipos incompatibles %s y %s.",
-                         symbol::getTypeName(left->type).c_str(),
-                         symbol::getTypeName(right->type).c_str()
+                         types.types[left->type]->name.c_str(),
+                         types.types[right->type]->name.c_str()
                         );
                 logger->error(line, column, e);
             }
@@ -277,7 +277,7 @@ void AST_op::fill_and_check(symbol_table* st){
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                          "Operandos de tipo %s, esperado float, int o char.",
-                         symbol::getTypeName(left->type).c_str()
+                         types.types[left->type]->name.c_str()
                         );
                     logger->error(line, column, e);
                 }
@@ -287,8 +287,8 @@ void AST_op::fill_and_check(symbol_table* st){
                 char e[llog::ERR_LEN];
                 snprintf(e, llog::ERR_LEN,
                          "Operandos de tipos incompatibles %s y %s",
-                         symbol::getTypeName(left->type).c_str(),
-                         symbol::getTypeName(right->type).c_str()
+                         types.types[left->type]->name.c_str(),
+                         types.types[right->type]->name.c_str()
                         );
                 logger->error(line, column, e);
             }
@@ -324,7 +324,7 @@ void AST_un_op::fill_and_check(symbol_table* st){
         // Reportar error de tipo de argumento
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado %s.",
-                 symbol::getTypeName(expr->type).c_str(),
+                 types.types[expr->type]->name.c_str(),
                  oper_type == NOT ? "boolean": "float o int");
         logger->error(line, column, e);
     }
@@ -451,7 +451,7 @@ void AST_function_call::fill_and_check(symbol_table* st){
                     snprintf(e, llog::ERR_LEN,
                              "Argumento %d de '%s' de tipo inválido %s.",
                              i, name.c_str(),
-                             symbol::getTypeName(params->elem[i]->type).c_str()
+                             types.types[params->elem[i]->type]->name.c_str()
                             );
                     logger->error(line, column, e);
                 }
@@ -502,8 +502,8 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
         snprintf(e, llog::ERR_LEN,
                  "Inicialización de '%s' con tipo inválido %s, esperado %s.",
                  sym->getName().c_str(),
-                 symbol::getTypeName(value->type).c_str(),
-                 sym->getTypeName().c_str()
+                 types.types[value->type]->name.c_str(),
+                 types.types[sym->getType()]->name.c_str()
                 );
         logger->error(line, column, e);
     }
@@ -628,8 +628,8 @@ void AST_assignment::fill_and_check(symbol_table* st){
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN,
                  "Intento de asignación de tipo %s a variable de tipo %s.",
-                 symbol::getTypeName(expr->type).c_str(),
-                 sym->getTypeName().c_str()
+                 types.types[expr->type]->name.c_str(),
+                 types.types[sym->getType()]->name.c_str()
                 );
         logger->error(line, column, e);
     }
@@ -643,7 +643,7 @@ void AST_return::fill_and_check(symbol_table* st){
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN,
                  "Se esperaba retorno de tipo %s.",
-                 symbol::getTypeName(expected_return).c_str()
+                 types.types[expected_return]->name.c_str()
                 );
         logger->error(line, column, e);
     } else if ( expected_return != NONE && expr ){
@@ -652,8 +652,8 @@ void AST_return::fill_and_check(symbol_table* st){
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN,
                  "Se esperaba retorno de tipo %s, %s obtenido.",
-                 symbol::getTypeName(expected_return).c_str(),
-                 symbol::getTypeName(expr->type).c_str()
+                 types.types[expected_return]->name.c_str(),
+                 types.types[expr->type]->name.c_str()
                 );
             logger->error(line, column, e);
         }

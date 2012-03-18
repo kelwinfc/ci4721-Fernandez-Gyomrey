@@ -2,6 +2,8 @@
 #include <sstream>
 #include <iostream>
 
+extern type_table types;
+
 type_descriptor::type_descriptor(string n, int w, int a){
     name = n;
     width = w;
@@ -24,7 +26,10 @@ void struct_type::print(FILE* fd){
     fprintf(fd, "    ---\n");
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){
-        fprintf(fd, "    |   - %s\n", (*it).first.c_str());
+        fprintf(fd, "    |   - %s %s\n", 
+                types.types[(*it).second->getType()]->name.c_str(),
+                (*it).first.c_str()
+               );
     }
     if ( fields->table.begin() == fields->table.end() ){
         fprintf(fd, "    |\n");
@@ -56,6 +61,14 @@ array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up,
     base = b_ind;
 }
 
-pointer_descriptor::pointer_descriptor(TYPE b){
-    base = b;
+pointer_descriptor::pointer_descriptor(TYPE b_index, string base_name){
+    base = b_index;
+    
+    stringstream ss;
+    ss << "pointer_to_"
+       << base_name;
+    ss >> name;
+    
+    width = 4;
+    alignment = 1;
 }

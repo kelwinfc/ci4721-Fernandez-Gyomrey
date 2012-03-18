@@ -6,11 +6,12 @@ using namespace std;
 type_table::type_table(){
     add_type( new type_descriptor("_undefined") );
     add_type( new type_descriptor("_invalid") );
-    add_type( new type_descriptor("_none") );
+    add_type( new type_descriptor("none") );
     add_type( new type_descriptor("int", 4, 4) );
     add_type( new type_descriptor("float", 4, 4) );
     add_type( new type_descriptor("char", 1, 1) );
     add_type( new type_descriptor("boolean", 1, 1) );
+    add_type( new type_descriptor("string", 4, 4) );
 }
         
 bool type_table::has_type( string s ){
@@ -22,7 +23,7 @@ bool type_table::is_base( string s ){
 }
         
 bool type_table::is_base( int n ){
-    return INT <= n && n <= BOOLEAN;
+    return INT <= n && n <= STRING;
 }
 
 int type_table::index_of( string s ){
@@ -47,7 +48,10 @@ int type_table::add_type( type_descriptor* td ){
     if ( i == names.end() ){
         names[ td->name ] = types.size();
         types.push_back( td );
+        
+        return types.size()-1;
     }
+    
     return (*i).second;
 }
 
