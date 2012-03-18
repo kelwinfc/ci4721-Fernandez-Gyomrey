@@ -16,7 +16,6 @@ extern FILE *yyin;
 AST_program* p;
 llog* logger;
 type_table types;
-TYPE array_type = UNDEFINED;
 vector<int> offset;
 vector<int> max_offset;
 
@@ -63,24 +62,29 @@ vector<int> max_offset;
 %left '*' '/' TK_MOD
 %left NEG TK_NOT
 %left TK_AS
+%left TK_POINTER
+%right TK_ADDRESS
+%right '['
+%left '.'
 
 %type<nd> input declaration variable_declaration block statement
           parameters_instance parameters_instance_non_empty
           arg_list non_empty_arg_list lista_ident
           block_statement loop_statement loop_block loop_block_statement
           else_statements expression aritmetic_expression boolean_expression
+          lvalue
           
 %type<tk> TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE
           TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR TK_STRING
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ TK_READ TK_PRINT
-          '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}'
-          TK_ALIAS TK_NEW_TYPE TK_AS TK_POINTER
+          '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}' '[' ']' ':'
+          TK_ALIAS TK_NEW_TYPE TK_AS TK_POINTER TK_ADDRESS
 
 %type<tt> struct_fields
 
-%type<t> type_def index_list
+%type<t> type_def
 
 %%
 
@@ -104,35 +108,64 @@ type_def:
               $$ = types.index_of( ((tokenId*)$1)->ident );
               delete $1;
           }
-      | TK_IDENT
-          {
-              tokenId* t = (tokenId*)$1;
-              if ( !types.has_type( t->ident ) ){
+      | '[' expression ']' type_def
+          {   
+              int up = 0;
+              int low = 0;
+              if ( typeid(*$2) != typeid(AST_int)
+                 )
+              {
                   char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
-                             "Tipo '%s' con identificador no definido previamente.",
-                             (char*)t->ident.c_str());
-                    logger->error(t->line, t->column, e);
-                    array_type = UNDEFINED;
+                        "Indice de arreglo debe evaluar una constante entera.");
+                    logger->error($2->line, $2->column, e);
               } else {
-                  array_type = types.index_of( t->ident );
+                  up = ((AST_int*)$2)->value;
               }
-          }
-          index_list
-          {
-              $$ = array_type;
-              array_type = UNDEFINED;
-          }
-      | '(' type_def ')'
-          {
-              array_type = $2;
+              
+              array_descriptor* at;
+              at = new array_descriptor( types.types[ $4 ],
+                                         $4, up, low );
+              
+              if ( types.has_type( at->name ) ){
+                  $$ = types.index_of( at->name );
+              } else {
+                  $$ = types.add_type( at );
+              }
+              
               delete $1;
               delete $3;
           }
-          index_list
-          {
-              $$ = array_type;
-              array_type = UNDEFINED;
+      | '[' expression ':' expression ']' type_def 
+          { 
+              int up = 0;
+              int low = 0;
+              if ( typeid(*$2) != typeid(AST_int)
+                   || typeid(*$4) != typeid(AST_int)
+                 )
+              {
+                  char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Indice de arreglo debe evaluar una constante entera.");
+                    logger->error($2->line, $2->column, e);
+              } else {
+                  low = ((AST_int*)$2)->value;
+                  up = ((AST_int*)$4)->value;
+              }
+              
+              array_descriptor* at;
+              at = new array_descriptor( types.types[$6],
+                                         $6, up, low );
+              
+              if ( types.has_type( at->name ) ){
+                  $$ = types.index_of( at->name );
+              } else {
+                  $$ = types.add_type( at );
+              }
+              
+              delete $1;
+              delete $3;
+              delete $5;
           }
       | TK_POINTER type_def
           {
@@ -145,120 +178,6 @@ type_def:
               
               delete $1;
               $$ = types.index_of( pd->name );
-          }
-    ;
-
-// Este punto es intencionalmente recursivo a derecha para que los corchetes
-// se aniden como se espera y asi poder hacer el modelo S-atribuido
-index_list :
-      '[' expression ']'
-          {
-              int up = 0;
-              if ( typeid(*$2) != typeid(AST_int) ){
-                  char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "Indice de arreglo debe evaluar una constante entera.");
-                    logger->error($2->line, $2->column, e);
-              } else {
-                  up = ((AST_int*)$2)->value;
-              }
-              
-              array_descriptor* at;
-              at = new array_descriptor( types.types[ array_type ],
-                                         array_type, up, 0 );
-              
-              if ( types.has_type( at->name ) ){
-                  $$ = types.index_of( at->name );
-              } else {
-                  types.add_type( at );
-                  $$ = types.index_of( at->name );
-              }
-              array_type = $$;
-          }
-    | '[' expression ':' expression ']'
-          { 
-              int up = 0;
-              int low = 0;
-              if ( typeid(*$2) != typeid(AST_int)
-                   || typeid(*$4) != typeid(AST_int)
-                 )
-              {
-                  char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "Indice de arreglo debe evaluar una constante entera.");
-                    logger->error($2->line, $2->column, e);
-              } else {
-                  low = ((AST_int*)$2)->value;
-                  up = ((AST_int*)$4)->value;
-              }
-              
-              array_descriptor* at;
-              at = new array_descriptor( types.types[ array_type ],
-                                         array_type, up, low );
-              
-              if ( types.has_type( at->name ) ){
-                  $$ = types.index_of( at->name );
-              } else {
-                  types.add_type( at );
-                  $$ = types.index_of( at->name );
-              }
-              array_type = $$;
-          }
-    | '[' expression ']' index_list
-          { 
-              int up = 0;
-              int low = 0;
-              if ( typeid(*$2) != typeid(AST_int)
-                 )
-              {
-                  char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "Indice de arreglo debe evaluar una constante entera.");
-                    logger->error($2->line, $2->column, e);
-              } else {
-                  up = ((AST_int*)$2)->value;
-              }
-              
-              array_descriptor* at;
-              at = new array_descriptor( types.types[ array_type ],
-                                         array_type, up, low );
-              
-              if ( types.has_type( at->name ) ){
-                  $$ = types.index_of( at->name );
-              } else {
-                  types.add_type( at );
-                  $$ = types.index_of( at->name );
-              }
-              array_type = $$;
-          }
-    | '[' expression ':' expression ']' index_list
-          { 
-              int up = 0;
-              int low = 0;
-              if ( typeid(*$2) != typeid(AST_int)
-                   || typeid(*$4) != typeid(AST_int)
-                 )
-              {
-                  char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "Indice de arreglo debe evaluar una constante entera.");
-                    logger->error($2->line, $2->column, e);
-              } else {
-                  low = ((AST_int*)$2)->value;
-                  up = ((AST_int*)$4)->value;
-              }
-              
-              array_descriptor* at;
-              at = new array_descriptor( types.types[ array_type ],
-                                         array_type, up, low );
-              
-              if ( types.has_type( at->name ) ){
-                  $$ = types.index_of( at->name );
-              } else {
-                  types.add_type( at );
-                  $$ = types.index_of( at->name );
-              }
-              array_type = $$;
           }
     ;
 
@@ -666,18 +585,8 @@ expression :
                                delete $1;
                                delete $3;
                              }
-    |   TK_IDENT             { 
-                                AST_expression* e = new AST_ident((tokenId*)$1);
-                                
-                                $$ = e;
-                                
-                                if ( e->is_constant ){
-                                    $$ = e->constant_folding();
-                                }
-                                
-                                if ( $$ != e ){
-                                    delete e;
-                                }
+    | lvalue                 {
+                                $$ = $1;
                              }
     |   TK_IDENT '(' parameters_instance ')'
                              { $$ = new AST_function_call( (tokenId*) $1,
@@ -778,6 +687,43 @@ boolean_expression:
     |   expression TK_GREAT_EQ expression
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
 ;
+
+lvalue :
+        TK_IDENT
+            { 
+                AST_expression* e = new AST_ident((tokenId*)$1);
+                
+                $$ = e;
+                
+                if ( e->is_constant ){
+                    $$ = e->constant_folding();
+                }
+                
+                if ( $$ != e ){
+                    delete e;
+                }
+             }
+     | lvalue '[' expression ']'
+             {
+                 $$ = new AST_int(new tokenInt(0,0,(char*)"3"));
+                 // TODO generar esto
+             }
+     | lvalue '.' TK_IDENT
+             {
+                 $$ = new AST_int(new tokenInt(0,0,(char*)"3"));
+                 //TODO generar esto
+             }
+     | lvalue TK_POINTER
+             {
+                 $$ = new AST_int(new tokenInt(0,0,(char*)"3"));
+                 //TODO generar esto
+             }
+     | TK_ADDRESS lvalue
+             {
+                 $$ = new AST_int(new tokenInt(0,0,(char*)"3"));
+                 //TODO generar esto
+             }
+     ;
 
 // Subgramatica de atributos actuales de llamada a funcion
 parameters_instance:

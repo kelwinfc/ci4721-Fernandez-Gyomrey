@@ -41,14 +41,13 @@ array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up,
                                     int low )
 {
     stringstream ss;
-    ss << "["
-       << b->name
+    ss << "array"
        << "("
        << low
        << ","
        << up
-       << ")"
-       << "]";
+       << ")_of_"
+       << b->name;
     ss >> name;
     
     width = b->width * ( up - low );
