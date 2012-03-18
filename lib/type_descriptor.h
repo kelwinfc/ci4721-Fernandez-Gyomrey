@@ -28,7 +28,6 @@ class struct_type : public type_descriptor {
         virtual void print(FILE* fd);
 };
 
-// TODO implementar esta parte
 class array_descriptor : public type_descriptor {
     public:
         int lower_index;
@@ -37,6 +36,13 @@ class array_descriptor : public type_descriptor {
         TYPE base;
         
         array_descriptor( type_descriptor* b, TYPE b_ind, int up, int low );
+};
+
+class pointer_descriptor : public type_descriptor {
+    public:
+        TYPE base;
+        
+        pointer_descriptor(TYPE b);
 };
 
 #endif

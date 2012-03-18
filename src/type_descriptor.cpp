@@ -32,7 +32,9 @@ void struct_type::print(FILE* fd){
     fprintf(fd, "    ---\n");
 }
 
-array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up, int low ){
+array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up,
+                                    int low )
+{
     stringstream ss;
     ss << "["
        << b->name
@@ -51,4 +53,8 @@ array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up, int 
     num_elements = up - low;
     
     base = b_ind;
+}
+
+pointer_descriptor::pointer_descriptor(TYPE b){
+    base = b;
 }
