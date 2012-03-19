@@ -130,6 +130,11 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_NEW_TYPE;
                             }
 
+"union"                     { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_UNION;
+                            }
+
 "as"                        { updatecol();
                               yylval.tk = new token(yylineno, column);
                               return TK_AS;

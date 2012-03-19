@@ -27,7 +27,17 @@ class struct_type : public type_descriptor {
     public:
         symbol_table* fields;
 
+        struct_type(){}
+        
         struct_type(string n, symbol_table* st);
+        
+        virtual void print(FILE* fd);
+};
+
+class union_type : public struct_type {
+    public:
+        
+        union_type(string n, symbol_table* st);
         
         virtual void print(FILE* fd);
 };

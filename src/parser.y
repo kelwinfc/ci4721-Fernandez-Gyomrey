@@ -40,7 +40,7 @@ vector<int> max_offset;
 %token TK_CONST
 %token TK_MOD
 %token TK_READ TK_PRINT
-%token TK_ALIAS TK_NEW_TYPE
+%token TK_ALIAS TK_NEW_TYPE TK_UNION
 %token TK_AS
 %token TK_POINTER
 %token TK_ADDRESS
@@ -80,7 +80,8 @@ vector<int> max_offset;
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ TK_READ TK_PRINT
           '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}' '[' ']' ':' '.'
-          TK_ALIAS TK_NEW_TYPE TK_AS TK_POINTER TK_ADDRESS
+          TK_ALIAS TK_NEW_TYPE TK_UNION
+          TK_AS TK_POINTER TK_ADDRESS
 
 %type<tt> struct_fields
 
@@ -247,6 +248,28 @@ declaration:
                     delete $4;
                 } else {
                     types.add_type( new struct_type( ((tokenId*)$2)->ident, 
+                                                     $4)
+                                  );
+                }
+                delete $1;
+                delete $3;
+                delete $5;
+                             
+                $$ = 0;
+            }
+    |   TK_UNION TK_IDENT '{' struct_fields '}'
+            {
+                if ( types.has_type( ((tokenId*)$2)->ident ) ){
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo '%s' con identificador repetido.",
+                             (char*)((tokenId*)$2)->ident.c_str());
+                    logger->error($1->line, $1->column, e);
+                    
+                    delete $2;
+                    delete $4;
+                } else {
+                    types.add_type( new union_type( ((tokenId*)$2)->ident, 
                                                      $4)
                                   );
                 }

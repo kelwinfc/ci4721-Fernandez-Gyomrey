@@ -435,7 +435,10 @@ void AST_struct_access::fill_and_check(symbol_table* st){
         return;
     }
     
-    if ( typeid(*td) != typeid(struct_type) ){
+    if (    typeid(*td) != typeid(struct_type) 
+         && typeid(*td) != typeid(union_type) 
+    )
+    {
         char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "Intento de acceso a campo en tipo %s.",
                      types.types[value->type]->name.c_str());

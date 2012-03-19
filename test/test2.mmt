@@ -18,6 +18,11 @@ type cuadradoBox {
     cuadrado a;
 }
 
+union intYFloat {
+    int a;
+    float b;
+}
+
 fun none peru(cuadrado a){
     
 }
@@ -45,5 +50,7 @@ fun none main(){
     y = @boxZ.a.b;
     
     ^int leApuntador = @x;
+    intYFloat intF;
     
+    int leParteDeUnion = intF.a;
 }

@@ -17,12 +17,35 @@ struct_type::struct_type(string n, symbol_table* st){
     fields = st;
 }
 
+union_type::union_type(string n, symbol_table* st){
+    name = n;
+    width = 0;
+    alignment = 1;
+    fields = st;
+}
+
 void type_descriptor::print(FILE* fd){
     fprintf(fd, "  * %s\n", name.c_str());
 }
 
 void struct_type::print(FILE* fd){
-    fprintf(fd, "  * %s\n", name.c_str());
+    fprintf(fd, "  * struct %s\n", name.c_str());
+    fprintf(fd, "    ---\n");
+    map<string, symbol*>::iterator it;
+    for (it = fields->table.begin(); it != fields->table.end(); ++it){
+        fprintf(fd, "    |   - %s %s\n", 
+                types.types[(*it).second->getType()]->name.c_str(),
+                (*it).first.c_str()
+               );
+    }
+    if ( fields->table.begin() == fields->table.end() ){
+        fprintf(fd, "    |\n");
+    }
+    fprintf(fd, "    ---\n");
+}
+
+void union_type::print(FILE* fd){
+    fprintf(fd, "  * union %s\n", name.c_str());
     fprintf(fd, "    ---\n");
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){
