@@ -31,7 +31,11 @@ union_type::union_type(string n, symbol_table* st){
 }
 
 void type_descriptor::print(FILE* fd){
-    fprintf(fd, "  * %s\n", name.c_str());
+    fprintf(fd, "  * %s [size %d][alignment %d]\n",
+            name.c_str(),
+            width,
+            alignment
+           );
 }
 
 void struct_type::print(FILE* fd){
@@ -80,7 +84,10 @@ array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up,
        << b->name;
     ss >> name;
     
-    width = b->width * ( up - low );
+    unsigned int base_width = b->width;
+    base_width += (b->alignment - (base_width) % b->alignment ) % b->alignment;
+    
+    width = base_width * ( up - low );
     alignment = b->alignment;
     
     lower_index = low;
@@ -99,5 +106,5 @@ pointer_descriptor::pointer_descriptor(TYPE b_index, string base_name){
     ss >> name;
     
     width = 4;
-    alignment = 1;
+    alignment = 4;
 }
