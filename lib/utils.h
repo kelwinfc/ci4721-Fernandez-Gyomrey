@@ -13,4 +13,6 @@
 
 void print_indentation(int k);
 
+int lcm(int a, int b);
+
 #endif

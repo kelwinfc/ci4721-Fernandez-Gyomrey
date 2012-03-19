@@ -20,13 +20,16 @@ struct_type::struct_type(string n, symbol_table* st){
 union_type::union_type(string n, symbol_table* st){
     name = n;
     width = 0;
-    alignment = 4;
+    alignment = 1;
     fields = st;
     
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){
         (*it).second->offset = 0;
         width = max(width, types.types[(*it).second->getType()]->width );
+        
+        alignment = lcm(alignment,
+                        types.types[(*it).second->getType()]->alignment );
     }
 }
 
@@ -39,7 +42,8 @@ void type_descriptor::print(FILE* fd){
 }
 
 void struct_type::print(FILE* fd){
-    fprintf(fd, "  * struct %s [size %d]\n", name.c_str(), width);
+    fprintf(fd, "  * struct %s [size %d][alignment %d]\n", name.c_str(),
+            width, alignment);
     fprintf(fd, "    ---\n");
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){
@@ -56,7 +60,8 @@ void struct_type::print(FILE* fd){
 }
 
 void union_type::print(FILE* fd){
-    fprintf(fd, "  * union %s [size %d]\n", name.c_str(), width);
+    fprintf(fd, "  * union %s [size %d][alignment %d]\n", name.c_str(), 
+            width, alignment);
     fprintf(fd, "    ---\n");
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){
