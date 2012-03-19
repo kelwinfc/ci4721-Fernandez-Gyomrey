@@ -14,6 +14,15 @@ type cuadrado {
     float b;
 }
 
+type prueba {
+    char a;
+    boolean b;
+    boolean e;
+    int c;
+    float d;
+    int f;
+}
+
 type cuadradoBox {
     cuadrado a;
 }
@@ -21,6 +30,8 @@ type cuadradoBox {
 union intYFloat {
     int a;
     float b;
+    cuadradoBox c;
+    prueba d;
 }
 
 fun none peru(cuadrado a){

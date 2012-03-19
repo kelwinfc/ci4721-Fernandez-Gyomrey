@@ -16,8 +16,8 @@ extern FILE *yyin;
 AST_program* p;
 llog* logger;
 type_table types;
-vector<int> offset;
-vector<int> max_offset;
+vector<uint> offset;
+vector<uint> max_offset;
 
 %}
 
@@ -287,6 +287,7 @@ struct_fields :     {
                     }
               | struct_fields type_def TK_IDENT ';'
                     {
+                        symbol* s = 0;
                         if ( $2 == UNDEFINED )
                         {
                             char e[llog::ERR_LEN];
@@ -296,10 +297,11 @@ struct_fields :     {
                             
                             delete $4;
                             
-                            $1->insert(new symbol( ((tokenId*)$3)->ident, false,
+                            s = new symbol( ((tokenId*)$3)->ident, false,
                                                UNDEFINED,
                                                $3->line, $3->column,
-                                               false) );
+                                               false);
+                            $1->insert( s );
                         } else if ( $1->lookup(((tokenId*)$3)->ident) ){
                             
                             char e[llog::ERR_LEN];
@@ -310,11 +312,17 @@ struct_fields :     {
                                     );
                             logger->error($3->line, $3->column, e);
                         } else {
-                            $1->insert(new symbol( ((tokenId*)$3)->ident, false,
+                            s = new symbol( ((tokenId*)$3)->ident, false,
                                                $2,
                                                $3->line, $3->column,
-                                               false) );
+                                               false);
+                            $1->insert(s);
                         }
+                        
+                        $1->accumulate_offset(types.types[$2]->width,
+                                              types.types[$2]->alignment);
+                        s->offset = $1->accumulated_offset
+                                    - types.types[$2]->width;
                         
                         $$ = $1;
                     }

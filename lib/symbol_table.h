@@ -17,6 +17,7 @@ class symbol_table {
         symbol_table* parent;
 
     public:
+        unsigned int accumulated_offset;
         
         map<string, symbol*> table;
         
@@ -29,6 +30,8 @@ class symbol_table {
         symbol_table* new_son();
         
         symbol* lookup(string name, int* level=0);
+        
+        void accumulate_offset(int width, int alignment);
         
         void insert(symbol* s);
 };

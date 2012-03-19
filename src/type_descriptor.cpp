@@ -12,16 +12,22 @@ type_descriptor::type_descriptor(string n, int w, int a){
 
 struct_type::struct_type(string n, symbol_table* st){
     name = n;
-    width = 0;
-    alignment = 1;
+    width = st->accumulated_offset;
+    alignment = 4;
     fields = st;
 }
 
 union_type::union_type(string n, symbol_table* st){
     name = n;
     width = 0;
-    alignment = 1;
+    alignment = 4;
     fields = st;
+    
+    map<string, symbol*>::iterator it;
+    for (it = fields->table.begin(); it != fields->table.end(); ++it){
+        (*it).second->offset = 0;
+        width = max(width, types.types[(*it).second->getType()]->width );
+    }
 }
 
 void type_descriptor::print(FILE* fd){
@@ -29,13 +35,14 @@ void type_descriptor::print(FILE* fd){
 }
 
 void struct_type::print(FILE* fd){
-    fprintf(fd, "  * struct %s\n", name.c_str());
+    fprintf(fd, "  * struct %s [size %d]\n", name.c_str(), width);
     fprintf(fd, "    ---\n");
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){
-        fprintf(fd, "    |   - %s %s\n", 
+        fprintf(fd, "    |   - %s %s [offset %d]\n", 
                 types.types[(*it).second->getType()]->name.c_str(),
-                (*it).first.c_str()
+                (*it).first.c_str(),
+                (*it).second->offset
                );
     }
     if ( fields->table.begin() == fields->table.end() ){
@@ -45,7 +52,7 @@ void struct_type::print(FILE* fd){
 }
 
 void union_type::print(FILE* fd){
-    fprintf(fd, "  * union %s\n", name.c_str());
+    fprintf(fd, "  * union %s [size %d]\n", name.c_str(), width);
     fprintf(fd, "    ---\n");
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){

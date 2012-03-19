@@ -27,6 +27,9 @@ class symbol{
         
         bool is_function;
         
+        unsigned int offset;
+        bool is_local;
+        
         symbol();
         
         symbol(string name, bool constant, TYPE type, int line, int column,

@@ -1,11 +1,18 @@
 #include "symbol_table.h"
 
 symbol_table::symbol_table(){
+    accumulated_offset = 0;
     parent = 0;
 }
 
 symbol_table::symbol_table(symbol_table* p){
     parent = p;
+    
+    if ( p != 0 ){
+        accumulated_offset = 0;
+    } else if ( p != 0 && p->parent != 0 ){
+        accumulated_offset = p->accumulated_offset;
+    }
 }
 
 symbol* symbol_table::lookup(string name, int* level){
@@ -39,4 +46,16 @@ void symbol_table::insert(symbol* s){
 
 symbol_table* symbol_table::new_son(){
     return new symbol_table(this);
+}
+
+void symbol_table::accumulate_offset(int width, int alignment){
+    
+    if ( alignment <= 0 ){
+        return;
+    }
+    
+    accumulated_offset += (alignment
+                            - (accumulated_offset % alignment)) % alignment;
+    
+    accumulated_offset += width;
 }
