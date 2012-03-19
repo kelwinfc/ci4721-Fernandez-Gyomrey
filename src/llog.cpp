@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <cstring>
 
 #include "llog.h"
 
@@ -15,7 +16,7 @@ void llog::warning(int l, int c, const char* e){
 
 void llog::error(int l, int c, const char* e){
     //TODO hay que copiar e si queremos que no se pierda al eliminar e del contexto padre
-    if ( e ){
+    if ( e && strcmp( (char*)"parse error", e) ){
         fprintf(stderr, "Error %d:%d: %s\n", l, c, e);
     }
     registered_error = true;

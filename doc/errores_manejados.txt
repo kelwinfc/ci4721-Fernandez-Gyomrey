@@ -1,0 +1,9 @@
+
+* expresion de indice invalida en declaracion de arreglo
+
+* definicion de tipo invalido
+
+* inicializacion de variable/constante invalida
+
+* indice de arreglos invalidos
+

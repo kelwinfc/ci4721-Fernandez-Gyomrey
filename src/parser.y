@@ -168,6 +168,28 @@ type_def:
               delete $3;
               delete $5;
           }
+      | '[' error ']' type_def
+          {
+              char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Expresion de indices invalida.");
+                    logger->error($1->line, $1->column, e);
+              
+              array_descriptor* at;
+              at = new array_descriptor( types.types[$4],
+                                         $4, 0, 0 );
+              
+              if ( types.has_type( at->name ) ){
+                  $$ = types.index_of( at->name );
+              } else {
+                  $$ = types.add_type( at );
+              }
+              
+              delete $1;
+              delete $3;
+              
+              yyerrok;
+          }
       | TK_POINTER type_def
           {
               pointer_descriptor* pd = 
@@ -179,6 +201,17 @@ type_def:
               
               delete $1;
               $$ = types.index_of( pd->name );
+          }
+      | error TK_IDENT
+          {
+              char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Tipo invalido.");
+                    logger->error($2->line, $2->column, e);
+              
+              yyerrok;
+              yyclearin;
+              $$ = INVALID;
           }
     ;
 
@@ -340,13 +373,48 @@ variable_declaration :
              delete $4;
              delete $6;
             }
+    | TK_CONST type_def TK_IDENT '=' error ';' 
+            { char e[llog::ERR_LEN];
+              snprintf(e, llog::ERR_LEN,
+                       "Inicializacion de variable '%s' invalida.\n",
+                       ((tokenId*)$3)->ident.c_str()
+                      );
+              logger->error($3->line, $3->column, e);
+              
+              $$ = new AST_variable_declaration( $2, (tokenId*)$3,
+                                                 0
+                                               );
+              
+              delete $1;
+              delete $4;
+              delete $6;
+              
+              yyerrok;
+            }
     | type_def TK_IDENT '=' expression ';'
             { $$ = new AST_variable_declaration( $1,
                                                  (tokenId*)$2,
                                                  (AST_expression*)$4
                                                );
-            delete $3;
-            delete $5;
+              delete $3;
+              delete $5;
+            }
+    | type_def TK_IDENT '=' error ';' 
+            { char e[llog::ERR_LEN];
+              snprintf(e, llog::ERR_LEN,
+                       "Inicializacion de variable '%s' invalida.\n",
+                       ((tokenId*)$2)->ident.c_str()
+                      );
+              logger->error($2->line, $2->column, e);
+              
+              $$ = new AST_variable_declaration( $1, (tokenId*)$2,
+                                                 0
+                                               );
+              
+              delete $3;
+              delete $5;
+              
+              yyerrok;
             }
     | type_def TK_IDENT ';'
             { $$ = new AST_variable_declaration( $1,
@@ -354,6 +422,7 @@ variable_declaration :
                                                  0
                                                );
             delete $3;
+            
             }
 ;
 
@@ -818,6 +887,7 @@ int main (int argc,char **argv)
         } while (!feof(yyin));
     }
     
+    /*
     if ( logger->exists_registered_error() ){
         logger->failure("lexer");
         return 0;
@@ -827,6 +897,7 @@ int main (int argc,char **argv)
         logger->failure("parser");
         return 0;
     }
+    */
     
     symbol_table st;
     
