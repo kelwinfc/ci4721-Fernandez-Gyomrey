@@ -28,6 +28,7 @@ class symbol{
         bool is_function;
         
         unsigned int offset;
+        
         bool is_local;
         
         symbol();
