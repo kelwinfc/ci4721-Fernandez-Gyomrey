@@ -79,7 +79,7 @@ vector<int> max_offset;
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
           TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ TK_READ TK_PRINT
-          '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}' '[' ']' ':'
+          '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}' '[' ']' ':' '.'
           TK_ALIAS TK_NEW_TYPE TK_AS TK_POINTER TK_ADDRESS
 
 %type<tt> struct_fields
@@ -716,8 +716,8 @@ lvalue :
              }
      | lvalue '.' TK_IDENT
              {
-                 $$ = new AST_int(new tokenInt(0,0,(char*)"3"));
-                 //TODO generar esto
+                 $$ = new AST_struct_access( (AST_lval*)$1, (tokenId*)$3);
+                 delete $2;
              }
      | lvalue TK_POINTER
              {

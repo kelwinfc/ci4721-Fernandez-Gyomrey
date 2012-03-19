@@ -425,6 +425,39 @@ void AST_array_access::fill_and_check(symbol_table* st){
     }
 }
 
+void AST_struct_access::fill_and_check(symbol_table* st){
+    value->fill_and_check(st);
+    
+    type_descriptor* td = types.types[value->type];
+    
+    if ( value->type == INVALID ){
+        type = INVALID;
+        return;
+    }
+    
+    if ( typeid(*td) != typeid(struct_type) ){
+        char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Intento de acceso a campo en tipo %s.",
+                     types.types[value->type]->name.c_str());
+            logger->error(line, column, e);
+        type = INVALID;
+    } else {
+        symbol* s = ((struct_type*)td)->fields->lookup( field );
+        
+        if ( s != 0 ){
+            type = s->getType();
+        } else {
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Tipo %s no posee campo %s",
+                     types.types[value->type]->name.c_str(),
+                     field.c_str()
+                    );
+            logger->error(line, column, e);
+        type = INVALID;
+        }
+    }
+}
+
 void AST_conversion::fill_and_check(symbol_table* st){
     expr->fill_and_check(st);
     original_type = expr->type;

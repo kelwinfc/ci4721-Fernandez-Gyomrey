@@ -148,6 +148,15 @@ void AST_array_access::print(int indentation){
     value->print(indentation+1);
 }
 
+void AST_struct_access::print(int indentation){
+    printf("%3d: ", line );
+    print_indentation(indentation);
+    cout << "Get " << field << "[" << types.types[type]->name << "] ";
+    cout << "from:\n";
+    
+    value->print(indentation+1);
+}
+
 string AST_op::binary_operator(){
     switch ( oper_type ){
         case PLUS:

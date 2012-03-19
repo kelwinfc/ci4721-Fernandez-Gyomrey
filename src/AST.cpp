@@ -174,6 +174,16 @@ AST_array_access::AST_array_access(AST_lval* lvalue, AST_expression* ind ){
     index = ind;
 }
 
+AST_struct_access::AST_struct_access( AST_lval* lvalue, tokenId* f){
+    value = lvalue;
+    line = f->line;
+    column = f->column;
+    
+    field = f->ident;
+    
+    delete f;
+}
+
 AST_parameters_list::AST_parameters_list(){
     elem.clear();
 }

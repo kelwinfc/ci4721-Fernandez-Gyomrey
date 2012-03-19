@@ -14,6 +14,10 @@ type cuadrado {
     float b;
 }
 
+type cuadradoBox {
+    cuadrado a;
+}
+
 fun none peru(cuadrado a){
     
 }
@@ -29,4 +33,14 @@ fun none main(){
     f = @@g^^^;
     
     f = @c[3][2];
+    
+    cuadrado cr;
+    int x = cr.a;
+    float y = cr.b;
+    
+    cuadrado z = cr;
+    cuadradoBox boxZ;
+    
+    z = boxZ.a;
+    y = boxZ.a.b;
 }

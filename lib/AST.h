@@ -249,6 +249,20 @@ class AST_array_access : public AST_lval {
         virtual AST_expression* constant_folding();
 };
 
+class AST_struct_access : public AST_lval {
+    public:
+        AST_lval* value;
+        string field;
+        
+        AST_struct_access( AST_lval* lvalue, tokenId* f);
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
+};
+
 class AST_parameters_list : public AST_node {
 
     public:
