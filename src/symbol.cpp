@@ -13,6 +13,10 @@ symbol::symbol(string name, bool constant, TYPE type, int line,
     this->column = column;
     this->initialized = initialized;
     this->is_function = false;
+    
+    this->width = 0;
+    this->alignment = 1;
+    this->offset = 0;
 }
 
 string symbol::getName(){

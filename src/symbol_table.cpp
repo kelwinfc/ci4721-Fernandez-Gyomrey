@@ -8,7 +8,7 @@ symbol_table::symbol_table(){
 symbol_table::symbol_table(symbol_table* p){
     parent = p;
     
-    if ( p != 0 ){
+    if ( p == 0 || p->parent == 0 ){
         accumulated_offset = 0;
     } else if ( p != 0 && p->parent != 0 ){
         accumulated_offset = p->accumulated_offset;
@@ -42,6 +42,11 @@ symbol_table symbol_table::getParent(){
 
 void symbol_table::insert(symbol* s){
     table[s->getName()] = s;
+    
+    accumulate_offset( 0, s->alignment );
+    s->offset = accumulated_offset;
+    
+    accumulate_offset( s->width, s->alignment );
 }
 
 symbol_table* symbol_table::new_son(){

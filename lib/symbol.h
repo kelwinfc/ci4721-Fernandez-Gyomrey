@@ -28,6 +28,8 @@ class symbol{
         bool is_function;
         
         unsigned int offset;
+        unsigned int width;
+        unsigned int alignment;
         
         bool is_local;
         

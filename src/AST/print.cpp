@@ -35,7 +35,9 @@ void AST_variable_declaration::print(int indentation){
     cout << "Declaration: " << sym->getName()
          << " ("
          << types.types[ sym->getType() ]->name
-         << ") ";
+         << ") [offset "
+         << sym->offset
+         << "] ";
     
     if ( value != 0 ){
         cout << "initialized with\n";

@@ -552,6 +552,10 @@ void AST_declaration::fill_and_check(symbol_table* st){
 
 void AST_variable_declaration::fill_and_check(symbol_table* st){
     
+    sym->offset    = st->accumulated_offset;
+    sym->width     = types.types[sym->getType()]->width;
+    sym->alignment = types.types[sym->getType()]->alignment;
+    
     int level;
     symbol* previous = st->lookup(sym->getName(), &level);
     

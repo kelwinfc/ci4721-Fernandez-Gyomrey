@@ -6,6 +6,7 @@
 #include "symbol.h"
 #include <typeinfo>
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
