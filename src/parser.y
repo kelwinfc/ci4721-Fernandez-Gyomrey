@@ -428,9 +428,9 @@ block_statement :
 statement :
         variable_declaration
             { $$ = $1; }
-    |   TK_IDENT '=' expression ';'
+    |   lvalue '=' expression ';'
             { 
-                $$ = new AST_assignment((tokenId*)$1, (AST_expression*)$3);
+                $$ = new AST_assignment((AST_lval*)$1, (AST_expression*)$3);
                 delete $2;
                 delete $4;
             }

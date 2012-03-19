@@ -397,14 +397,10 @@ class AST_program : public AST_node {
 class AST_assignment : public AST_statement {
 
     public:
-
-        string variable;
-
-        symbol* sym;
-
+        AST_lval* lvalue;
         AST_expression* expr;
-
-        AST_assignment(tokenId* i, AST_expression* e);
+        
+        AST_assignment(AST_lval* l, AST_expression* e);
 
         virtual void print(int indentation);
         

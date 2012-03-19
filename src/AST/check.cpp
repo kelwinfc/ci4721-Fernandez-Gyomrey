@@ -692,27 +692,32 @@ void AST_program::fill_and_check(symbol_table* st){
 
 void AST_assignment::fill_and_check(symbol_table* st){
     
-    sym = st->lookup(variable);
-    
+    lvalue->fill_and_check(st);
     expr->fill_and_check(st);
     
-    if ( !sym ){
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Identificador '%s' no definido previamente.", variable.c_str());
-        logger->error(line, column, e);
-    } else if ( sym->isConst() ){
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Intento de asignación a constante '%s'.", variable.c_str());
-        logger->error(line, column, e);
-    } else if ( expr->type != sym->getType() && expr->type != INVALID ){
+    if ( expr->type != lvalue->type
+                && expr->type != INVALID 
+                && lvalue->type != INVALID
+              )
+    {
         
         char e[llog::ERR_LEN];
         snprintf(e, llog::ERR_LEN,
                  "Intento de asignación de tipo %s a variable de tipo %s.",
                  types.types[expr->type]->name.c_str(),
-                 types.types[sym->getType()]->name.c_str()
+                 types.types[lvalue->type]->name.c_str()
                 );
         logger->error(line, column, e);
+    } else if ( typeid(*lvalue) == typeid(AST_ident) ){
+        symbol* sym = ((AST_ident*)lvalue)->sym;
+        
+        if ( sym != 0 && sym->isConst() ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Intento de asignación a constante '%s'.",
+                     ((AST_ident*)lvalue)->value.c_str()
+                    );
+            logger->error(line, column, e);
+        }
     }
 }
 

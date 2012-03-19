@@ -335,23 +335,24 @@ void AST_assignment::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);
     
-    cout << "Assignment " << variable;
+    cout << "Assignment:\n";
     
-    if ( sym ){
-        cout << " ["
-             << types.types[sym->getType()]->name
-             << ":"
-             << sym->getLine()
-             << ":"
-             << sym->getColumn()
-             << "]";
-    } else {
-        cout << " [UNDEFINED]";
-    }
+    printf("%3d: ", line);
+    print_indentation(indentation+1);
     
-    cout << " <--\n";
+    cout << "Lvalue ["
+         << types.types[lvalue->type]->name
+         << "]\n";
+    lvalue->print(indentation+2);
     
-    expr->print(indentation+1);
+    printf("%3d: ", line);
+    print_indentation(indentation+1);
+    
+    cout << "Rvalue ["
+         << types.types[expr->type]->name
+         << "]\n";
+    
+    expr->print(indentation+2);
 }
 
 void AST_return::print(int indentation){

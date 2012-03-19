@@ -343,13 +343,12 @@ void AST_program::add_declaration(AST_declaration* d){
     declarations.push_back(d);
 }
 
-AST_assignment::AST_assignment(tokenId* i, AST_expression* e){
-    
-    variable = string(i->ident);
-    line = i->line;
-    column = i->column;
-    delete i;
+AST_assignment::AST_assignment(AST_lval* l, AST_expression* e){
 
+    lvalue = l;
+    line = l->line;
+    column = l->column;
+    
     expr = e;
     has_return = NO;
 }
