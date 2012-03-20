@@ -153,17 +153,17 @@ type_def:
                   low = ((AST_int*)$2)->value;
                   up = ((AST_int*)$4)->value;
               }
-              
+
               array_descriptor* at;
               at = new array_descriptor( types.types[$6],
                                          $6, up, low );
-              
+
               if ( types.has_type( at->name ) ){
                   $$ = types.index_of( at->name );
               } else {
                   $$ = types.add_type( at );
               }
-              
+
               delete $1;
               delete $3;
               delete $5;
@@ -265,6 +265,34 @@ declaration:
                 delete $1;
                 delete $2;
                 delete $3;
+                delete $4;
+                
+                $$ = 0;
+            }
+    |   TK_ALIAS TK_IDENT TK_IDENT error ';'
+            {
+                if ( types.has_type( ((tokenId*)$2)->ident ) ){
+                    types.add_alias( ((tokenId*)$2)->ident,
+                                     ((tokenId*)$3)->ident
+                                   );
+                } else {
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo '%s' con identificador no definido previamente.",
+                             (char*)((tokenId*)$2)->ident.c_str());
+                    logger->error($2->line, $2->column, e);
+
+                }
+
+                char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Declaración de alias requiere punto y coma al final.");
+                    logger->error($3->line, $3->column, e);
+
+                delete $1;
+                delete $2;
+                delete $3;
+                delete $5;
                 
                 $$ = 0;
             }

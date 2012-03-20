@@ -238,6 +238,8 @@ class AST_address : public AST_lval {
 class AST_array_access : public AST_lval {
     public:
         AST_lval* value;
+
+        // Puede ser null si existe un error en el parser
         AST_expression* index;
         
         AST_array_access( AST_lval* lvalue, AST_expression* ind);
