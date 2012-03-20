@@ -7,3 +7,4 @@
 
 * indice de arreglos invalidos
 
+* expresión negativa inválida

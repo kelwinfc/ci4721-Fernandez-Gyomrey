@@ -23,5 +23,5 @@ int lcm(int a, int b){
                   // conjunto de datos, si todos tienen tamaño cero la
                   // alineacion es de cualquier byte
     }
-    return abs(a*b)/gcd(a,b);
+    return abs((double)a*b)/gcd(a,b);
 }

@@ -48,7 +48,7 @@ vector<uint> max_offset;
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
 
 /* 
- * La raz�n de esta precedencia es respetar la la precedencia natural de
+ * La razón de esta precedencia es respetar la la precedencia natural de
  * expresiones como true && false == false, considerando la igualdad como
  * equivalencia dicha expresion debe evaluar (true && false) == false, a
  * diferencia de lenguajes como C que evalua true && (false == false).
@@ -123,7 +123,7 @@ type_def:
               } else {
                   up = ((AST_int*)$2)->value;
               }
-              
+
               array_descriptor* at;
               at = new array_descriptor( types.types[ $4 ],
                                          $4, up, low );
@@ -426,13 +426,13 @@ variable_declaration :
             }
 ;
 
-// Lista de par�metros formales (puede ser vac�a)
+// Lista de parámetros formales (puede ser vacía)
 arg_list:
       /* empty */        { $$ = new AST_arg_list(); }
     | non_empty_arg_list { $$ = $1; }
 ;
 
-// Lista de par�metros que no puede ser vac�a
+// Lista de parámetros que no puede ser vacía
 non_empty_arg_list :
         TK_CONST type_def TK_IDENT
             {
@@ -705,12 +705,12 @@ expression :
             if ( TK_AS == 0 ){
                 char e[llog::ERR_LEN];
                   snprintf(e, llog::ERR_LEN,
-                           "Conversi�n a tipo no definido previamente.\n");
+                           "Conversión a tipo no definido previamente.\n");
                   logger->error($2->line, $2->column, e);
             } else if ( !types.is_base( $3 ) ){
                 char e[llog::ERR_LEN];
                   snprintf(e, llog::ERR_LEN,
-                           "Conversi�n a tipo no primitivo '%s'.\n",
+                           "Conversión a tipo no primitivo '%s'.\n",
                            types.types[$3]->name.c_str());
                   logger->error($2->line, $2->column, e);
             }
@@ -742,7 +742,6 @@ expression :
 aritmetic_expression:
         '-' expression %prec NEG 
             { $$ = new AST_un_op((tokenId*)$1, (AST_expression*)$2); }
-
     |   expression '+' expression
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
 
@@ -814,6 +813,19 @@ lvalue :
                  delete $2;
                  delete $4;
              }
+     | lvalue '[' error ']'
+          {
+              char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Expresión de índices invalida.");
+                    logger->error($2->line, $2->column, e);
+
+              $$ = new AST_array_access( (AST_lval*)$1, 0);
+              delete $2;
+              delete $4;
+
+              yyerrok;
+          }
      | lvalue '.' TK_IDENT
              {
                  $$ = new AST_struct_access( (AST_lval*)$1, (tokenId*)$3);
