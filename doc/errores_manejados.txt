@@ -19,4 +19,4 @@
 
 * funciones declaradas sin 'fun'
 
-* manejo de error en condición de if
+* manejo de error en condición de if, while

@@ -778,9 +778,11 @@ void AST_conditional::fill_and_check(symbol_table* st){
 }
 
 void AST_loop::fill_and_check(symbol_table* st){
-    expr->fill_and_check(st);
-    if ( expr->type != INVALID && expr->type != BOOLEAN ){
-        logger->error(line, column, "Se esperaba boolean");
+    if (0 != expr) {
+        expr->fill_and_check(st);
+        if ( expr->type != INVALID && expr->type != BOOLEAN ){
+            logger->error(line, column, "Se esperaba boolean");
+        }
     }
     
     symbol_table* nested_block = st->new_son();

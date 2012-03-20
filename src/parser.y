@@ -699,6 +699,20 @@ statement :
               delete $2;
               delete $4;
             }
+    |   TK_WHILE '(' error ')' loop_block
+            { char e[llog::ERR_LEN];
+              snprintf(e, llog::ERR_LEN,
+                       "Expresión inválida en la expresión de condición.");
+              logger->error($2->line, $2->column, e);
+              $$ = new AST_loop( (token*)$1,
+                                 (AST_expression*)0,
+                                 (AST_block*)$5
+                               );
+              delete $2;
+              delete $4;
+
+              yyerrok;
+            }
     |   TK_FOR TK_IDENT TK_IN '(' expression ',' expression ')' loop_block
             { $$ = new AST_bounded_loop( (token*)$1,
                                          (tokenId*)$2,
