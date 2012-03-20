@@ -175,6 +175,8 @@ class AST_string : public AST_expression {
 
         AST_string(tokenId* tk);
 
+        virtual void append(tokenId* tk);
+
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);

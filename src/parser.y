@@ -69,7 +69,7 @@ vector<uint> max_offset;
 
 %type<nd> input declaration variable_declaration block statement
           parameters_instance parameters_instance_non_empty
-          arg_list non_empty_arg_list lista_ident
+          arg_list non_empty_arg_list lista_ident string
           block_statement loop_statement loop_block loop_block_statement
           else_statements expression aritmetic_expression boolean_expression
           lvalue
@@ -212,6 +212,8 @@ type_def:
               yyerrok;
               yyclearin;
               $$ = INVALID;
+
+              yyerrok;
           }
     ;
 
@@ -279,6 +281,7 @@ declaration:
                 delete $3;
                 
                 $$ = 0;
+                
                 yyerrok;
             }
     |   TK_NEW_TYPE TK_IDENT '{' struct_fields '}'
@@ -516,7 +519,7 @@ non_empty_arg_list :
                 char e[llog::ERR_LEN];
                 snprintf(e, llog::ERR_LEN,
                          "Error en parametro %d de definicion de funcion.\n",
-                           ((AST_arg_list*)$1)->args.size()+1
+                           (int)((AST_arg_list*)$1)->args.size()+1
                           );
                 logger->error($2->line, $2->column, e);
                 
@@ -569,6 +572,18 @@ statement :
                 $$ = new AST_assignment((AST_lval*)$1, (AST_expression*)$3);
                 delete $2;
                 delete $4;
+            }
+    |   lvalue '=' error ';'
+            { 
+                $$ = new AST_assignment((AST_lval*)$1, 0);
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Expresión inválida en la asignación.");
+                logger->error($2->line, $2->column, e);
+                delete $2;
+                delete $4;
+
+                yyerrok;
             }
     |   ';'
             { 
@@ -728,7 +743,7 @@ expression :
     |   TK_FLOAT             { $$ = new AST_float( (tokenFloat*)$1); }
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
-    |   TK_STRING            { $$ = new AST_string( (tokenId*)$1); }
+    |   string               { $$ = $1}
     |   '(' expression ')'   { $$ = (AST_expression*)$2;
                                delete $1;
                                delete $3;
@@ -736,6 +751,7 @@ expression :
     |   '(' error ')'        { $$ = new AST_expression();
                                delete $1;
                                delete $3;
+                               yyerrok;
                              }
     | lvalue                 {
                                 $$ = 
@@ -844,6 +860,13 @@ boolean_expression:
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
 ;
 
+string:
+        TK_STRING        { $$ = new AST_string( (tokenId*)$1); }    
+    |   string TK_STRING { $$ = $1;
+                           ((AST_string*)$1)->append((tokenId*)$2);
+                         }
+;
+
 lvalue :
         TK_IDENT
             { 
@@ -950,18 +973,6 @@ int main (int argc,char **argv)
             yyparse();
         } while (!feof(yyin));
     }
-    
-    /*
-    if ( logger->exists_registered_error() ){
-        logger->failure("lexer");
-        return 0;
-    }
-    
-    if ( logger->exists_registered_error() ){
-        logger->failure("parser");
-        return 0;
-    }
-    */
     
     symbol_table st;
     
