@@ -7,8 +7,6 @@
 
 * indice de arreglos invalidos (en declaración y lvalue)
 
-* expresión negativa inválida
-
 * error en alias.
 
 * error en uno de los campos de un tipo compuesto.
@@ -16,3 +14,7 @@
 * asignación a lvalue de algo que genera un error
 
 * alias sin punto y coma al final
+
+* impresión sin punto y coma al final (por ejemplo si se olvida el último elemento y se deja la coma
+
+* funciones declaradas sin 'fun'
