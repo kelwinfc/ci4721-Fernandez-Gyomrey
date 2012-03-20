@@ -141,7 +141,10 @@ void AST_array_access::print(int indentation){
     print_indentation(indentation);
     cout << "Get: [" << types.types[type]->name << "]\n";
     
-    index->print(indentation+1);
+    // si hay un error, no habría índice
+    if (0 != index) {
+        index->print(indentation+1);
+    }
     
     printf("%3d: ", line );
     print_indentation(indentation);

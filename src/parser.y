@@ -48,7 +48,7 @@ vector<uint> max_offset;
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
 
 /* 
- * La raz髇 de esta precedencia es respetar la la precedencia natural de
+ * La raz贸n de esta precedencia es respetar la la precedencia natural de
  * expresiones como true && false == false, considerando la igualdad como
  * equivalencia dicha expresion debe evaluar (true && false) == false, a
  * diferencia de lenguajes como C que evalua true && (false == false).
@@ -123,7 +123,7 @@ type_def:
               } else {
                   up = ((AST_int*)$2)->value;
               }
-              
+
               array_descriptor* at;
               at = new array_descriptor( types.types[ $4 ],
                                          $4, up, low );
@@ -153,17 +153,17 @@ type_def:
                   low = ((AST_int*)$2)->value;
                   up = ((AST_int*)$4)->value;
               }
-              
+
               array_descriptor* at;
               at = new array_descriptor( types.types[$6],
                                          $6, up, low );
-              
+
               if ( types.has_type( at->name ) ){
                   $$ = types.index_of( at->name );
               } else {
                   $$ = types.add_type( at );
               }
-              
+
               delete $1;
               delete $3;
               delete $5;
@@ -265,6 +265,34 @@ declaration:
                 delete $1;
                 delete $2;
                 delete $3;
+                delete $4;
+                
+                $$ = 0;
+            }
+    |   TK_ALIAS TK_IDENT TK_IDENT error ';'
+            {
+                if ( types.has_type( ((tokenId*)$2)->ident ) ){
+                    types.add_alias( ((tokenId*)$2)->ident,
+                                     ((tokenId*)$3)->ident
+                                   );
+                } else {
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo '%s' con identificador no definido previamente.",
+                             (char*)((tokenId*)$2)->ident.c_str());
+                    logger->error($2->line, $2->column, e);
+
+                }
+
+                char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Declaraci贸n de alias requiere punto y coma al final.");
+                    logger->error($3->line, $3->column, e);
+
+                delete $1;
+                delete $2;
+                delete $3;
+                delete $5;
                 
                 $$ = 0;
             }
@@ -441,13 +469,13 @@ variable_declaration :
             }
 ;
 
-// Lista de par醡etros formales (puede ser vac韆)
+// Lista de par谩metros formales (puede ser vac铆a)
 arg_list:
       /* empty */        { $$ = new AST_arg_list(); }
     | non_empty_arg_list { $$ = $1; }
 ;
 
-// Lista de par醡etros que no puede ser vac韆
+// Lista de par谩metros que no puede ser vac铆a
 non_empty_arg_list :
         TK_CONST type_def TK_IDENT
             {
@@ -731,12 +759,12 @@ expression :
             if ( TK_AS == 0 ){
                 char e[llog::ERR_LEN];
                   snprintf(e, llog::ERR_LEN,
-                           "Conversi髇 a tipo no definido previamente.\n");
+                           "Conversi贸n a tipo no definido previamente.\n");
                   logger->error($2->line, $2->column, e);
             } else if ( !types.is_base( $3 ) ){
                 char e[llog::ERR_LEN];
                   snprintf(e, llog::ERR_LEN,
-                           "Conversi髇 a tipo no primitivo '%s'.\n",
+                           "Conversi贸n a tipo no primitivo '%s'.\n",
                            types.types[$3]->name.c_str());
                   logger->error($2->line, $2->column, e);
             }
@@ -768,7 +796,6 @@ expression :
 aritmetic_expression:
         '-' expression %prec NEG 
             { $$ = new AST_un_op((tokenId*)$1, (AST_expression*)$2); }
-
     |   expression '+' expression
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
 
@@ -840,6 +867,19 @@ lvalue :
                  delete $2;
                  delete $4;
              }
+     | lvalue '[' error ']'
+          {
+              char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "Expresi贸n de 铆ndices invalida.");
+                    logger->error($2->line, $2->column, e);
+
+              $$ = new AST_array_access( (AST_lval*)$1, 0);
+              delete $2;
+              delete $4;
+
+              yyerrok;
+          }
      | lvalue '.' TK_IDENT
              {
                  $$ = new AST_struct_access( (AST_lval*)$1, (tokenId*)$3);
