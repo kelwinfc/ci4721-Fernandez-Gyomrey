@@ -701,9 +701,11 @@ void AST_program::fill_and_check(symbol_table* st){
 void AST_assignment::fill_and_check(symbol_table* st){
     
     lvalue->fill_and_check(st);
-    expr->fill_and_check(st);
+    if (0 != expr) {
+        expr->fill_and_check(st);
+    }
     
-    if ( expr->type != lvalue->type
+    if ( 0 != expr && expr->type != lvalue->type
                 && expr->type != INVALID 
                 && lvalue->type != INVALID
               )

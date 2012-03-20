@@ -5,6 +5,8 @@
 
 * inicializacion de variable/constante invalida
 
-* indice de arreglos invalidos
+* indice de arreglos invalidos (en declaración y lvalue)
 
-* expresión negativa inválida
+* asignación a lvalue de algo que genera un error
+
+* alias sin punto y coma al final

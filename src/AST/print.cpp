@@ -353,12 +353,17 @@ void AST_assignment::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation+1);
     
-    cout << "Rvalue ["
-         << types.types[expr->type]->name
-         << "]\n";
-    
-    expr->print(indentation+2);
+    if (0 != expr) {
+        cout << "Rvalue ["
+             << types.types[expr->type]->name
+             << "]\n";
+        
+        expr->print(indentation+2);
+    } else {
+        cout << "Rvalue undefined" << endl;
+    }
 }
+
 
 void AST_return::print(int indentation){
     printf("%3d: ", line);

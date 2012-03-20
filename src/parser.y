@@ -212,6 +212,8 @@ type_def:
               yyerrok;
               yyclearin;
               $$ = INVALID;
+
+              yyerrok;
           }
     ;
 
@@ -295,6 +297,8 @@ declaration:
                 delete $5;
                 
                 $$ = 0;
+
+                yyerrok;
             }
     |   TK_NEW_TYPE TK_IDENT '{' struct_fields '}'
             {
@@ -518,7 +522,7 @@ non_empty_arg_list :
                 char e[llog::ERR_LEN];
                 snprintf(e, llog::ERR_LEN,
                          "Error en parametro %d de definicion de funcion.\n",
-                           ((AST_arg_list*)$1)->args.size()+1
+                           (int)((AST_arg_list*)$1)->args.size()+1
                           );
                 logger->error($2->line, $2->column, e);
                 
@@ -571,6 +575,18 @@ statement :
                 $$ = new AST_assignment((AST_lval*)$1, (AST_expression*)$3);
                 delete $2;
                 delete $4;
+            }
+    |   lvalue '=' error ';'
+            { 
+                $$ = new AST_assignment((AST_lval*)$1, 0);
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Expresión inválida en la asignación.");
+                logger->error($2->line, $2->column, e);
+                delete $2;
+                delete $4;
+
+                yyerrok;
             }
     |   ';'
             { 
@@ -738,6 +754,7 @@ expression :
     |   '(' error ')'        { $$ = new AST_expression();
                                delete $1;
                                delete $3;
+                               yyerrok;
                              }
     | lvalue                 {
                                 $$ = 
@@ -952,18 +969,6 @@ int main (int argc,char **argv)
             yyparse();
         } while (!feof(yyin));
     }
-    
-    /*
-    if ( logger->exists_registered_error() ){
-        logger->failure("lexer");
-        return 0;
-    }
-    
-    if ( logger->exists_registered_error() ){
-        logger->failure("parser");
-        return 0;
-    }
-    */
     
     symbol_table st;
     
