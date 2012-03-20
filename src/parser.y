@@ -69,7 +69,7 @@ vector<uint> max_offset;
 
 %type<nd> input declaration variable_declaration block statement
           parameters_instance parameters_instance_non_empty
-          arg_list non_empty_arg_list lista_ident
+          arg_list non_empty_arg_list lista_ident string
           block_statement loop_statement loop_block loop_block_statement
           else_statements expression aritmetic_expression boolean_expression
           lvalue
@@ -746,7 +746,7 @@ expression :
     |   TK_FLOAT             { $$ = new AST_float( (tokenFloat*)$1); }
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
-    |   TK_STRING            { $$ = new AST_string( (tokenId*)$1); }
+    |   string               { $$ = $1}
     |   '(' expression ')'   { $$ = (AST_expression*)$2;
                                delete $1;
                                delete $3;
@@ -861,6 +861,13 @@ boolean_expression:
 
     |   expression TK_GREAT_EQ expression
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
+;
+
+string:
+        TK_STRING        { $$ = new AST_string( (tokenId*)$1); }    
+    |   string TK_STRING { $$ = $1;
+                           ((AST_string*)$1)->append((tokenId*)$2);
+                         }
 ;
 
 lvalue :

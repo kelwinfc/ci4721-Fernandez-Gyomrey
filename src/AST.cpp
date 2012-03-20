@@ -130,16 +130,12 @@ AST_string::AST_string(tokenId* tk){
 
     value = value.substr(1, value.length() - 2);
     type = STRING;
-    /*
-     OJO: ESTO DA SEGMENTATION FAULT, FIJATE QUE AGREGAS EL DESCRIPTOR Y
-     SEGUIDAMENTE LO BORRAS, AGREGUE EL TIPO STRING COMO TIPO BASE
-    type_descriptor* char_descriptor = types.get_type("char");
-    type_descriptor* string_descriptor = new array_descriptor(char_descriptor, 0, 0, value.length());
-    if (!types.has_type(string_descriptor->name)) {
-        types.add_type(string_descriptor);
-    };
-    delete string_descriptor;
-    */
+    delete tk;
+}
+
+void AST_string::append(tokenId* tk){
+    string c = tk->ident;
+    value += c.substr(1, c.length() - 2);
     delete tk;
 }
 
