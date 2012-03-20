@@ -1,0 +1,45 @@
+int a;
+^int b;
+[3]int c;
+^[3]int d;
+[3]^int e;
+
+type OffsetInterno{
+    char a;
+    boolean b;
+    char c;
+    int d;
+    float e;
+    char f;
+}
+
+type OffsetAlineacion{
+    char a;
+    OffsetInterno b;
+    char c;
+}
+
+fun none main(){
+    c = d^;
+    b = @a;
+    a = e[0]^;
+    
+    int offsetLocal0;
+    OffsetAlineacion offsetLocal4;
+    char offsetLocal22;
+    OffsetAlineacion offsetLocal24;
+    char vueltaOffset;
+    
+    {
+        int offset44Padding;
+        int offset48;
+    }
+    
+    char vueltaOffset;
+    
+    {
+        int otroIncremento;
+    }
+    
+    OffsetInterno otraVuelta;
+}
