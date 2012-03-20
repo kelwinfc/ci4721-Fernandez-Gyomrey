@@ -695,6 +695,16 @@ statement :
                                 delete $1;
                                 delete $3;
                             }
+    | TK_READ TK_IDENT error ';'  {
+                                char e[llog::ERR_LEN];
+                                    snprintf(e, llog::ERR_LEN,
+                                             "Lista de lectura debe ser terminada ';'");
+                                    logger->error($1->line, $1->column, e);
+                                $$ = new AST_read( (tokenId*)$2 );
+                                delete $1;
+                                delete $4;
+                                yyerrok;
+                            }
     | TK_PRINT lista_ident ';'  {
                                     $$ = $2;
                                     delete $1;
