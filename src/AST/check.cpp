@@ -584,6 +584,7 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
     if ( value
          && value->type != sym->getType()
          && value->type != INVALID
+         && sym->getType() != INVALID
        )
     {
         char e[llog::ERR_LEN];
