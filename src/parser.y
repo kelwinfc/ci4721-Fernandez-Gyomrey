@@ -399,6 +399,21 @@ variable_declaration :
               delete $3;
               delete $5;
             }
+    | type_def TK_IDENT error expression ';'
+            { char e[llog::ERR_LEN];
+              snprintf(e, llog::ERR_LEN,
+                      "Falta simbolo = entre identificador e inicializacion.\n",
+                       ((tokenId*)$2)->ident.c_str()
+                      );
+              logger->error($2->line, $2->column, e);
+              
+              $$ = new AST_variable_declaration( $1,
+                                                 (tokenId*)$2,
+                                                 (AST_expression*)$4
+                                               );
+              
+              delete $5;
+            }
     | type_def TK_IDENT '=' error ';' 
             { char e[llog::ERR_LEN];
               snprintf(e, llog::ERR_LEN,
@@ -470,33 +485,28 @@ non_empty_arg_list :
                 delete $2;
                 delete $3;
             }
+    |   non_empty_arg_list ',' error
+            {
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Error en parametro %d de definicion de funcion.\n",
+                           ((AST_arg_list*)$1)->args.size()+1
+                          );
+                logger->error($2->line, $2->column, e);
+                
+                delete $2;
+                $$ = $1;
+                yyerrok;
+            }
 ;
 
 // Definicion de bloques de anidamiento
 block :
-        '{'
+        '{' block_statement '}'
             {
-                if ( offset.size() == 1 ){
-                    offset.push_back(0);
-                    max_offset.push_back(0);
-                } else {
-                    offset.push_back(offset.back());
-                    max_offset.push_back(max_offset.back());
-                }
-            }
-        block_statement '}'
-            {
-                $$ = $3;
+                $$ = $2;
                 delete $1;
-                delete $4;
-                
-                if ( offset.size() > 1 ){
-                    max_offset[ max_offset.size() - 2 ] = 
-                                        max( max_offset[max_offset.size()-2],
-                                             max_offset.back());
-                }
-                offset.pop_back();
-                max_offset.pop_back();
+                delete $3;
             }
     |   '{' '}'
             {
@@ -596,6 +606,18 @@ statement :
                                     delete $1;
                                     delete $3;
                                 }
+    | error ';'
+        {
+            $$ = 0;
+            
+            char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Error en instruccion.");
+                logger->error($2->line, $2->column, e);
+            
+            delete $2;
+            yyerrok;
+        }
 ;
 
 lista_ident : expression                 {
@@ -682,6 +704,10 @@ expression :
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
     |   TK_STRING            { $$ = new AST_string( (tokenId*)$1); }
     |   '(' expression ')'   { $$ = (AST_expression*)$2;
+                               delete $1;
+                               delete $3;
+                             }
+    |   '(' error ')'        { $$ = new AST_expression();
                                delete $1;
                                delete $3;
                              }
