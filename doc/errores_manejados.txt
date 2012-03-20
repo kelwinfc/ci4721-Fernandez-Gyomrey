@@ -8,3 +8,7 @@
 * indice de arreglos invalidos
 
 * expresión negativa inválida
+
+* error en alias.
+
+* error en uno de los campos de un tipo compuesto.
