@@ -652,32 +652,6 @@ statement :
               delete $2;
               delete $4;
             }
-    |   TK_IF '(' error expression ')' block else_statements 
-            {   char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Expresión inválida en la expresión de condición.");
-                logger->error($2->line, $2->column, e);
-                $$ = new AST_conditional( $1,
-                                        (AST_expression*) $4,
-                                        (AST_block*) $6,
-                                        (AST_conditional*) $7
-                                      );
-              delete $2;
-              delete $5;
-            }
-    |   TK_IF '(' expression error ')' block else_statements 
-            {  char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Expresión inválida en la expresión de condición.");
-                logger->error($2->line, $2->column, e);
-                $$ = new AST_conditional( $1,
-                                        (AST_expression*) $3,
-                                        (AST_block*) $6,
-                                        (AST_conditional*) $7
-                                      );
-              delete $2;
-              delete $5;
-            }
     |   TK_IF '(' error ')' block else_statements 
             {   char e[llog::ERR_LEN];
                 snprintf(e, llog::ERR_LEN,
@@ -690,6 +664,8 @@ statement :
                                       );
               delete $2;
               delete $4;
+
+              yyerrok;
             }
     |   TK_WHILE '(' expression ')' loop_block
             { $$ = new AST_loop( (token*)$1,
