@@ -380,7 +380,7 @@ struct_fields :     {
                         char e[llog::ERR_LEN];
                         snprintf(e, llog::ERR_LEN,
                            "Campo %d en definicion de tipo compuesto invalido.",
-                            $1->table.size()+1);
+                            (int)$1->table.size()+1);
                         
                         logger->error($3->line, $3->column, e);
                         
@@ -646,6 +646,18 @@ statement :
                                     $$ = $2;
                                     delete $1;
                                     delete $3;
+                                }
+    | TK_PRINT lista_ident error ';'  {
+            
+                                    char e[llog::ERR_LEN];
+                                        snprintf(e, llog::ERR_LEN,
+                                                 "Lista de impresión debe ser terminada ';'");
+                                        logger->error($1->line, $1->column, e);
+            
+                                    $$ = $2;
+                                    delete $1;
+                                    delete $4;
+                                    yyerrok;
                                 }
     | error ';'
         {
