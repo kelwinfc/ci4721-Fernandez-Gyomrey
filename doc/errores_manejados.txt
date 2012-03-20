@@ -18,3 +18,5 @@
 * lectura eimpresión sin punto y coma al final
 
 * funciones declaradas sin 'fun'
+
+* manejo de error en condición de if
