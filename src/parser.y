@@ -505,6 +505,22 @@ variable_declaration :
             delete $3;
             
             }
+    | type_def TK_IDENT error ';'
+            { char e[llog::ERR_LEN];
+              snprintf(e, llog::ERR_LEN,
+                       "Declaración de variable debe finalizar con ';'.",
+                       ((tokenId*)$2)->ident.c_str()
+                      );
+              logger->error($2->line, $2->column, e);
+              
+              $$ = new AST_variable_declaration( $1,
+                                                 (tokenId*)$2,
+                                                 0
+                                               );
+              delete $4;
+              
+              yyerrok;
+            }
 ;
 
 // Lista de parámetros formales (puede ser vacía)
