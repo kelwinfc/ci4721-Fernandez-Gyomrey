@@ -492,7 +492,9 @@ void AST_parameters_list::fill_and_check(symbol_table* st){
      * una funcion
      */
     for (vector<AST_expression*>::iterator it=elem.begin(); it != elem.end(); ++it){
-        (*it)->fill_and_check(st);
+        if (0 != *it) {
+            (*it)->fill_and_check(st);
+        }
     }
 }
 

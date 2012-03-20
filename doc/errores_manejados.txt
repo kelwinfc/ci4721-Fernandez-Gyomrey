@@ -13,7 +13,7 @@
 
 * asignación a lvalue de algo que genera un error
 
-* lectura e impresión sin punto y coma al final
+* lectura, impresión y return sin punto y coma al final
 
 * funciones declaradas sin 'fun'
 

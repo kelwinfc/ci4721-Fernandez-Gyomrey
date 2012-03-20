@@ -701,7 +701,13 @@ statement :
               delete $8;
             }
     |   TK_FOR TK_IDENT TK_IN '(' error ')' loop_block
-            { $$ = new AST_bounded_loop( (token*)$1,
+            { 
+              $$ = new AST_assignment((AST_lval*)$1, 0);
+              char e[llog::ERR_LEN];
+              snprintf(e, llog::ERR_LEN,
+                       "Expresión inválida en límites del for.");
+              logger->error($4->line, $4->column, e);
+              $$ = new AST_bounded_loop( (token*)$1,
                                          (tokenId*)$2,
                                          (AST_expression*)0,
                                          (AST_expression*)0,
@@ -709,6 +715,8 @@ statement :
               delete $3;
               delete $4;
               delete $6;
+
+              yyerrok;
             }
     |   block
             { $$ = $1 }
@@ -721,6 +729,16 @@ statement :
             {
                 $$ = new AST_return($1,(AST_expression*)$2);
                 delete $3;
+            }
+    |   TK_RETURN error ';'
+            { 
+              $$ = new AST_assignment((AST_lval*)$1, 0);
+              char e[llog::ERR_LEN];
+              snprintf(e, llog::ERR_LEN, "Return esperando ';'");
+              logger->error($1->line, $1->column, e);
+              $$ = new AST_return($1, 0);
+              delete $3;
+              yyerrok;
             }
     |   TK_IDENT '(' parameters_instance ')'
                              { $$ = new AST_function_call( (tokenId*) $1,
@@ -1065,6 +1083,18 @@ parameters_instance_non_empty:
             ((AST_parameters_list*)$1)->add_element((AST_expression*)$3);
             $$ = $1;
             delete $2;
+        }
+    | parameters_instance_non_empty ',' error
+        { 
+          ((AST_parameters_list*)$1)->add_element((AST_expression*)0);
+          $$ = $1;
+
+          char e[llog::ERR_LEN];
+          snprintf(e, llog::ERR_LEN, "Expresión de parámetro inválida");
+          logger->error($2->line, $2->column, e);
+
+          delete $2;
+          yyerrok;
         }
 ;
 %%

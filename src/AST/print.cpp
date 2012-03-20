@@ -308,7 +308,9 @@ void AST_function_call::print(int indentation){
 void AST_parameters_list::print(int indentation){
     
     for (uint i=0; i < elem.size(); i++){
-        elem[i]->print(indentation);
+        if (0 != elem[i]) {
+            elem[i]->print(indentation);
+        }
         
         if ( i + 1 < elem.size() ){
             cout << "   ";
