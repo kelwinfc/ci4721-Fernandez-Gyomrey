@@ -700,6 +700,16 @@ statement :
               delete $6;
               delete $8;
             }
+    |   TK_FOR TK_IDENT TK_IN '(' error ')' loop_block
+            { $$ = new AST_bounded_loop( (token*)$1,
+                                         (tokenId*)$2,
+                                         (AST_expression*)0,
+                                         (AST_expression*)0,
+                                         (AST_block*)$7);
+              delete $3;
+              delete $4;
+              delete $6;
+            }
     |   block
             { $$ = $1 }
     |   TK_RETURN ';'

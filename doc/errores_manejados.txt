@@ -13,10 +13,8 @@
 
 * asignación a lvalue de algo que genera un error
 
-* alias sin punto y coma al final
-
-* lectura eimpresión sin punto y coma al final
+* lectura e impresión sin punto y coma al final
 
 * funciones declaradas sin 'fun'
 
-* manejo de error en condición de if, while
+* manejo de error en condición de if, while, for

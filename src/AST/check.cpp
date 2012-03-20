@@ -792,11 +792,15 @@ void AST_loop::fill_and_check(symbol_table* st){
 
 void AST_bounded_loop::fill_and_check(symbol_table* st){
 
-    left_bound->fill_and_check(st);
-    right_bound->fill_and_check(st);
+    if (0 != left_bound) {
+        left_bound->fill_and_check(st);
+    }
+    if (0 != right_bound) {
+        right_bound->fill_and_check(st);
+    }
     
-    if ( left_bound->type == INVALID
-        || right_bound->type == INVALID )
+    if ( 0 == left_bound || left_bound->type == INVALID
+        || 0 == right_bound || right_bound->type == INVALID )
     {
         return;
     } else if ( left_bound->type != right_bound->type ){

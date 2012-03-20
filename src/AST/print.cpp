@@ -437,12 +437,16 @@ void AST_bounded_loop::print(int indentation){
     print_indentation(indentation+1);
     cout << "     (\n";
     
-    left_bound->print(indentation+2);
+    if (0 != left_bound) {
+        left_bound->print(indentation+2);
+    }
     
     print_indentation(indentation+1);
     cout << "     ,\n";
     
-    right_bound->print(indentation+2);
+    if (0 != right_bound) {
+        right_bound->print(indentation+2);
+    }
     
     print_indentation(indentation+1);
     cout << "     )\n";
