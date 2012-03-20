@@ -16,3 +16,5 @@
 * alias sin punto y coma al final
 
 * impresión sin punto y coma al final (por ejemplo si se olvida el último elemento y se deja la coma
+
+* funciones declaradas sin 'fun'

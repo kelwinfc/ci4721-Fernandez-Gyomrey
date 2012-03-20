@@ -239,16 +239,53 @@ declaration:
             delete $4;
             delete $6;
             }
+    |   type_def TK_IDENT '(' arg_list ')' block
+            {
+              char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "La declaración de funciones debe ser precedida por 'fun'");
+                    logger->error($2->line, $2->column, e);
+
+              if ( !types.is_base( $1 ) ){
+                  char e[llog::ERR_LEN];
+                  snprintf(e, llog::ERR_LEN,
+                           "Funcion '%s' con tipo de retorno no primitivo.",
+                           (char*)((tokenId*)$2)->ident.c_str());
+                  logger->error($2->line, $2->column, e);
+              }
+              $$ = new AST_function( $1,
+                                     (tokenId*)$2,
+                                     (AST_arg_list*)$4,
+                                     (AST_block*)$6
+                                   );
+              delete $3;
+              delete $5;
+            }
     |   TK_FUNCTION TK_NONE TK_IDENT '(' arg_list ')' block
             { $$ = new AST_function( 0,
                                      (tokenId*)$3,
                                      (AST_arg_list*)$5,
                                      (AST_block*)$7
                                    );
-            delete $1;
-            delete $2;
-            delete $4;
-            delete $6;
+              delete $1;
+              delete $2;
+              delete $4;
+              delete $6;
+            }
+    |   TK_NONE TK_IDENT '(' arg_list ')' block
+            { 
+              char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                        "La declaración de funciones debe ser precedida por 'fun'");
+                    logger->error($2->line, $2->column, e);
+              $$ = new AST_function( 0,
+                                     (tokenId*)$2,
+                                     (AST_arg_list*)$4,
+                                     (AST_block*)$6
+                                   );
+              delete $1;
+              delete $3;
+              delete $5;
             }
     |   TK_ALIAS type_def TK_IDENT ';'
             {
