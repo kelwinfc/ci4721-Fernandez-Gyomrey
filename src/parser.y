@@ -248,53 +248,38 @@ declaration:
             delete $4;
             delete $6;
             }
-    |   TK_ALIAS TK_IDENT TK_IDENT ';'
+    |   TK_ALIAS type_def TK_IDENT ';'
             {
-                if ( types.has_type( ((tokenId*)$2)->ident ) ){
-                    types.add_alias( ((tokenId*)$2)->ident,
-                                     ((tokenId*)$3)->ident
-                                   );
-                } else {
+                if ( types.has_type( ((tokenId*)$3)->ident ) ){
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
-                             "Tipo '%s' con identificador no definido previamente.",
-                             (char*)((tokenId*)$2)->ident.c_str());
-                    logger->error($2->line, $2->column, e);
-
+                             "Tipo '%s' definido previamente.",
+                             (char*)((tokenId*)$3)->ident.c_str());
+                    logger->error($3->line, $3->column, e);
+                } else {
+                    types.add_alias( types.types[$2]->name,
+                                     ((tokenId*)$3)->ident
+                                   );
                 }
+                
                 delete $1;
-                delete $2;
                 delete $3;
                 delete $4;
                 
                 $$ = 0;
             }
-    |   TK_ALIAS TK_IDENT TK_IDENT error ';'
+    |   TK_ALIAS error ';'
             {
-                if ( types.has_type( ((tokenId*)$2)->ident ) ){
-                    types.add_alias( ((tokenId*)$2)->ident,
-                                     ((tokenId*)$3)->ident
-                                   );
-                } else {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Tipo '%s' con identificador no definido previamente.",
-                             (char*)((tokenId*)$2)->ident.c_str());
-                    logger->error($2->line, $2->column, e);
-
-                }
-
                 char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
-                        "Declaración de alias requiere punto y coma al final.");
-                    logger->error($3->line, $3->column, e);
-
+                             "Declaracion de alias invalida.");
+                    logger->error($1->line, $1->column, e);
+                
                 delete $1;
-                delete $2;
                 delete $3;
-                delete $5;
                 
                 $$ = 0;
+                yyerrok;
             }
     |   TK_NEW_TYPE TK_IDENT '{' struct_fields '}'
             {
@@ -386,6 +371,19 @@ struct_fields :     {
                                     - types.types[$2]->width;
                         
                         $$ = $1;
+                    }
+             | struct_fields error ';'
+                    {
+                        char e[llog::ERR_LEN];
+                        snprintf(e, llog::ERR_LEN,
+                           "Campo %d en definicion de tipo compuesto invalido.",
+                            $1->table.size()+1);
+                        
+                        logger->error($3->line, $3->column, e);
+                        
+                        delete $3;
+                        $$ = $1;
+                        yyerrok;
                     }
               ;
 
