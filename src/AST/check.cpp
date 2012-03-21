@@ -553,7 +553,14 @@ void AST_declaration::fill_and_check(symbol_table* st){
 }
 
 void AST_variable_declaration::fill_and_check(symbol_table* st){
-    
+
+    if (types.has_type(sym->getName())) {
+        char e[llog::ERR_LEN];
+        snprintf(e, llog::ERR_LEN, "Identificador '%s' ya existe como tipo '%s'.",
+            sym->getName().c_str(), types.get_type(sym->getName())->name.c_str());
+        logger->error(sym->getLine(), sym->getColumn(), e);
+    }
+
     sym->offset    = st->accumulated_offset;
     sym->width     = types.types[sym->getType()]->width;
     sym->alignment = types.types[sym->getType()]->alignment;

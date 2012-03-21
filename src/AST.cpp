@@ -225,7 +225,7 @@ AST_variable_declaration::AST_variable_declaration(TYPE t, tokenId* id,
                                                   )
 {
     line = id->line;
-    
+
     sym = new symbol(string(id->ident), constant, t, id->line,
                      id->column, 0 != v
                     );
