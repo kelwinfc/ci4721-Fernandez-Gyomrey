@@ -304,6 +304,10 @@ AST_expression* AST_string::constant_folding(){
     return this;
 }
 
+AST_expression* AST_enum_constant::constant_folding(){
+    return this;
+}
+
 AST_expression* AST_boolean::constant_folding(){
     return this;
 }

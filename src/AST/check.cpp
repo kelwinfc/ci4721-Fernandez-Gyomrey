@@ -353,6 +353,10 @@ void AST_string::fill_and_check(symbol_table* st){
 
 }
 
+void AST_enum_constant::fill_and_check(symbol_table* st){
+
+}
+
 void AST_boolean::fill_and_check(symbol_table* st){
 
 }

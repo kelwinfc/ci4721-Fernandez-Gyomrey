@@ -184,6 +184,21 @@ class AST_string : public AST_expression {
         virtual AST_expression* constant_folding();
 };
 
+class AST_enum_constant : public AST_expression {
+
+    public:
+
+        string value;
+
+        AST_enum_constant(tokenConstant* tk);
+
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual AST_expression* constant_folding();
+};
+
 class AST_lval : public AST_expression {
     public:
         

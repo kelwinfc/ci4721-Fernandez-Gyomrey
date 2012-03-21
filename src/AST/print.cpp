@@ -258,6 +258,12 @@ void AST_string::print(int indentation){
     cout << "Constant string: " << value << endl;
 }
 
+void AST_enum_constant::print(int indentation){
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    cout << "Constant enum: " << value << endl;
+}
+
 void AST_ident::print(int indentation){
     printf("%3d: ", line);
     print_indentation(indentation);

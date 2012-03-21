@@ -133,6 +133,18 @@ AST_string::AST_string(tokenId* tk){
     delete tk;
 }
 
+AST_enum_constant::AST_enum_constant(tokenConstant* tk){
+
+    is_constant = true;
+    
+    line = tk->line;
+    column = tk->column;
+    value = tk->ident;
+
+    type = tk->type;
+    delete tk;
+}
+
 void AST_string::append(tokenId* tk){
     string c = tk->ident;
     value += c.substr(1, c.length() - 2);

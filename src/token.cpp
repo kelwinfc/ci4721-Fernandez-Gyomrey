@@ -137,3 +137,11 @@ tokenInt::tokenInt(int l, int c, char* num){
         number = (int)number_long;
     }
 }
+
+tokenConstant::tokenConstant(int l, int c, char* id, int t){
+    line = l;
+    column = c;
+    
+    ident = string(id);
+    type = t;
+}

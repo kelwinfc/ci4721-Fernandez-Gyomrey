@@ -14,6 +14,7 @@ void yyerror (char const *);
 extern FILE *yyin;
 
 AST_program* p;
+map<string, int> constants;
 llog* logger;
 type_table types;
 vector<uint> offset;
@@ -25,7 +26,7 @@ vector<uint> max_offset;
     AST_node* nd;
     token* tk;
     symbol_table* tt;
-    vector<string>* tv;
+    list<string>* tv;
     int t;
 }
 
@@ -35,6 +36,7 @@ vector<uint> max_offset;
 %token TK_FUNCTION
 %token TK_NONE
 %token TK_ENUM
+%token TK_ENUM_CONSTANT
 %token TK_END
 %token TK_END_OF_FILE 0
 %token TK_IF TK_ELSE TK_ELIF
@@ -76,7 +78,7 @@ vector<uint> max_offset;
           else_statements expression aritmetic_expression boolean_expression
           lvalue
           
-%type<tk> TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE TK_ENUM
+%type<tk> TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE TK_ENUM TK_ENUM_CONSTANT
           TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR TK_STRING
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
@@ -231,7 +233,7 @@ declaration:
                   char e[llog::ERR_LEN];
                   snprintf(e, llog::ERR_LEN,
                            "Funcion '%s' con tipo de retorno no primitivo.",
-                           (char*)((tokenId*)$3)->ident.c_str());
+                           ((tokenId*)$3)->ident.c_str());
                   logger->error($3->line, $3->column, e);
               }
               $$ = new AST_function( $2,
@@ -254,7 +256,7 @@ declaration:
                   char e[llog::ERR_LEN];
                   snprintf(e, llog::ERR_LEN,
                            "Funcion '%s' con tipo de retorno no primitivo.",
-                           (char*)((tokenId*)$2)->ident.c_str());
+                           ((tokenId*)$2)->ident.c_str());
                   logger->error($2->line, $2->column, e);
               }
               $$ = new AST_function( $1,
@@ -297,7 +299,7 @@ declaration:
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                              "Tipo '%s' definido previamente.",
-                             (char*)((tokenId*)$3)->ident.c_str());
+                             ((tokenId*)$3)->ident.c_str());
                     logger->error($3->line, $3->column, e);
                 } else {
                     types.add_alias( types.types[$2]->name,
@@ -331,7 +333,7 @@ declaration:
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                              "Tipo '%s' con identificador repetido.",
-                             (char*)((tokenId*)$2)->ident.c_str());
+                             ((tokenId*)$2)->ident.c_str());
                     logger->error($1->line, $1->column, e);
 
                     delete $2;
@@ -353,7 +355,7 @@ declaration:
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
                              "Tipo '%s' con identificador repetido.",
-                             (char*)((tokenId*)$2)->ident.c_str());
+                             ((tokenId*)$2)->ident.c_str());
                     logger->error($1->line, $1->column, e);
 
                     delete $2;
@@ -375,12 +377,36 @@ declaration:
                 char e[llog::ERR_LEN];
                 snprintf(e, llog::ERR_LEN,
                          "Tipo '%s' con identificador repetido.",
-                         (char*)((tokenId*)$2)->ident.c_str());
+                         ((tokenId*)$2)->ident.c_str());
                 logger->error($1->line, $1->column, e);
 
                 delete $2;
                 delete $4;
             } else {
+                list<string>::iterator it;
+                int nt = types.types.size();
+                for (it = $4->begin(); it != $4->end(); ++ it) {
+                    if (constants.find(*it) != constants.end()) {
+                        char e[llog::ERR_LEN];
+                        if (constants[*it] == nt) {
+                            snprintf(e, llog::ERR_LEN,
+                                     "Constante '%s' duplicada en tipo '%s' %d:%d.",
+                                     (*it).c_str(), ((tokenId*)$2)->ident.c_str(),
+                                     ((tokenId*)$1)->line, ((tokenId*)$1)->column);
+                        } else {
+                            enum_type* vt = (enum_type*)types.get_type(*it);
+                            snprintf(e, llog::ERR_LEN,
+                                     "Constante '%s' en tipo '%s' %d:%d definida "
+                                     "previamente para el tipo '%s' %d:%d.",
+                                     (*it).c_str(), ((tokenId*)$2)->ident.c_str(),
+                                     ((tokenId*)$1)->line, ((tokenId*)$1)->column,
+                                     vt->name.c_str(), vt->line, vt->column);
+                        }
+                        logger->error($1->line, $1->column, e);
+                    } else {
+                        constants[*it] = nt;
+                    }
+                }
                 types.add_type( new enum_type( (tokenId*)$2, $4) );
             }
             delete $1;
@@ -455,10 +481,10 @@ variable_declaration :
               $$ = new AST_variable_declaration( $1, (tokenId*)$2,
                                                  0
                                                );
-              
+
               delete $3;
               delete $5;
-              
+
               yyerrok;
             }
     | type_def TK_IDENT ';'
@@ -466,7 +492,7 @@ variable_declaration :
                                                  (tokenId*)$2,
                                                  0
                                                );
-            delete $3;
+              delete $3;
 
             }
     | type_def TK_IDENT error ';'
@@ -513,7 +539,7 @@ struct_fields :     {
                             char e[llog::ERR_LEN];
                             snprintf(e, llog::ERR_LEN,
                                      "Campo '%s' en el tipo '%s' duplicado.",
-                                     (char*)((tokenId*)$3)->ident.c_str(),
+                                     ((tokenId*)$3)->ident.c_str(),
                                      ((tokenId*)($-1.tk))->ident.c_str()
                                     );
                             logger->error($3->line, $3->column, e);
@@ -548,10 +574,17 @@ struct_fields :     {
 ;
 
 enum_values:
-    TK_IDENT
+     TK_IDENT
         {
-            $$ = new vector<string>();
+            $$ = new list<string>();
             $$->push_back(((tokenId*)$1)->ident);
+            delete $1;
+        }
+    | TK_ENUM_CONSTANT
+        {
+            // Más arriba se indica el error con detalle. Esto ya es una constante
+            $$ = new list<string>();
+            $$->push_back(((tokenConstant*)$1)->ident);
             delete $1;
         }
     | enum_values ',' TK_IDENT
@@ -561,6 +594,25 @@ enum_values:
             delete $2;
             delete $3;
         }
+    | enum_values ',' TK_ENUM_CONSTANT
+        {
+            // Más arriba se indica el error con detalle. Esto ya es una constante
+            $$ = $1;
+            $1->push_back(((tokenConstant*)$3)->ident);
+            delete $2;
+            delete $3;
+        }
+    | enum_values ',' error
+        {
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Error en elemento de enum");
+            logger->error($2->line, $2->column, e);
+
+            delete $2;
+            $$ = $1;
+            yyerrok;
+        }
+;
 
 // Lista de parámetros formales (puede ser vacía)
 arg_list:
@@ -915,6 +967,7 @@ expression :
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
     |   string               { $$ = $1}
+    |   TK_ENUM_CONSTANT     { $$ = new AST_enum_constant( (tokenConstant*)$1); }
     |   '(' expression ')'   { $$ = (AST_expression*)$2;
                                delete $1;
                                delete $3;

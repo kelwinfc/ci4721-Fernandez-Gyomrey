@@ -5,6 +5,7 @@
 #include "y.tab.h"
 
 extern llog* logger;
+extern map<string, int> constants;
 
 int columnline = 0, column = 0, lastlength = 0;
 
@@ -266,8 +267,14 @@ return                         { updatecol();
                                 }
 
 {ID}                            { updatecol();
-                                  yylval.tk = new tokenId(yylineno, column, yytext);
-                                  return TK_IDENT;
+                                  map<string, int>::iterator it = constants.find(yytext);
+                                  if (it != constants.end()) {
+                                      yylval.tk = new tokenConstant(yylineno, column, yytext, (*it).second);
+                                      return TK_ENUM_CONSTANT;
+                                  } else {
+                                      yylval.tk = new tokenId(yylineno, column, yytext);
+                                      return TK_IDENT;
+                                  }
                                 }
 
 %%

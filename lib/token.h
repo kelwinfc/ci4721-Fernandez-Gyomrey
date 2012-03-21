@@ -59,4 +59,14 @@ class tokenBoolean : public token {
         tokenBoolean(int l, int c, char* val);
 };
 
+class tokenConstant : public token {
+    public:
+
+        string ident;
+
+        int type;
+
+        tokenConstant(int l, int c, char* val, int t);
+};
+
 #endif
