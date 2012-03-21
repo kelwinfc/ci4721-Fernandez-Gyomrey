@@ -33,6 +33,56 @@ union_type::union_type(string n, symbol_table* st){
     }
 }
 
+enum_type::enum_type( tokenId* tk, vector<string>* v)
+{
+    width = 4;
+    alignment = 4;
+    line = tk->line;
+    column = tk->column;
+    name = tk->ident;
+    values = v;
+
+    delete tk;
+}
+
+array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up,
+                                    int low )
+{
+    stringstream ss;
+    ss << "array"
+       << "("
+       << low
+       << ","
+       << up
+       << ")_of_"
+       << b->name;
+    ss >> name;
+    
+    unsigned int base_width = b->width;
+    base_width += (b->alignment - (base_width) % b->alignment ) % b->alignment;
+    
+    width = base_width * ( up - low );
+    alignment = b->alignment;
+    
+    lower_index = low;
+    upper_index = up;
+    num_elements = up - low;
+    
+    base = b_ind;
+}
+
+pointer_descriptor::pointer_descriptor(TYPE b_index, string base_name){
+    base = b_index;
+
+    stringstream ss;
+    ss << "pointer_to_"
+       << base_name;
+    ss >> name;
+
+    width = 4;
+    alignment = 4;
+}
+
 void type_descriptor::print(FILE* fd){
     fprintf(fd, "  * %s [size %d][alignment %d]\n",
             name.c_str(),
@@ -76,40 +126,19 @@ void union_type::print(FILE* fd){
     fprintf(fd, "    ---\n");
 }
 
-array_descriptor::array_descriptor( type_descriptor* b, TYPE b_ind, int up,
-                                    int low )
-{
-    stringstream ss;
-    ss << "array"
-       << "("
-       << low
-       << ","
-       << up
-       << ")_of_"
-       << b->name;
-    ss >> name;
-    
-    unsigned int base_width = b->width;
-    base_width += (b->alignment - (base_width) % b->alignment ) % b->alignment;
-    
-    width = base_width * ( up - low );
-    alignment = b->alignment;
-    
-    lower_index = low;
-    upper_index = up;
-    num_elements = up - low;
-    
-    base = b_ind;
-}
-
-pointer_descriptor::pointer_descriptor(TYPE b_index, string base_name){
-    base = b_index;
-    
-    stringstream ss;
-    ss << "pointer_to_"
-       << base_name;
-    ss >> name;
-    
-    width = 4;
-    alignment = 4;
+void enum_type::print(FILE* fd){
+    fprintf(fd, "  * enum %s [size %d][alignment %d]\n", 
+            name.c_str(),
+            width,
+            alignment
+           );
+    fprintf(fd, "    ---\n");
+    vector<string>::iterator it;
+    for (it = values->begin(); it != values->end(); ++it){
+        fprintf(fd, "    |   - %s\n", (*it).c_str());
+    }
+    if ( values->begin() == values->end() ){
+        fprintf(fd, "    |\n");
+    }
+    fprintf(fd, "    ---\n");
 }

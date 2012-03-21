@@ -13,15 +13,15 @@ type_table::type_table(){
     add_type( new type_descriptor("boolean", 1, 1) );
     add_type( new type_descriptor("string", 4, 4) );
 }
-        
+
 bool type_table::has_type( string s ){
     return names.find(s) != names.end();
 }
-        
+
 bool type_table::is_base( string s ){
     return is_base( index_of(s) );
 }
-        
+
 bool type_table::is_base( int n ){
     return INT <= n && n <= STRING;
 }

@@ -14,13 +14,13 @@ class symbol{
         string name;
 
         bool constant;
-        
+
         TYPE type;
-        
+
         int line;
-        
+
         int column;
-        
+
         bool initialized;
         
     public:

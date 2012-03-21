@@ -25,6 +25,7 @@ vector<uint> max_offset;
     AST_node* nd;
     token* tk;
     symbol_table* tt;
+    vector<string>* tv;
     int t;
 }
 
@@ -33,6 +34,7 @@ vector<uint> max_offset;
 %token TK_IDENT
 %token TK_FUNCTION
 %token TK_NONE
+%token TK_ENUM
 %token TK_END
 %token TK_END_OF_FILE 0
 %token TK_IF TK_ELSE TK_ELIF
@@ -74,7 +76,7 @@ vector<uint> max_offset;
           else_statements expression aritmetic_expression boolean_expression
           lvalue
           
-%type<tk> TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE
+%type<tk> TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE TK_ENUM
           TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR TK_STRING
           TK_BREAK TK_CONTINUE TK_RETURN TK_ELIF TK_WHILE
           TK_FOR TK_IN TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
@@ -86,6 +88,8 @@ vector<uint> max_offset;
 %type<tt> struct_fields
 
 %type<t> type_def
+
+%type<tv> enum_values
 
 %%
 
@@ -194,11 +198,11 @@ type_def:
           {
               pointer_descriptor* pd = 
                   new pointer_descriptor($2, types.types[$2]->name );
-              
+
               if ( !types.has_type( pd->name ) ){
                   types.add_type( pd );
               }
-              
+
               delete $1;
               $$ = types.index_of( pd->name );
           }
@@ -208,7 +212,7 @@ type_def:
                     snprintf(e, llog::ERR_LEN,
                         "Tipo invalido.");
                     logger->error($2->line, $2->column, e);
-              
+
               yyerrok;
               yyclearin;
               $$ = INVALID;
@@ -300,7 +304,7 @@ declaration:
                                      ((tokenId*)$3)->ident
                                    );
                 }
-                
+
                 delete $1;
                 delete $3;
                 delete $4;
@@ -313,12 +317,12 @@ declaration:
                     snprintf(e, llog::ERR_LEN,
                              "Declaracion de alias invalida.");
                     logger->error($1->line, $1->column, e);
-                
+
                 delete $1;
                 delete $3;
-                
+
                 $$ = 0;
-                
+
                 yyerrok;
             }
     |   TK_NEW_TYPE TK_IDENT '{' struct_fields '}'
@@ -329,7 +333,7 @@ declaration:
                              "Tipo '%s' con identificador repetido.",
                              (char*)((tokenId*)$2)->ident.c_str());
                     logger->error($1->line, $1->column, e);
-                    
+
                     delete $2;
                     delete $4;
                 } else {
@@ -340,7 +344,7 @@ declaration:
                 delete $1;
                 delete $3;
                 delete $5;
-                             
+
                 $$ = 0;
             }
     |   TK_UNION TK_IDENT '{' struct_fields '}'
@@ -351,7 +355,7 @@ declaration:
                              "Tipo '%s' con identificador repetido.",
                              (char*)((tokenId*)$2)->ident.c_str());
                     logger->error($1->line, $1->column, e);
-                    
+
                     delete $2;
                     delete $4;
                 } else {
@@ -362,70 +366,30 @@ declaration:
                 delete $1;
                 delete $3;
                 delete $5;
-                             
+
                 $$ = 0;
             }
-;
+    | TK_ENUM TK_IDENT '{' enum_values '}'
+        {
+            if ( types.has_type( ((tokenId*)$2)->ident ) ){
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Tipo '%s' con identificador repetido.",
+                         (char*)((tokenId*)$2)->ident.c_str());
+                logger->error($1->line, $1->column, e);
 
-// Campos internos de los struct
-struct_fields :     {
-                        $$ = new symbol_table();
-                    }
-              | struct_fields type_def TK_IDENT ';'
-                    {
-                        symbol* s = 0;
-                        if ( $2 == UNDEFINED )
-                        {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Tipo no definido previamente.");
-                            logger->error($3->line, $3->column, e);
-                            
-                            delete $4;
-                            
-                            s = new symbol( ((tokenId*)$3)->ident, false,
-                                               UNDEFINED,
-                                               $3->line, $3->column,
-                                               false);
-                            $1->insert( s );
-                        } else if ( $1->lookup(((tokenId*)$3)->ident) ){
-                            
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Campo '%s' en el tipo '%s' duplicado.",
-                                     (char*)((tokenId*)$3)->ident.c_str(),
-                                     ((tokenId*)($-1.tk))->ident.c_str()
-                                    );
-                            logger->error($3->line, $3->column, e);
-                        } else {
-                            s = new symbol( ((tokenId*)$3)->ident, false,
-                                               $2,
-                                               $3->line, $3->column,
-                                               false);
-                            $1->insert(s);
-                        }
-                        
-                        $1->accumulate_offset(types.types[$2]->width,
-                                              types.types[$2]->alignment);
-                        s->offset = $1->accumulated_offset
-                                    - types.types[$2]->width;
-                        
-                        $$ = $1;
-                    }
-             | struct_fields error ';'
-                    {
-                        char e[llog::ERR_LEN];
-                        snprintf(e, llog::ERR_LEN,
-                           "Campo %d en definicion de tipo compuesto invalido.",
-                            (int)$1->table.size()+1);
-                        
-                        logger->error($3->line, $3->column, e);
-                        
-                        delete $3;
-                        $$ = $1;
-                        yyerrok;
-                    }
-              ;
+                delete $2;
+                delete $4;
+            } else {
+                types.add_type( new enum_type( (tokenId*)$2, $4) );
+            }
+            delete $1;
+            delete $3;
+            delete $5;
+
+            $$ = 0;
+        }
+;
 
 // Declaracion de variables
 variable_declaration :
@@ -503,7 +467,7 @@ variable_declaration :
                                                  0
                                                );
             delete $3;
-            
+
             }
     | type_def TK_IDENT error ';'
             { char e[llog::ERR_LEN];
@@ -512,16 +476,91 @@ variable_declaration :
                        ((tokenId*)$2)->ident.c_str()
                       );
               logger->error($2->line, $2->column, e);
-              
+
               $$ = new AST_variable_declaration( $1,
                                                  (tokenId*)$2,
                                                  0
                                                );
               delete $4;
-              
+
               yyerrok;
             }
 ;
+
+// Campos internos de los struct
+struct_fields :     {
+                        $$ = new symbol_table();
+                    }
+              | struct_fields type_def TK_IDENT ';'
+                    {
+                        symbol* s = 0;
+                        if ( $2 == UNDEFINED )
+                        {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Tipo no definido previamente.");
+                            logger->error($3->line, $3->column, e);
+
+                            delete $4;
+
+                            s = new symbol( ((tokenId*)$3)->ident, false,
+                                               UNDEFINED,
+                                               $3->line, $3->column,
+                                               false);
+                            $1->insert( s );
+                        } else if ( $1->lookup(((tokenId*)$3)->ident) ){
+                            
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Campo '%s' en el tipo '%s' duplicado.",
+                                     (char*)((tokenId*)$3)->ident.c_str(),
+                                     ((tokenId*)($-1.tk))->ident.c_str()
+                                    );
+                            logger->error($3->line, $3->column, e);
+                        } else {
+                            s = new symbol( ((tokenId*)$3)->ident, false,
+                                               $2,
+                                               $3->line, $3->column,
+                                               false);
+                            $1->insert(s);
+                        }
+
+                        $1->accumulate_offset(types.types[$2]->width,
+                                              types.types[$2]->alignment);
+                        s->offset = $1->accumulated_offset
+                                    - types.types[$2]->width;
+
+                        $$ = $1;
+                    }
+             | struct_fields error ';'
+                    {
+                        char e[llog::ERR_LEN];
+                        snprintf(e, llog::ERR_LEN,
+                           "Campo %d en definicion de tipo compuesto invalido.",
+                            (int)$1->table.size()+1);
+
+                        logger->error($3->line, $3->column, e);
+
+                        delete $3;
+                        $$ = $1;
+                        yyerrok;
+                    }
+;
+
+enum_values:
+    TK_IDENT
+        {
+            $$ = new vector<string>();
+            $$->push_back(((tokenId*)$1)->ident);
+            delete $1;
+        }
+    | enum_values ',' TK_IDENT
+        {
+            $$ = $1;
+            $1->push_back(((tokenId*)$3)->ident);
+            delete $2;
+            delete $3;
+        }
 
 // Lista de parámetros formales (puede ser vacía)
 arg_list:
@@ -1117,28 +1156,28 @@ int main (int argc,char **argv)
             yyparse();
         } while (!feof(yyin));
     }
-    
+
     symbol_table st;
-    
+
     p->fill_and_check(&st);
-    
+
     fprintf(stderr, "\n\n TYPES:\n");
     vector<type_descriptor*>::iterator it;
     for (it=types.types.begin(); it != types.types.end(); ++it){
         (*it)->print(stderr);
     }
-    
+
     fprintf(stderr, "------------------------------------------------------\n\n"
            );
-    
+
     p->print(0);
-    
+
     if ( logger->exists_registered_error() ){
         logger->failure("context");
         return 0;
     }
-    
+
     logger->success();
-    
+
     return 0;
 }

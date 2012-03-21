@@ -185,6 +185,11 @@ L?\"(\\.|[^\\"])*\"            {
                                  return TK_STRING;
                                }
 
+"enum"                         { updatecol();
+                                 yylval.tk = new token(yylineno, column);
+                                 return TK_ENUM;
+                               }
+
 "none"                         { updatecol();
                                  yylval.tk = new token(yylineno, column);
                                  return TK_NONE;
