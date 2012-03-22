@@ -52,7 +52,13 @@ class AST_expression : public AST_node{
         
         virtual void print(int indentation);
         
+        virtual void fill_and_check(symbol_table* st, bool lval){
+            fill_and_check(st);
+        }
+        
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void check_call(symbol_table* st){ fill_and_check(st); }
         
         virtual bool has_functions();
         
@@ -204,15 +210,17 @@ class AST_lval : public AST_expression {
         
         virtual void print(int indentation);
         
-        virtual void fill_and_check(symbol_table* st);
+        void fill_and_check(symbol_table* st);
+        
+        virtual void fill_and_check(symbol_table* st, bool lval);
         
         virtual AST_expression* constant_folding();
 };
 
 class AST_ident : public AST_lval {
-
+    
     public:
-
+        
         string value;
 
         symbol* sym;
@@ -221,7 +229,9 @@ class AST_ident : public AST_lval {
         
         virtual void print(int indentation);
         
-        virtual void fill_and_check(symbol_table* st);
+        virtual void fill_and_check(symbol_table* st, bool lval = false);
+        
+        virtual void check_call(symbol_table* st);
         
         virtual AST_expression* constant_folding();
 };
@@ -234,7 +244,7 @@ class AST_dereference : public AST_lval {
         
         virtual void print(int indentation);
         
-        virtual void fill_and_check(symbol_table* st);
+        virtual void fill_and_check(symbol_table* st, bool lval = false);
         
         virtual AST_expression* constant_folding();
 };
@@ -247,7 +257,7 @@ class AST_address : public AST_lval {
         
         virtual void print(int indentation);
         
-        virtual void fill_and_check(symbol_table* st);
+        virtual void fill_and_check(symbol_table* st, bool lval = false);
         
         virtual AST_expression* constant_folding();
 };
@@ -263,7 +273,7 @@ class AST_array_access : public AST_lval {
         
         virtual void print(int indentation);
         
-        virtual void fill_and_check(symbol_table* st);
+        virtual void fill_and_check(symbol_table* st, bool lval = false);
         
         virtual AST_expression* constant_folding();
 };
@@ -277,7 +287,7 @@ class AST_struct_access : public AST_lval {
         
         virtual void print(int indentation);
         
-        virtual void fill_and_check(symbol_table* st);
+        virtual void fill_and_check(symbol_table* st, bool lval = false);
         
         virtual AST_expression* constant_folding();
 };
@@ -295,6 +305,8 @@ class AST_parameters_list : public AST_node {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void fill_and_check(symbol_table* st, vector<bool>& constant);
 };
 
 class AST_function_call : public AST_expression {
@@ -385,9 +397,9 @@ class AST_function : public AST_declaration {
     public:
         
         symbol_function* func;
-
+        
         AST_arg_list* formal_parameters;
-
+        
         AST_block* instructions;
         
         AST_function(TYPE t, tokenId* id, AST_arg_list* args,

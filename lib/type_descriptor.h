@@ -62,7 +62,7 @@ class array_descriptor : public type_descriptor {
         int num_elements;
         TYPE base;
 
-        array_descriptor( type_descriptor* b, TYPE b_ind, int up, int low );
+        array_descriptor( type_descriptor* b, TYPE b_ind, int up, int low = 0 );
 };
 
 class pointer_descriptor : public type_descriptor {

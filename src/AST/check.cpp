@@ -35,12 +35,17 @@ void AST_expression::fill_and_check(symbol_table* st){
 * manejo de tabla de simbolos
 */
 void AST_lval::fill_and_check(symbol_table* st){
+    fill_and_check(st, false);
+}
+
+void AST_lval::fill_and_check(symbol_table* st, bool lval){
     // Empty check
 }
 
 /* Verificacion de ambos operandos de un operador binario
 */
 void AST_op::fill_and_check(symbol_table* st){
+    
     left->fill_and_check(st);
     right->fill_and_check(st);
     
@@ -361,7 +366,7 @@ void AST_boolean::fill_and_check(symbol_table* st){
 
 }
 
-void AST_ident::fill_and_check(symbol_table* st){
+void AST_ident::fill_and_check(symbol_table* st, bool lval){
     sym = st->lookup(value);
     
     /* El simbolo existe en la tabla */
@@ -375,6 +380,16 @@ void AST_ident::fill_and_check(symbol_table* st){
                 sym->getLine(), sym->getColumn());
             logger->error(line, column, e);
             sym = 0;
+        } 
+        /* Intento de acceso a constante como lvalue */
+        else if ( lval && sym->isConst() ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Intento de acceso a constante %s definida en %d:%d",
+                     sym->getName().c_str(),
+                     sym->getLine(), sym->getColumn());
+            logger->error(line, column, e);
+            
+            type = sym->getType();
         } else {
             type = sym->getType();
         }
@@ -388,8 +403,31 @@ void AST_ident::fill_and_check(symbol_table* st){
     }
 }
 
-void AST_dereference::fill_and_check(symbol_table* st){
-    value->fill_and_check(st);
+void AST_ident::check_call(symbol_table* st){ 
+    fill_and_check(st);
+    
+    sym = st->lookup(value);
+    
+    /* El simbolo existe en la tabla */
+    if ( sym && sym->isConst() ){
+        if (    typeid(*types.types[sym->getType()]) == typeid(array_descriptor)
+             || typeid(*types.types[sym->getType()]) == typeid(struct_type)
+             || typeid(*types.types[sym->getType()]) == typeid(union_type)
+        )
+        {
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN,
+                     "Pasaje por referencia de constante %s definida en %d:%d.",
+                     sym->getName().c_str(),
+                     sym->getLine(), sym->getColumn()
+                    );
+            logger->error(line, column, e);
+        }
+    }
+}
+
+void AST_dereference::fill_and_check(symbol_table* st, bool lval){
+    value->fill_and_check(st, lval);
     
     type_descriptor* td = types.types[value->type];
     
@@ -400,8 +438,9 @@ void AST_dereference::fill_and_check(symbol_table* st){
     }
 }
 
-void AST_address::fill_and_check(symbol_table* st){
-    value->fill_and_check(st);
+void AST_address::fill_and_check(symbol_table* st, bool lval){
+    
+    value->fill_and_check(st, true);
     
     pointer_descriptor* pd = new pointer_descriptor( value->type,
                                                      types.types[
@@ -415,8 +454,8 @@ void AST_address::fill_and_check(symbol_table* st){
     }
 }
 
-void AST_array_access::fill_and_check(symbol_table* st){
-    value->fill_and_check(st);
+void AST_array_access::fill_and_check(symbol_table* st, bool lval){
+    value->fill_and_check(st, lval);
     
     if ( typeid(*(types.types[ value->type ])) != typeid(array_descriptor) ){
         char e[llog::ERR_LEN];
@@ -429,8 +468,8 @@ void AST_array_access::fill_and_check(symbol_table* st){
     }
 }
 
-void AST_struct_access::fill_and_check(symbol_table* st){
-    value->fill_and_check(st);
+void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
+    value->fill_and_check(st, lval);
     
     type_descriptor* td = types.types[value->type];
     
@@ -453,6 +492,16 @@ void AST_struct_access::fill_and_check(symbol_table* st){
         
         if ( s != 0 ){
             type = s->getType();
+            
+            if ( s->isConst() ){
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Intento de acceso a constante %s definida en %d:%d",
+                         s->getName().c_str(),
+                         s->getLine(), s->getColumn()
+                    );
+                logger->error(line, column, e);
+            }
         } else {
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "Tipo %s no posee campo %s",
@@ -460,8 +509,9 @@ void AST_struct_access::fill_and_check(symbol_table* st){
                      field.c_str()
                     );
             logger->error(line, column, e);
-        type = INVALID;
+            type = INVALID;
         }
+        
     }
 }
 
@@ -490,6 +540,20 @@ void AST_block::fill_and_check(symbol_table* st){
     
 }
 
+void AST_parameters_list::fill_and_check(symbol_table* st,
+                                         vector<bool>& constant)
+{
+    /* Verifica el tipo de cada uno de los parametros reales de la llamada de
+     * una funcion
+     */
+    for (vector<AST_expression*>::iterator it=elem.begin(); it != elem.end(); ++it){
+        if (0 != *it) {
+            (*it)->fill_and_check(st);
+            (*it)->check_call(st);
+        }
+    }
+}
+
 void AST_parameters_list::fill_and_check(symbol_table* st){
     
     /* Verifica el tipo de cada uno de los parametros reales de la llamada de
@@ -498,6 +562,7 @@ void AST_parameters_list::fill_and_check(symbol_table* st){
     for (vector<AST_expression*>::iterator it=elem.begin(); it != elem.end(); ++it){
         if (0 != *it) {
             (*it)->fill_and_check(st);
+            (*it)->check_call(st);
         }
     }
 }
@@ -533,6 +598,7 @@ void AST_function_call::fill_and_check(symbol_table* st){
             logger->error(line, column, e);
         } else {
             uint nsize = params->elem.size();
+            
             for (uint i=0; i<nsize; i++){
                 if ( params->elem[i]->type != INVALID
                      && params->elem[i]->type != f->params[i] )
@@ -612,7 +678,7 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
 }
 
 void AST_arg_list::fill_and_check(symbol_table* st){
-
+    
     for ( vector<symbol*>::iterator it =args.begin(); it != args.end(); ++it){
         
         int level = 0;
@@ -714,7 +780,7 @@ void AST_program::fill_and_check(symbol_table* st){
 
 void AST_assignment::fill_and_check(symbol_table* st){
     
-    lvalue->fill_and_check(st);
+    lvalue->fill_and_check(st, true);
     if (0 != expr) {
         expr->fill_and_check(st);
     }
@@ -722,6 +788,8 @@ void AST_assignment::fill_and_check(symbol_table* st){
     if ( 0 != expr && expr->type != lvalue->type
                 && expr->type != INVALID 
                 && lvalue->type != INVALID
+                && expr->type != UNDEFINED
+                && lvalue->type != UNDEFINED
               )
     {
         
@@ -732,16 +800,6 @@ void AST_assignment::fill_and_check(symbol_table* st){
                  types.types[lvalue->type]->name.c_str()
                 );
         logger->error(line, column, e);
-    } else if ( typeid(*lvalue) == typeid(AST_ident) ){
-        symbol* sym = ((AST_ident*)lvalue)->sym;
-        
-        if ( sym != 0 && sym->isConst() ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Intento de asignación a constante '%s'.",
-                     ((AST_ident*)lvalue)->value.c_str()
-                    );
-            logger->error(line, column, e);
-        }
     }
 }
 

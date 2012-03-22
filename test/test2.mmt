@@ -1,4 +1,4 @@
-char aux;
+char unChar;
 [3]int a;
 [3:5]int b;
 [4][3:5]int c;
@@ -55,8 +55,22 @@ fun none peru(cuadrado a){
 }
 
 fun int hola(int c){
+    c = 3;
     print (2*c) as float;
     return 0;
+}
+
+fun none pasoReferencia(const [3]int b, const cuadrado a, 
+                        const aux holaTuChico){
+    pasoReferencia(b,a,holaTuChico);
+}
+
+fun none probarArreglo(const [3]int c, const aux unAux){
+    c[0] = 1;
+    unAux.a = 'a';
+    const int holaTu = 3;
+    ^int b;
+    b = @holaTu;
 }
 
 fun none main(){
@@ -76,7 +90,7 @@ fun none main(){
     cuadradoBox boxZ;
     
     z = boxZ.a;
-    y = @boxZ.a.b;
+    y = boxZ.a.b;
     
     ^int leApuntador = @x;
     intYFloat intF;

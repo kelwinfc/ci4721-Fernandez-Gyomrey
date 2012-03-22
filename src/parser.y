@@ -144,7 +144,7 @@ type_def:
               delete $3;
           }
       | '[' expression ':' expression ']' type_def 
-          { 
+          {
               int up = 0;
               int low = 0;
               if ( typeid(*$2) != typeid(AST_int)
@@ -159,11 +159,11 @@ type_def:
                   low = ((AST_int*)$2)->value;
                   up = ((AST_int*)$4)->value;
               }
-
+              
               array_descriptor* at;
               at = new array_descriptor( types.types[$6],
                                          $6, up, low );
-
+              
               if ( types.has_type( at->name ) ){
                   $$ = types.index_of( at->name );
               } else {
@@ -1213,15 +1213,15 @@ int main (int argc,char **argv)
     symbol_table st;
 
     p->fill_and_check(&st);
-
+/*
     fprintf(stderr, "\n\n TYPES:\n");
     vector<type_descriptor*>::iterator it;
     for (it=types.types.begin(); it != types.types.end(); ++it){
         (*it)->print(stderr);
     }
 
-    fprintf(stderr, "------------------------------------------------------\n\n"
-           );
+    fprintf(stdout, "------------------------------------------------------\n\n"
+           );*/
 
     p->print(0);
 

@@ -123,6 +123,7 @@ tokenInt::tokenInt(int l, int c, char* num){
             pow *= 10;
             i--;
         }
+        number = number_long;
     }
     
     if ( number != -1 && number_long > (long long int)2147483647LL )
