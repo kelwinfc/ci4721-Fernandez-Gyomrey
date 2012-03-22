@@ -226,7 +226,7 @@ type_def:
 // Declaracion de variables y funciones
 declaration:
         variable_declaration                               
-            { $$ = $1 }
+            { $$ = $1; }
     |   TK_FUNCTION type_def TK_IDENT '(' arg_list ')' block
             {
               if ( !types.is_base( $2 ) ){
@@ -298,7 +298,7 @@ declaration:
                 if ( types.has_type( ((tokenId*)$3)->ident ) ){
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
-                             "Tipo '%s' definido previamente.",
+                             "Tipo '%s' ya fue definido previamente.",
                              ((tokenId*)$3)->ident.c_str());
                     logger->error($3->line, $3->column, e);
                 } else {
@@ -371,6 +371,17 @@ declaration:
 
                 $$ = 0;
             }
+    | TK_ENUM TK_IDENT '{' error '}'
+          {
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Error en enum. Verifique que no existen duplicados.");
+            logger->error($3->line, $3->column, e);
+            delete $1;
+            delete $2;
+            delete $3;
+            delete $5;
+            $$ = 0;
+          }
     | TK_ENUM TK_IDENT '{' enum_values '}'
         {
             if ( types.has_type( ((tokenId*)$2)->ident ) ){
@@ -394,6 +405,7 @@ declaration:
                                      (*it).c_str(), ((tokenId*)$2)->ident.c_str(),
                                      ((tokenId*)$1)->line, ((tokenId*)$1)->column);
                         } else {
+                            // esto no se está usando porque el TK_ENUM_CONSTANT da segfault
                             enum_type* vt = (enum_type*)types.get_type(*it);
                             snprintf(e, llog::ERR_LEN,
                                      "Constante '%s' en tipo '%s' %d:%d definida "
@@ -574,17 +586,10 @@ struct_fields :     {
 ;
 
 enum_values:
-     TK_IDENT
+      TK_IDENT
         {
             $$ = new list<string>();
             $$->push_back(((tokenId*)$1)->ident);
-            delete $1;
-        }
-    | TK_ENUM_CONSTANT
-        {
-            // Más arriba se indica el error con detalle. Esto ya es una constante
-            $$ = new list<string>();
-            $$->push_back(((tokenConstant*)$1)->ident);
             delete $1;
         }
     | enum_values ',' TK_IDENT
@@ -593,24 +598,6 @@ enum_values:
             $1->push_back(((tokenId*)$3)->ident);
             delete $2;
             delete $3;
-        }
-    | enum_values ',' TK_ENUM_CONSTANT
-        {
-            // Más arriba se indica el error con detalle. Esto ya es una constante
-            $$ = $1;
-            $1->push_back(((tokenConstant*)$3)->ident);
-            delete $2;
-            delete $3;
-        }
-    | enum_values ',' error
-        {
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Error en elemento de enum");
-            logger->error($2->line, $2->column, e);
-
-            delete $2;
-            $$ = $1;
-            yyerrok;
         }
 ;
 
@@ -810,7 +797,7 @@ statement :
               yyerrok;
             }
     |   block
-            { $$ = $1 }
+            { $$ = $1; }
     |   TK_RETURN ';'
             { 
                 $$ = new AST_return($1, 0);
@@ -940,13 +927,13 @@ loop_block_statement:
 ;
 
 loop_statement :
-        statement       { $$ = $1                    }
+        statement       { $$ = $1;                    }
     |   TK_BREAK ';'    { $$ = new AST_break($1); delete $2; }
     |   TK_CONTINUE ';' { $$ = new AST_continue($1); delete $2; }
 ;
 
 else_statements :
-            { $$ = 0 }
+            { $$ = 0; }
     |   TK_ELIF '(' expression ')' block else_statements
             { $$ = new AST_conditional( $1,
                                         (AST_expression*) $3,
@@ -966,7 +953,7 @@ expression :
     |   TK_FLOAT             { $$ = new AST_float( (tokenFloat*)$1); }
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
-    |   string               { $$ = $1}
+    |   string               { $$ = $1; }
     |   TK_ENUM_CONSTANT     { $$ = new AST_enum_constant( (tokenConstant*)$1); }
     |   '(' expression ')'   { $$ = (AST_expression*)$2;
                                delete $1;
@@ -1159,7 +1146,7 @@ lvalue :
 // Subgramatica de atributos actuales de llamada a funcion
 parameters_instance:
                                     { $$ = new AST_parameters_list();}
-    | parameters_instance_non_empty { $$ = $1 }
+    | parameters_instance_non_empty { $$ = $1; }
 ;
 
 // Subgramatica de atributos actuales de llamada a funcion
@@ -1213,16 +1200,19 @@ int main (int argc,char **argv)
     symbol_table st;
 
     p->fill_and_check(&st);
-/*
-    fprintf(stderr, "\n\n TYPES:\n");
-    vector<type_descriptor*>::iterator it;
-    for (it=types.types.begin(); it != types.types.end(); ++it){
-        (*it)->print(stderr);
+
+    if ( logger->exists_registered_error() ){
+        logger->dump();
     }
 
-    fprintf(stdout, "------------------------------------------------------\n\n"
-           );*/
+    fprintf(stdout, "\n\n TYPES:\n");
+    vector<type_descriptor*>::iterator it;
+    for (it=types.types.begin(); it != types.types.end(); ++it){
+        (*it)->print(stdout);
+    }
 
+    fprintf(stdout, "------------------------------------------------------\n\n");
+    
     p->print(0);
 
     if ( logger->exists_registered_error() ){

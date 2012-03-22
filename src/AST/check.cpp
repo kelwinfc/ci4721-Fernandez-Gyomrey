@@ -645,12 +645,12 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
     if ( previous ){
         if ( previous->is_function ){
             char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Identificador '%s' definido como función en línea %d, columna %d.",
+            snprintf(e, llog::ERR_LEN, "Identificador '%s' ya fue definido previamente como función en línea %d, columna %d.",
                 sym->getName().c_str(), previous->getLine(), previous->getColumn());
             logger->error(sym->getLine(), sym->getColumn(), e);
         } else if ( level == 0 ){
             char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Identificador '%s' definido en alcance en línea %d, columna %d.",
+            snprintf(e, llog::ERR_LEN, "Identificador '%s' ya fue definido previamente en alcance global en línea %d, columna %d.",
                 sym->getName().c_str(), previous->getLine(), previous->getColumn());
             logger->error(sym->getLine(), sym->getColumn(), e);
         } else {

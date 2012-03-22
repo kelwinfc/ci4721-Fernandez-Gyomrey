@@ -1,6 +1,9 @@
 #ifndef _LLOG
 #define _LLOG
 #include <string>
+#include <map>
+#include <vector>
+#include <sstream>
 #include <stdlib.h>
 
 using namespace std;
@@ -8,6 +11,8 @@ using namespace std;
 class llog{
 
     private:
+
+        map<int, map<int, vector<string> > > errors;
 
         bool registered_error;
 
@@ -28,6 +33,8 @@ class llog{
         void success();
 
         bool exists_registered_error();
+
+        void dump();
 };
 
 #endif
