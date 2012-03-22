@@ -298,7 +298,7 @@ declaration:
                 if ( types.has_type( ((tokenId*)$3)->ident ) ){
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
-                             "Tipo '%s' definido previamente.",
+                             "Tipo '%s' ya fue definido previamente.",
                              ((tokenId*)$3)->ident.c_str());
                     logger->error($3->line, $3->column, e);
                 } else {
@@ -405,6 +405,7 @@ declaration:
                                      (*it).c_str(), ((tokenId*)$2)->ident.c_str(),
                                      ((tokenId*)$1)->line, ((tokenId*)$1)->column);
                         } else {
+                            // esto no se está usando porque el TK_ENUM_CONSTANT da segfault
                             enum_type* vt = (enum_type*)types.get_type(*it);
                             snprintf(e, llog::ERR_LEN,
                                      "Constante '%s' en tipo '%s' %d:%d definida "
