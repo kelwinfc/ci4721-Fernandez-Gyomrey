@@ -226,7 +226,7 @@ type_def:
 // Declaracion de variables y funciones
 declaration:
         variable_declaration                               
-            { $$ = $1 }
+            { $$ = $1; }
     |   TK_FUNCTION type_def TK_IDENT '(' arg_list ')' block
             {
               if ( !types.is_base( $2 ) ){
@@ -796,7 +796,7 @@ statement :
               yyerrok;
             }
     |   block
-            { $$ = $1 }
+            { $$ = $1; }
     |   TK_RETURN ';'
             { 
                 $$ = new AST_return($1, 0);
@@ -926,13 +926,13 @@ loop_block_statement:
 ;
 
 loop_statement :
-        statement       { $$ = $1                    }
+        statement       { $$ = $1;                    }
     |   TK_BREAK ';'    { $$ = new AST_break($1); delete $2; }
     |   TK_CONTINUE ';' { $$ = new AST_continue($1); delete $2; }
 ;
 
 else_statements :
-            { $$ = 0 }
+            { $$ = 0; }
     |   TK_ELIF '(' expression ')' block else_statements
             { $$ = new AST_conditional( $1,
                                         (AST_expression*) $3,
@@ -952,7 +952,7 @@ expression :
     |   TK_FLOAT             { $$ = new AST_float( (tokenFloat*)$1); }
     |   TK_BOOLEAN           { $$ = new AST_boolean( (tokenBoolean*)$1); }
     |   TK_CHAR              { $$ = new AST_char( (tokenId*)$1); }
-    |   string               { $$ = $1}
+    |   string               { $$ = $1; }
     |   TK_ENUM_CONSTANT     { $$ = new AST_enum_constant( (tokenConstant*)$1); }
     |   '(' expression ')'   { $$ = (AST_expression*)$2;
                                delete $1;
@@ -1145,7 +1145,7 @@ lvalue :
 // Subgramatica de atributos actuales de llamada a funcion
 parameters_instance:
                                     { $$ = new AST_parameters_list();}
-    | parameters_instance_non_empty { $$ = $1 }
+    | parameters_instance_non_empty { $$ = $1; }
 ;
 
 // Subgramatica de atributos actuales de llamada a funcion
