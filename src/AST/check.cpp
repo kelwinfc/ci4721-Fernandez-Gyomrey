@@ -714,6 +714,8 @@ void AST_function::fill_and_check(symbol_table* st){
     delete nested_block;
 }
 
+extern int yylineno;
+
 void AST_program::fill_and_check(symbol_table* st){
     
     // Declaracion previa de todas las funciones
@@ -742,7 +744,7 @@ void AST_program::fill_and_check(symbol_table* st){
         if ( !sf ){
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "Falta declaración de función main.");
-            logger->error(0, 0, e);
+            logger->error(yylineno+1, 0, e);
         } else if ( sf->getType() != NONE ){
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "main debe tener tipo de retorno none.");

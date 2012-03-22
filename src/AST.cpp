@@ -480,6 +480,11 @@ AST_print::AST_print(){
 
 void AST_print::add_argument(AST_expression* e){
     list.push_back(e);
+    
+    if ( list.size() == 1 ){
+        line   = e->line;
+        column = e->column;
+    }
 }
 
 bool AST_expression::has_functions(){

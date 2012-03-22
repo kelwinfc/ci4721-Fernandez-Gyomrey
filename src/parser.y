@@ -1210,7 +1210,7 @@ int main (int argc,char **argv)
     for (it=types.types.begin(); it != types.types.end(); ++it){
         (*it)->print(stdout);
     }
-
+    
     fprintf(stdout, "------------------------------------------------------\n\n");
     
     p->print(0);
