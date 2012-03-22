@@ -371,6 +371,17 @@ declaration:
 
                 $$ = 0;
             }
+    | TK_ENUM TK_IDENT '{' error '}'
+          {
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Error en enum. Verifique que no existen duplicados.");
+            logger->error($3->line, $3->column, e);
+            delete $1;
+            delete $2;
+            delete $3;
+            delete $5;
+            $$ = 0;
+          }
     | TK_ENUM TK_IDENT '{' enum_values '}'
         {
             if ( types.has_type( ((tokenId*)$2)->ident ) ){
@@ -574,17 +585,10 @@ struct_fields :     {
 ;
 
 enum_values:
-     TK_IDENT
+      TK_IDENT
         {
             $$ = new list<string>();
             $$->push_back(((tokenId*)$1)->ident);
-            delete $1;
-        }
-    | TK_ENUM_CONSTANT
-        {
-            // Más arriba se indica el error con detalle. Esto ya es una constante
-            $$ = new list<string>();
-            $$->push_back(((tokenConstant*)$1)->ident);
             delete $1;
         }
     | enum_values ',' TK_IDENT
@@ -593,24 +597,6 @@ enum_values:
             $1->push_back(((tokenId*)$3)->ident);
             delete $2;
             delete $3;
-        }
-    | enum_values ',' TK_ENUM_CONSTANT
-        {
-            // Más arriba se indica el error con detalle. Esto ya es una constante
-            $$ = $1;
-            $1->push_back(((tokenConstant*)$3)->ident);
-            delete $2;
-            delete $3;
-        }
-    | enum_values ',' error
-        {
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Error en elemento de enum");
-            logger->error($2->line, $2->column, e);
-
-            delete $2;
-            $$ = $1;
-            yyerrok;
         }
 ;
 
