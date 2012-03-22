@@ -15,9 +15,14 @@ void llog::warning(int l, int c, const char* e){
 }
 
 void llog::error(int l, int c, const char* e){
-    //TODO hay que copiar e si queremos que no se pierda al eliminar e del contexto padre
     if ( e && strcmp( (char*)"parse error", e) ){
-        fprintf(stderr, "Error %d:%d: %s\n", l, c, e);
+        char fin[llog::ERR_LEN * 2];
+        sprintf(fin, "Error %d:%d: %s\n", l, c, e);
+        stringstream ss;
+        string err;
+        ss << fin;
+        getline(ss, err);
+        errors[l][c].push_back(err);
     }
     registered_error = true;
 }
@@ -41,4 +46,18 @@ void llog::success(){
 
 bool llog::exists_registered_error(){
     return registered_error;
+}
+
+void llog::dump()
+{
+    map<int, map<int, vector<string> > >::iterator itl;
+    for (itl = errors.begin(); itl != errors.end(); ++ itl) {
+        map<int, vector<string> >::iterator itc;
+        for (itc = (*itl).second.begin(); itc != (*itl).second.end(); ++ itc) {
+            vector<string>::iterator itm;
+            for (itm = (*itc).second.begin(); itm != (*itc).second.end(); ++ itm) {
+                fprintf(stderr, "%s\n", (*itm).c_str());
+            }
+        }
+    }
 }

@@ -1199,6 +1199,9 @@ int main (int argc,char **argv)
     symbol_table st;
 
     p->fill_and_check(&st);
+    if ( logger->exists_registered_error() ){
+        logger->dump();
+    }
 
     fprintf(stderr, "\n\n TYPES:\n");
     vector<type_descriptor*>::iterator it;
@@ -1206,8 +1209,7 @@ int main (int argc,char **argv)
         (*it)->print(stderr);
     }
 
-    fprintf(stderr, "------------------------------------------------------\n\n"
-           );
+    fprintf(stderr, "------------------------------------------------------\n\n");
 
     p->print(0);
 
