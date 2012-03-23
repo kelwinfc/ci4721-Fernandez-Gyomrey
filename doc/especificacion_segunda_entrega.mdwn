@@ -72,7 +72,7 @@ un `string` válido.
 Los operadores y caracteres de puntuación usados por el lenguaje son los
 siguientes:
 
-> `+ - * / % < <= > >= = == != && || ! ==> <== ; , . [ ] ( ) { } :`
+> `+ - * / % < <= > >= = == != && || ! ==> <== ; , . [ ] ( ) { } : @ ^`
 
 ## Gramática de *BLA*
 
@@ -278,7 +278,8 @@ Los tipos nativos del lenguaje son `int`, `float`, `boolean`,
 Los arreglos pueden ser multi-dimensionales y de cualquier tipo
 distinto a `none`.
 
-*BLA* permite crear nuevos tipos de datos.
+*BLA* permite crear nuevos tipos de datos. Y generar referencias 
+a ellos.
 
 ## Variables
 
@@ -318,6 +319,10 @@ constante.
 * Los arreglos pueden ser de cualquier tipo primitivo distinto a `none` o
   tipo declarado por el usuario.
 * Pueden establecerse arreglos de varias dimensiones.
+* Los arreglos son inicializados por defecto con el valor 0 para los tipos `int`
+  y `float`, y `false` para los `boolean`. Los arreglos de registros son
+  inicializados rellenando con ceros los bytes que esta contenga.
+
 * El número de elementos en el arreglo no puede cambiarse una vez declarado.
 * Los arreglos son indexados desde cero hasta una posición antes de su longitud,
   a menos que se especifique lo contrario. Es decir, si el rango de un arreglo
@@ -334,7 +339,7 @@ constante.
 
 ## Strings
 
-Se pueden incluir secuencias de caracteres constantes. 
+Se pueden incluir secuencias de caracteres constantes.
 
 * La asignación de strings es superficial.
 * Los strings pueden ser pasados como parámetros a las funciones.
@@ -415,6 +420,19 @@ tipos compuestos, exceptuando el uso de la palabra clave `union` en vez de
 
 >    `union intYFloat { int x; float y; }`
 
+## Enumeraciones
+
+*BLA* soporta tipos enumerados. Se especifica un identificador y entre llaves
+el conjunto de identificadores que contiene. Estos valores automáticamente
+pasan a ser contantes del lenguaje y no pueden ser usados como valores en
+situaciones posteriores.
+
+* Las constantes de enumeración son sensitivas a mayúsculas y minúsculas
+* Las constantes hacen inaccesible cualquier variable declarada previamente
+  con el mismo nombre.
+
+>  `enum colores {amarillo, azul, rojo}`
+
 ## Lectura del Nombre de un Tipo
 
 El nombre de un tipo se lee de izquierda a derecha.
@@ -442,6 +460,18 @@ Los siguientes son ejemplos de declaraciones de tipo y su significado:
 * `[42]^[69]float` : un arreglo de tamaño 42 de apuntadores a arreglos de tamaño
   69 de `float`.
 
+## Aliases
+
+Un tipo puede ser utilizado en varios lugares usando un alias si necesidad de
+escribir su estructura completa. Un ejemplo de definición es:
+
+> alias [8][8]^pieza tablero;
+
+Las siguientes dos declaraciones generan exactamente el siguiente efecto:
+
+> tablero t1;
+> [8][8]^pieza t1;
+
 ## Equivalencia de Tipos, Compatibilidad
 
 *BLA* es un lenguaje fuertemente tipado. La equivalencia de tipos se da por
@@ -451,7 +481,7 @@ nombres e iguales estructuras.
 
 Todas las operaciones se deben ejecutar con argumentos del mismo tipo, en caso
 de necesitar realizar conversiones estas deben ser declaradas explícitamente,
-de la forma `T(A)`, donde `T` es el tipo destino y `A` es el elemento original.
+de la forma `A as T`, donde `T` es el tipo destino y `A` es el elemento original.
 Sólo se permiten conversiones entre tipos primitivos.
 
 ## Asignación
@@ -460,7 +490,8 @@ Sólo se permiten conversiones entre tipos primitivos.
 compuestos. La instrucción `LValue = RValue` copia el valor del lado derecho
 en la dirección indicada en el lado izquierdo.
 
-* La asignación de tipos no primitivos es profunda.
+* La asignación de tipos no primitivos es profunda. Esto significa que las
+  referencias también se copian.
 * No es permitido utilizar constantes en el lado izquierdo de una asignación,
   exceptuanto en la asignación de inicialización.
 * Ambos lados de la asignación deben tener el mismo tipo.
@@ -493,11 +524,11 @@ Las estructuras de control de *BLA* están basadas en las de *Python*.
 
 Por simplicidad, *BLA* no permite la conversión automática de tipos. Esto significa
 que aún cuando la expresión equivalga entre los tipos, no es posible la interacción
-entre ellos.
+entre ellos. Para realizar esta operación se debe usar la conversión explícita.
 
 * Las constantes evalúan a su valor interno (true, false, enteros, flotantes,
   cadenas, etc.).
-* Ambos operandos en las operaciones aritméticas (**+**, **-**, *, **/** y **%**)
+* Ambos operandos en las operaciones aritméticas (**+**, **-**, *****, **/** y **%**)
   deben ser ambos enteros o flotantes, pero del mismo tipo.
 * El operador unario **-** aplica sobre enteros y flotantes y devuelve el mismo tipo
   del operando.
@@ -510,17 +541,16 @@ entre ellos.
   operación será de tipo `boolean`.
 * Los operandos para las expresiones booleanas (**!**, **&&**, **||**, **==>** y
   **<==**) aceptan sólo argumentos de tipo `boolean` y devuelven `boolean`.
-* Las operaciones booleanas **||** y **&&** se evalúan completamente.
-  No se hace corto circuito.
+* Las operaciones booleanas **||** y **&&** se evalúan haciendo corto circuito.
 * Para convertir explícitamente un flotante, caracter o booleano en un entero
-  se utiliza la sintáxis `int(E)`, donde E es la expresión a convertir. En caso
+  se utiliza la sintáxis `E as int`, donde E es la expresión a convertir. En caso
   de convertir un flotante a entero se realiza redondeo, en caso de conversión
   de caracter a entero se utiliza su valor en la tabla ASCII.
-  Para convertir un entero, caracter o booleano a flotante se utiliza `float(E)`.
-  Para convertir de entero a booleano se utiliza `boolean(E)`, el cual devolverá
+  Para convertir un entero, caracter o booleano a flotante se utiliza `E as float`.
+  Para convertir de entero a booleano se utiliza `E as boolean`, el cual devolverá
   `false` en caso de ser cero y `true` en caso contrario.
 * Es posible realizar conversiones explícitas para todos los tipos básicos,
-  utilizando la forma `T(E)`, donde `T` es el tipo destino y `E` la expresión
+  utilizando la forma `E as T`, donde `T` es el tipo destino y `E` la expresión
   a convertir.
 
 ### Precedencia de Operadores
