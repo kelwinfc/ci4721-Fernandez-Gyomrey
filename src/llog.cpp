@@ -10,7 +10,13 @@ llog::llog(){
 
 void llog::warning(int l, int c, const char* e){
     if ( e ){
-        fprintf(stderr, "Warning %d:%d: %s\n", l, c, e);
+        char fin[llog::ERR_LEN * 2];
+        sprintf(fin, "Warning %d:%d: %s\n", l, c, e);
+        stringstream ss;
+        string err;
+        ss << fin;
+        getline(ss, err);
+        messages[l][c].push_back(err);
     }
 }
 
@@ -22,7 +28,7 @@ void llog::error(int l, int c, const char* e){
         string err;
         ss << fin;
         getline(ss, err);
-        errors[l][c].push_back(err);
+        messages[l][c].push_back(err);
     }
     registered_error = true;
 }
@@ -51,7 +57,7 @@ bool llog::exists_registered_error(){
 void llog::dump()
 {
     map<int, map<int, vector<string> > >::iterator itl;
-    for (itl = errors.begin(); itl != errors.end(); ++ itl) {
+    for (itl = messages.begin(); itl != messages.end(); ++ itl) {
         map<int, vector<string> >::iterator itc;
         for (itc = (*itl).second.begin(); itc != (*itl).second.end(); ++ itc) {
             vector<string>::iterator itm;

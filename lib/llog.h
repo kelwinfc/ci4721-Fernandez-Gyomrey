@@ -12,7 +12,7 @@ class llog{
 
     private:
 
-        map<int, map<int, vector<string> > > errors;
+        map<int, map<int, vector<string> > > messages;
 
         bool registered_error;
 

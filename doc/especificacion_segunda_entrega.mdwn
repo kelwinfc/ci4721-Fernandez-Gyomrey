@@ -76,13 +76,27 @@ siguientes:
 
 Input ::= Declaration | Input Declaration
 
+TypeDef ::= `ident`
+
+TypeDef ::= `^` TypeDef
+
+TypeDef ::= `[` Expression `]` TypeDef
+
+TypeDef ::= `[` Expression `:` Expression `]` TypeDef
+
+TypeDef ::= `^` TypeDef
+
 Declaration ::= VariableDeclaration
 
 Declaration ::= `fun` Type `ident` ( ArgList ) Block
 
 Declaration ::= `fun` `none` `ident` ( ArgList ) Block
 
-Type ::= `int` | `float` | `char` | `boolean`
+Declaration ::= `alias` TypeDef `ident ;`
+
+Declaration ::= `type ident {` StructFields `}`
+
+Declaration ::= `enum ident {` EnumValues `}`
 
 VariableDeclaration ::=  `const` Type `ident` = Expression `;`
 
@@ -90,17 +104,27 @@ VariableDeclaration ::=  Type `ident` = Expression `;`
 
 VariableDeclaration ::=  Type `ident` `;`
 
-ArgList: lambda | NonEmptyArgList
+StructFields ::= lambda | StructFields TypeDef `ident ;`
+
+EnumValues ::= `ident`
+
+EnumValues ::= `enumConstant`
+
+EnumValues ::= EnumValues `, ident`
+
+EnumValues ::= EnumValues `, enumConstant`
+
+ArgList ::= lambda | NonEmptyArgList
 
 NonEmptyArgList ::= `const` Type `ident` | Type `ident`
 
 NonEmptyArgList ::= NonEmptyArgList `,` Type `ident`
 
-NonEmptyArgList ::= NonEmptyArgList `,` `const` Type `ident`
+NonEmptyArgList ::= NonEmptyArgList `, const` Type `ident`
 
 Block ::= `{` BlockStatement `}` | `{ }`
 
-BlockStatement ::= Statement | Statement BlockStatement
+BlockStatement ::= Statement | BlockStatement Statement
 
 Statement ::= VariableDeclaration | `ident =` Expression `;` | `;`
 
@@ -122,7 +146,7 @@ ListaIdent ::= Expression | ListIdent `,` Expression
 
 LoopBlock ::= `{` LoopBlockStatement `}` | `{ }`
 
-LoopBlockStatement ::= LoopStatement | LoopStatement LoopBlockStatement
+LoopBlockStatement ::= LoopStatement | LoopBlockStatement LoopStatement
 
 LoopStatement ::= Statement | `break ;` | `continue ;`
 
@@ -132,12 +156,15 @@ ElseStatements ::=  `else` Block
 
 Expression ::= `intConstant` | `floatConstant`
             | `charConstant` | `booleanConstant`
+            | `stringConstant` | `enumConstant`
 
 Expression ::= `(` Expression `)`
 
+Expression ::= Lvalue
+
 Expression ::= `ident` | `ident (` ParametersInstance `)`
 
-Expression ::= Type `(` Expression `)`
+Expression ::= Expression `as` TypeDef
 
 Expression ::= AritmeticExpression | BooleanExpression
 
@@ -174,6 +201,18 @@ BooleanExpression ::= Expression `<=` Expression
 BooleanExpression ::= Expression `>` Expression
 
 BooleanExpression ::= Expression `>=` Expression
+
+String ::= `string` | String `string`
+
+Lvalue ::= `ident`
+
+Lvalue ::= Lvalue `[` Expression `]`
+
+Lvalue ::= Lvalue `. ident`
+
+Lvalue ::= Lvalue `^`
+
+Lvalue ::= `@` Lvalue
 
 ParametersInstance ::= lambda | ParametersInstanceNonEmpty
 
