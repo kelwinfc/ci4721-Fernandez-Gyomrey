@@ -12,9 +12,11 @@ Python y R.
 
 Las siguientes palabras son reservadas del lenguaje:
 
-> `none`, `int`, `float`, `boolean`, `char`, `string`, `fun`,
-> `for`, `fill`, `if`, `elif`, `else`, `return`, `continue`, `break`,
-> `map`, `foldr`, `foldr`, `const`
+> `alias` `type` `union` `as`, `enum`, `fun`, `return`,
+> `none`, `int`, `float`, `boolean`, `char`, `string`,
+> `for`, `if`, `elif`, `else`, `while`, `in`, `continue`, `break`,
+> `const`, `read`, `print`, `true`, `false`,
+> `fill`, `map`, `foldr`, `foldr`
 
 Estas palabras corresponden con las funciones nativas de *BLA* explicadas
 más adelante.

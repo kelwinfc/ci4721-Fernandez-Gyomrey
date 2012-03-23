@@ -1222,6 +1222,10 @@ int main (int argc,char **argv)
         yyparse();
     } else if (argc == 2) {
         yyin = fopen(argv[1], "r");
+        if (!yyin) {
+            printf("Archivo '%s' no existe\n", argv[1]);
+            exit(1);
+        }
         do {
             yyparse();
         } while (!feof(yyin));
