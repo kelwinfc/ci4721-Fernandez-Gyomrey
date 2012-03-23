@@ -39,15 +39,11 @@ void llog::critical(const char* m){
 }
 
 void llog::failure(const char* c){
-    fprintf(stderr, "-------------------------------------------------------\n"
-           );
-    fprintf(stderr, "\n\n\nEpic fail! (%s)\n", c);
+    fprintf(stderr, "Epic fail! (%s)\n", c);
 }
 
 void llog::success(){
-    fprintf(stderr, "-------------------------------------------------------\n"
-           );
-    cout << "\n\n\nLike a boss!\n";
+    fprintf(stdout, "Like a boss!\n");
 }
 
 bool llog::exists_registered_error(){
@@ -66,4 +62,7 @@ void llog::dump()
             }
         }
     }
+
+    fprintf(stderr, "-------------------------------------------------------\n\n"
+           );
 }

@@ -68,9 +68,11 @@ void type_table::add_alias( string a, string b ){
 }
 
 void type_table::dump( ) {
-    fprintf(stdout, "\n\n TYPES:\n");
+    fprintf(stdout, " TYPES:\n");
     vector<type_descriptor*>::iterator it;
     for (it=types.begin(); it != types.end(); ++it){
         (*it)->print(stdout);
     }
+
+    fprintf(stdout, "------------------------------------------------------\n\n");
 }

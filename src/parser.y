@@ -1235,15 +1235,10 @@ int main (int argc,char **argv)
         logger->dump();
     }
 
-    fprintf(stdout, "\n\n TYPES:\n");
-    vector<type_descriptor*>::iterator it;
-    for (it=types.types.begin(); it != types.types.end(); ++it){
-        (*it)->print(stdout);
-    }
-    
-    fprintf(stdout, "------------------------------------------------------\n\n");
-    
+    types.dump();
+
     p->print(0);
+    fprintf(stdout, "-------------------------------------------------------\n\n");
 
     if ( logger->exists_registered_error() ){
         logger->failure("context");
