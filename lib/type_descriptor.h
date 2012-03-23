@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <map>
 #include <vector>
-#include <list>
+#include <set>
 
 class type_table;
 
@@ -48,9 +48,9 @@ class enum_type : public type_descriptor {
     public:
         int line;
         int column;
-        list<string>* values;
+        set<string>* values;
 
-        enum_type( tokenId* tk, list<string>* values );
+        enum_type( tokenId* tk, set<string>* values );
 
         virtual void print(FILE* fd);
 };

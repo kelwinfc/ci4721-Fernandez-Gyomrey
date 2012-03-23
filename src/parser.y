@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <set>
 #include "lib/AST.h"
 #include "lib/symbol.h"
 #include "lib/symbol_table.h"
@@ -26,7 +27,7 @@ vector<uint> max_offset;
     AST_node* nd;
     token* tk;
     symbol_table* tt;
-    list<string>* tv;
+    set<string>* tv;
     int t;
 }
 
@@ -394,30 +395,10 @@ declaration:
                 delete $2;
                 delete $4;
             } else {
-                list<string>::iterator it;
+                set<string>::iterator it;
                 int nt = types.types.size();
-                for (it = $4->begin(); it != $4->end(); ++ it) {
-                    if (constants.find(*it) != constants.end()) {
-                        char e[llog::ERR_LEN];
-                        if (constants[*it] == nt) {
-                            snprintf(e, llog::ERR_LEN,
-                                     "Constante '%s' duplicada en tipo '%s' %d:%d.",
-                                     (*it).c_str(), ((tokenId*)$2)->ident.c_str(),
-                                     ((tokenId*)$1)->line, ((tokenId*)$1)->column);
-                        } else {
-                            // esto no se está usando porque el TK_ENUM_CONSTANT da segfault
-                            enum_type* vt = (enum_type*)types.get_type(*it);
-                            snprintf(e, llog::ERR_LEN,
-                                     "Constante '%s' en tipo '%s' %d:%d definida "
-                                     "previamente para el tipo '%s' %d:%d.",
-                                     (*it).c_str(), ((tokenId*)$2)->ident.c_str(),
-                                     ((tokenId*)$1)->line, ((tokenId*)$1)->column,
-                                     vt->name.c_str(), vt->line, vt->column);
-                        }
-                        logger->error($1->line, $1->column, e);
-                    } else {
-                        constants[*it] = nt;
-                    }
+                for (it = $4->begin(); it != $4->end(); ++ it) {                   
+                    constants[*it] = nt;
                 }
                 types.add_type( new enum_type( (tokenId*)$2, $4) );
             }
@@ -588,14 +569,63 @@ struct_fields :     {
 enum_values:
       TK_IDENT
         {
-            $$ = new list<string>();
-            $$->push_back(((tokenId*)$1)->ident);
+            $$ = new set<string>();
+            $$->insert(((tokenId*)$1)->ident);
+            delete $1;
+        }
+    | TK_ENUM_CONSTANT
+        {
+            $$ = new set<string>();
+            
+            tokenConstant* tk = (tokenConstant*)$1;
+            enum_type* et = (enum_type*)types.types[tk->type];
+            
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN,
+                         "Constante '%s' definida "
+                         "previamente para el tipo '%s' %d:%d",
+                         tk->ident.c_str(),
+                         et->name.c_str(),
+                         et->line, et->column);
+            
+            logger->error($1->line, $1->column, e);
             delete $1;
         }
     | enum_values ',' TK_IDENT
         {
             $$ = $1;
-            $1->push_back(((tokenId*)$3)->ident);
+            
+            if ( $1->find(((tokenId*)$3)->ident) != $1->end() ){
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                             "Constante '%s' definida en el tipo enum actual",
+                             ((tokenId*)$3)->ident.c_str());
+                
+                logger->error($3->line, $3->column, e);
+            } else {
+                $1->insert(((tokenId*)$3)->ident);
+            }
+            
+            delete $2;
+            delete $3;
+        }
+    | enum_values ',' TK_ENUM_CONSTANT
+        {
+            $$ = $1;
+            
+            tokenConstant* tk = (tokenConstant*)$3;
+            enum_type* et = (enum_type*)types.types[tk->type];
+            
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN,
+                         "Constante '%s' definida "
+                         "previamente para el tipo '%s' %d:%d",
+                         tk->ident.c_str(),
+                         et->name.c_str(),
+                         et->line, et->column);
+            
+            logger->error($3->line, $3->column, e);
+            
             delete $2;
             delete $3;
         }

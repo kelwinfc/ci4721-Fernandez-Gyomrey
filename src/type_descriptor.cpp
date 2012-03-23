@@ -33,7 +33,7 @@ union_type::union_type(string n, symbol_table* st){
     }
 }
 
-enum_type::enum_type( tokenId* tk, list<string>* v)
+enum_type::enum_type( tokenId* tk, set<string>* v)
 {
     width = 4;
     alignment = 4;
@@ -133,7 +133,7 @@ void enum_type::print(FILE* fd){
             alignment
            );
     fprintf(fd, "    ---\n");
-    list<string>::iterator it;
+    set<string>::iterator it;
     for (it = values->begin(); it != values->end(); ++it){
         fprintf(fd, "    |   - %s\n", (*it).c_str());
     }
