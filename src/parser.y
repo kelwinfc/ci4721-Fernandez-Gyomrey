@@ -216,7 +216,6 @@ type_def:
                         "Tipo invalido.");
                     logger->error($2->line, $2->column, e);
 
-              yyerrok;
               yyclearin;
               $$ = INVALID;
 
@@ -375,13 +374,15 @@ declaration:
     | TK_ENUM TK_IDENT '{' error '}'
           {
             char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Error en enum. Verifique que no existen duplicados.");
+            snprintf(e, llog::ERR_LEN, "Error en declaración de valores de enum");
             logger->error($3->line, $3->column, e);
             delete $1;
             delete $2;
             delete $3;
             delete $5;
             $$ = 0;
+
+            yyerrok;
           }
     | TK_ENUM TK_IDENT '{' enum_values '}'
         {
@@ -462,6 +463,8 @@ variable_declaration :
                                                );
               
               delete $5;
+
+              yyerrok;
             }
     | type_def TK_IDENT '=' error ';' 
             { char e[llog::ERR_LEN];

@@ -1,0 +1,24 @@
+[!]int a;                      -- Expresión de índices inválida
+
+[1]!int b;                     -- Tipo inválido
+
+alias c !;                     -- Declaración de alias inválida
+
+const int d = !;               -- Inicializacion de variable 'd' invalida.
+
+const int e ! 3;               -- Inicializacion de variable 'd' invalida.
+
+int f = !;                     -- Inicializacion de variable 'f' invalida.
+
+int g !;                       -- Declaración de variable debe finalizar con ';'.
+
+int h = !;                     -- Declaración de variable debe finalizar con ';'.
+
+fun int i(int a, !){           -- Error en parametro de definicion de funcion.
+
+}
+
+
+fun none main(){
+
+}
