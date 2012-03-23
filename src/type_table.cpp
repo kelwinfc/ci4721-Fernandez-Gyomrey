@@ -66,3 +66,11 @@ void type_table::add_type( string t ){
 void type_table::add_alias( string a, string b ){
     names[b] = index_of(a);
 }
+
+void type_table::dump( ) {
+    fprintf(stdout, "\n\n TYPES:\n");
+    vector<type_descriptor*>::iterator it;
+    for (it=types.begin(); it != types.end(); ++it){
+        (*it)->print(stdout);
+    }
+}

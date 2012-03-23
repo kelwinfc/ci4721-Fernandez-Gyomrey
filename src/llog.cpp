@@ -23,7 +23,7 @@ void llog::warning(int l, int c, const char* e){
 void llog::error(int l, int c, const char* e){
     if ( e && strcmp( (char*)"parse error", e) ){
         char fin[llog::ERR_LEN * 2];
-        sprintf(fin, "Error %d:%d: %s\n", l, c, e);
+        sprintf(fin, "Error   %d:%d: %s\n", l, c, e);
         stringstream ss;
         string err;
         ss << fin;
