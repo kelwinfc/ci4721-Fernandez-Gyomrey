@@ -311,6 +311,11 @@ Se cumple la regla recursivamente para los tipos compuestos definidos por el
 usuario. Análogamente para los elementos de un arreglo. Para el caso de los
 apuntadores se inicializan automáticamente con el apuntador nulo.
 
+Si una variable está declarada con inicialización constante no puede ser
+pasada por referencia ni se puede obtener la dirección de esta. Dado que
+las estructuras, arreglos y uniones se pasan por referencia, no es posible
+pasar un objeto de este tipo a una función si éste fue declarado como constante.
+
 ## Arreglos
 
 En *BLA* los arreglos son homogéneos, indexados linealmente y de tamaño
@@ -396,6 +401,9 @@ referencia.
 `^` y `@` que devuelven respectivamente el valor resultante de desreferenciar
 un apuntador y la dirección de memoria de un elemento.
 
+No es posible obtener la dirección de memoria de un elemento declarado como
+constante.
+
 ## Tipos compuestos
 
 *BLA* permite la creación de tipos compuestos, equivalentes a `struct` de C.
@@ -430,6 +438,9 @@ situaciones posteriores.
 * Las constantes de enumeración son sensitivas a mayúsculas y minúsculas
 * Las constantes hacen inaccesible cualquier variable declarada previamente
   con el mismo nombre.
+* Las constantes deben ser únicas, es decir, no pueden haber dos constantes
+  con el mismo identificador declaradas tanto en el mismo tipo enumeración como
+  en enumeraciones distintas.
 
 >  `enum colores {amarillo, azul, rojo}`
 
@@ -470,6 +481,7 @@ escribir su estructura completa. Un ejemplo de definición es:
 Las siguientes dos declaraciones generan exactamente el siguiente efecto:
 
 > tablero t1;
+
 > [8][8]^pieza t1;
 
 ## Equivalencia de Tipos, Compatibilidad
@@ -558,13 +570,16 @@ entre ellos. Para realizar esta operación se debe usar la conversión explícit
 La precedencia de los operadores, de menor a mayor es:
 
 * `== !=`     (igualdad, asocia a izquierda)
-* `==>`       (implicación, asocia a derecha)
 * `<==`       (consecuencia, asocia a izquierda)
+* `==>`       (implicación, asocia a derecha)
 * `&& ||`     (operadores lógicos y, o. Asocian a izquierda)
 * `< <= > >=` (relacionales, no asocian)
 * `- +`       (suma, resta, asocian a izquierda)
 * `* / %`     (multiplicación, división entera o con decimales, módulo, asocial a izquierda)
 * `- !`       (negación unaria aritmética y booleana)
+* `as`        (conversión explícita, asocia a izquierda)
+* `@`         (dirección, asocia a derecha)
+* `^`         (desreferencia, asocia a izquierda)
 
 La razón de esta precedencia es respetar la la precedencia natural de
 expresiones como `true && false == false`, considerando la igualdad como
@@ -595,10 +610,18 @@ continuación se muestran las convenciones de conversión:
               inicialmente a `int`, luego, si el valor resultante es cero, el
               booleano será `false`, en caso contrario será `true`.
 
+Las conversiones se realizan utilizando el operador binario `as`. La siguiente
+es una conversión válida:
+
+> `3 as float`
+
 ## Verificaciones a Tiempo de Ejecución
 
 Algunas verificaciones no pueden conocerse estáticamente y deben esperar hasta la
 ejecución para indicar la falla:
 
-1. El acceso a índices fuera de la definición de un arreglo terminará la ejecución
-   del programa.
+1. El acceso a índices fuera de la definición de un arreglo terminará la
+   ejecución del programa.
+
+2. El uso correcto de las uniones, es decir, el acceso a la parte activa de la
+   unión.

@@ -161,6 +161,13 @@ type_def:
                   up = ((AST_int*)$4)->value;
               }
               
+              if ( low > up ){
+                  char e[llog::ERR_LEN];
+                  snprintf(e, llog::ERR_LEN,
+                           "El rango de indices debe ser creciente.");
+                  logger->error($2->line, $2->column, e);
+              }
+              
               array_descriptor* at;
               at = new array_descriptor( types.types[$6],
                                          $6, up, low );
