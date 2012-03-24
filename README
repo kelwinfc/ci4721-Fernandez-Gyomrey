@@ -10,7 +10,9 @@ Requerimientos para la documentacion:
 
 Ejemplos:
     - test/fib.mmt implementación recursiva e iterativa de fibonacci.
-    - pruebaGeneral.mmt verificación exhaustiva de errores de contexto.
+    - test/pruebaGeneral.mmt verificación exhaustiva de errores de contexto.
+    - test/pruebaTipos.mmt verificación de uso de estructuras y uniones
+    - test/pruebaErroresparser.mmt verificación de recuperación de errores en parser
 
 Para verificar un archivo:
     ./bla archivo
