@@ -141,10 +141,20 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_AS;
                             }
 
-"fill"|"map"|"foldr"|"foldl" { updatecol();
-                                        fprintf(stderr,"Warning: Palabra reservada %s aún sin implementarse.\n",
-                                        yytext);
-                                      }
+"fill"                      { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_FILL;
+                            }
+
+"with"                      { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_WITH;
+                            }
+
+"map"|"foldr"|"foldl" { updatecol();
+                         fprintf(stderr,"Warning: Palabra reservada %s aún sin implementarse.\n",
+                                 yytext);
+                       }
 
 "["|"]"|":"|"."                { updatecol();
                                  yylval.tk = new token(yylineno, column);

@@ -498,3 +498,16 @@ void AST_print::print(int indentation){
         (*it)->print(indentation+1);
     }
 }
+
+void AST_fill::print(int indentation){
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    
+    cout << "Fill" << endl;
+    expr->print(indentation+1);
+    
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    
+    cout << "With " << function << endl;
+}

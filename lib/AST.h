@@ -561,6 +561,19 @@ class AST_print : public AST_statement {
         virtual void fill_and_check(symbol_table* st);
 };
 
+class AST_fill : public AST_statement {
+    public:
+        AST_expression* expr;
+        string function;
+        symbol* sym;
+        
+        AST_fill(AST_expression* e, tokenId* f);
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+};
+
 class AST_conversion : public AST_expression {
     
     public:

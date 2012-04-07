@@ -487,6 +487,18 @@ void AST_print::add_argument(AST_expression* e){
     }
 }
 
+AST_fill::AST_fill(AST_expression* e, tokenId* f){
+    line = e->line;
+    column = e->line;
+    
+    expr = e;
+    function = string(f->ident);
+    sym = 0;
+    delete f;
+    
+    has_return = NO;
+}
+
 bool AST_expression::has_functions(){
     return false; 
 }

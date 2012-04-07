@@ -937,3 +937,109 @@ void AST_print::fill_and_check(symbol_table* st){
         (*it)->fill_and_check(st);
     }
 }
+
+void AST_fill::fill_and_check(symbol_table* st){
+    
+    expr->fill_and_check(st);
+    
+    if ( expr->type != INVALID
+         && typeid(*types.types[expr->type]) != typeid(array_descriptor))
+    {
+        char e[llog::ERR_LEN];
+        snprintf(e, llog::ERR_LEN, "Expresion debe evaluar tipo arreglo.");
+        logger->error(line, column, e);
+        
+        return;
+    }
+    
+    sym = st->lookup(function);
+    
+    if ( sym ){
+        
+        if ( !sym->is_function ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Esperada identificador de funcion.");
+            logger->error(line, column, e);
+            sym = 0;
+        } else {
+            symbol_function* s = (symbol_function*)sym;
+            
+            /* Numero de argumentos invalidos */
+            if ( s->params.size() == 0 || s->params.size() > 2 ){
+                
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN, "Funcion con firma invalida.");
+                logger->error(line, column, e);
+                
+            } else {
+                array_descriptor* ad = 
+                    (array_descriptor*)types.types[expr->type];
+                TYPE base = ad->base;
+                
+                /* Primer argumento debe ser entero para recorrer el arreglo */
+                if ( s->params[0] != INT ){
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Se espera funcion con primer "
+                             "argumento de tipo int, recibido %s",
+                             ad->name.c_str()
+                            );
+                    logger->error(line, column, e);
+                }
+                
+                /* Si solo tiene un argumento el tipo de retorno de la funcion
+                 * debe coincidir con el tipo base del arreglo
+                 */
+                
+                if ( s->params.size() == 1 && s->getType() != base ){
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Se espera funcion con retorno de tipo %s, %s%s.",
+                             "recibida funcion con retorno ",
+                             types.types[base]->name.c_str(),
+                             types.types[s->getType()]->name.c_str()
+                            );
+                    logger->error(line, column, e);
+                } 
+                /* Tiene dos argumentos, el tipo de retorno debe ser none y el
+                 * segundo debe ser o bien el tipo base del arreglo o un
+                 * apuntador al tipo base (pase por referencia)
+                 */
+                else if ( s->params.size() == 2 ){
+                    char e[llog::ERR_LEN];
+                    if ( s->getType() != NONE ){
+                        snprintf(e, llog::ERR_LEN,
+                                 "Se espera funcion con retorno vacio");
+                    } else if ( s->params[1] == base ){
+                        return ;
+                    } else if ( typeid(* (types.types[s->params[1]]) )
+                                         == typeid(pointer_descriptor)
+                                && ((pointer_descriptor*)
+                                    (types.types[s->params[1]]))->base 
+                                         == base
+                               )
+                    {
+                        return ;
+                    } else {
+                        
+                        snprintf(e, llog::ERR_LEN,
+                                "Se esperaba funcion con segundo argumento "
+                                "de tipo %s o apuntador a %s.",
+                                 types.types[base]->name.c_str(),
+                                 types.types[base]->name.c_str()
+                                );
+                    }
+                    logger->error(line, column, e);
+                }
+            }
+        }
+    } else {
+        char e[llog::ERR_LEN];
+        snprintf(e, llog::ERR_LEN, 
+                 "Identificador '%s' no definido previamente.",
+                 function.c_str()
+                );
+        logger->error(line, column, e);
+    }
+    
+}
