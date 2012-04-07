@@ -541,9 +541,8 @@ struct_fields :     {
                             
                             char e[llog::ERR_LEN];
                             snprintf(e, llog::ERR_LEN,
-                                     "Campo '%s' en el tipo '%s' duplicado.",
-                                     ((tokenId*)$3)->ident.c_str(),
-                                     ((tokenId*)($-1.tk))->ident.c_str()
+                                     "Campo '%s' en definicion de tipo duplicado.",
+                                     ((tokenId*)$3)->ident.c_str()
                                     );
                             logger->error($3->line, $3->column, e);
                         } else {
