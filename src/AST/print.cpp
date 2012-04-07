@@ -511,3 +511,20 @@ void AST_fill::print(int indentation){
     
     cout << "With " << function << endl;
 }
+
+void AST_map::print(int indentation){
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    
+    cout << "Map (" << function << ")" <<endl;
+    
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    cout << "Source: ";
+    src->print(indentation+1);
+    
+    printf("%3d: ", line);
+    print_indentation(indentation);
+    cout << "Destination: ";
+    dst->print(indentation+1);
+}

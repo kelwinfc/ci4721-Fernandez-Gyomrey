@@ -499,6 +499,20 @@ AST_fill::AST_fill(AST_expression* e, tokenId* f){
     has_return = NO;
 }
 
+AST_map::AST_map(AST_expression* s, AST_expression* d, tokenId* f){
+    line = s->line;
+    column = s->line;
+    
+    src = s;
+    dst = d;
+    
+    function = string(f->ident);
+    sym = 0;
+    delete f;
+    
+    has_return = NO;
+}
+
 bool AST_expression::has_functions(){
     return false; 
 }

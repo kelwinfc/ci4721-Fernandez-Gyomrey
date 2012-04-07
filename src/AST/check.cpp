@@ -1043,3 +1043,163 @@ void AST_fill::fill_and_check(symbol_table* st){
     }
     
 }
+
+void AST_map::fill_and_check(symbol_table* st){
+    
+    src->fill_and_check(st);
+    dst->fill_and_check(st);
+    
+    if ( src->type != INVALID && dst->type != INVALID )
+    {
+        if ( typeid(*types.types[src->type]) != typeid(array_descriptor) ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Expresion debe evaluar tipo arreglo.");
+            logger->error(src->line, src->column, e);
+            
+            return;
+        } else if (typeid(*types.types[dst->type]) != typeid(array_descriptor)){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Expresion debe evaluar tipo arreglo.");
+            logger->error(dst->line, dst->column, e);
+            
+            return;
+        } else if ( types.types[src->type] != types.types[dst->type] ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Ambos arreglos deben ser del mismo tipo.");
+            logger->error(line, column, e);
+            
+            return;
+        }
+    }
+    
+    sym = st->lookup(function);
+    
+    if ( sym ){
+        
+        if ( !sym->is_function ){
+            char e[llog::ERR_LEN];
+            snprintf(e, llog::ERR_LEN, "Esperada identificador de funcion.");
+            logger->error(line, column, e);
+            sym = 0;
+        } else {
+            symbol_function* s = (symbol_function*)sym;
+            
+            array_descriptor* ad=(array_descriptor*)types.types[src->type];
+            TYPE base = ad->base;
+            
+            if ( s->params.size() == 0 || s->params.size() > 2 ){
+                
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN, "Funcion con firma invalida.");
+                logger->error(line, column, e);
+                
+            } else if ( s->params.size() == 1 ){
+                if ( s->getType() != base ){
+                    
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Se espera funcion con retorno de tipo %s,"
+                             "recibida funcion con retorno %s",
+                             types.types[base]->name.c_str(),
+                             types.types[s->getType()]->name.c_str()
+                            );
+                    logger->error(line, column, e);
+                    
+                } else if ( s->params[0] != base ){
+                    
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Se espera funcion con primer "
+                             "argumento de tipo %s, recibido %s",
+                             types.types[base]->name.c_str(),
+                             types.types[s->params[0]]->name.c_str()
+                            );
+                    logger->error(line, column, e);
+                    
+                }
+            } else if ( s->params.size() == 2 ){
+                if ( s->getType() != NONE ){
+                    
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Se espera funcion con retorno vacio.");
+                    logger->error(line, column, e);
+                    
+                } else if ( s->params[0] != base ){
+                    
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Se espera funcion con primer "
+                             "argumento de tipo %s, recibido %s",
+                             types.types[base]->name.c_str(),
+                             types.types[s->params[0]]->name.c_str()
+                            );
+                    logger->error(line, column, e);
+                    
+                } else {
+                    if ( types.is_base(base) ){
+                        if ( typeid(*(types.types[s->params[1]]))
+                             == typeid(pointer_descriptor) )
+                        {
+                            pointer_descriptor* pd =
+                               (pointer_descriptor*)(types.types[s->params[1]]);
+                            
+                            if ( pd->base != base ){
+                                char e[llog::ERR_LEN];
+                                snprintf(e, llog::ERR_LEN,
+                                     "Se espera referencia a %s,"
+                                     "recibida referencia a %s.",
+                                     types.types[base]->name.c_str(),
+                                     types.types[pd->base]->name.c_str()
+                                    );
+                                logger->error(line, column, e);
+                            }
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                 "Se espera referencia a %s",
+                                 types.types[base]->name.c_str()
+                                );
+                            logger->error(line, column, e);
+                        }
+                    } else {
+                        if ( base != s->params[1] ){
+                            if ( typeid(*(types.types[s->params[1]]))
+                                 == typeid(pointer_descriptor) )
+                            {
+                                pointer_descriptor* pd =
+                                 (pointer_descriptor*)types.types[s->params[1]];
+                                
+                                if ( pd->base != base ){
+                                    char e[llog::ERR_LEN];
+                                    snprintf(e, llog::ERR_LEN,
+                                         "Se espera referencia a %s, "
+                                         "recibida referencia a %s.",
+                                         types.types[base]->name.c_str(),
+                                         types.types[pd->base]->name.c_str()
+                                        );
+                                    logger->error(line, column, e);
+                                }
+                            } else {
+                                char e[llog::ERR_LEN];
+                                snprintf(e, llog::ERR_LEN,
+                                     "Se espera referencia a %s",
+                                     types.types[base]->name.c_str()
+                                    );
+                                logger->error(line, column, e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        char e[llog::ERR_LEN];
+        snprintf(e, llog::ERR_LEN, 
+                 "Identificador '%s' no definido previamente.",
+                 function.c_str()
+                );
+        logger->error(line, column, e);
+    }
+    
+}

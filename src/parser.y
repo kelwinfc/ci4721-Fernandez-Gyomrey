@@ -47,11 +47,10 @@ vector<uint> max_offset;
 %token TK_READ TK_PRINT
 %token TK_ALIAS TK_NEW_TYPE TK_UNION
 %token TK_AS
-%token TK_POINTER
-%token TK_ADDRESS
+%token TK_POINTER TK_ADDRESS
 %token TK_AND TK_OR TK_IMP TK_CONSEQ TK_EQ TK_UNEQ TK_NOT
 %token TK_LESS TK_LESS_EQ TK_GREAT TK_GREAT_EQ
-%token TK_FILL TK_WITH
+%token TK_FILL TK_WITH TK_MAP
 
 /* 
  * La razón de esta precedencia es respetar la la precedencia natural de
@@ -88,7 +87,7 @@ vector<uint> max_offset;
           '(' ')' '+' '-' '*' '/' TK_MOD '=' ';' ',' '{' '}' '[' ']' ':' '.'
           TK_ALIAS TK_NEW_TYPE TK_UNION
           TK_AS TK_POINTER TK_ADDRESS
-          TK_FILL TK_WITH
+          TK_FILL TK_WITH TK_MAP
 
 %type<tt> struct_fields
 
@@ -904,6 +903,25 @@ statement :
             delete $1;
             delete $3;
             delete $5;
+        }
+    | TK_MAP TK_IDENT expression ';'
+        {
+            $$ = new AST_map( (AST_expression*)$3,
+                              (AST_expression*)$3,
+                              (tokenId*)$2
+                             );
+            delete $1;
+            delete $4;
+        }
+    | TK_MAP TK_IDENT expression ',' expression ';'
+        {
+            $$ = new AST_map( (AST_expression*)$3,
+                              (AST_expression*)$5,
+                              (tokenId*)$2
+                             );
+            delete $1;
+            delete $4;
+            delete $6;
         }
     | error ';'
         {
