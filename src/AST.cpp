@@ -297,6 +297,26 @@ void AST_arg_list::add_argument( TYPE t, tokenId* id, bool constant ){
     delete id;
 }
 
+AST_discrete_arg_list::AST_discrete_arg_list(){
+
+}
+
+void AST_discrete_arg_list::add_argument( TYPE t, tokenId* id,
+                                          int min_value, int max_value,
+                                          bool constant )
+{
+    symbol* next_arg = new symbol(id->ident, constant, t,
+                                  id->line, id->column, false);
+    
+    args.push_back( next_arg );
+    boundaries.push_back( pair<int,int>(min_value, max_value) );
+    
+    line = args[0]->getLine();
+    
+    delete id;
+    
+}
+
 AST_function::AST_function(TYPE t, tokenId* id, AST_arg_list* args,
                            AST_block* code
                           )

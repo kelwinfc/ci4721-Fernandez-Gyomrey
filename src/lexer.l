@@ -156,6 +156,16 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                               return TK_MAP;
                             }
 
+"remember"                  { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_REMEMBER;
+                            }
+
+"forget"                    { updatecol();
+                              yylval.tk = new token(yylineno, column);
+                              return TK_FORGET;
+                            }
+
 "foldr"|"foldl"             { updatecol();
                               fprintf(stderr,"Warning: Palabra reservada %s aún sin implementarse.\n",
                                       yytext);

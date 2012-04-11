@@ -91,6 +91,29 @@ void AST_arg_list::print(int indentation){
     }
 }
 
+void AST_discrete_arg_list::print(int indentation){  
+    vector<symbol*>::iterator it;
+    vector<pair<int,int> >::iterator it_boundaries;
+    
+    it_boundaries = boundaries.begin();
+    for ( it = args.begin(); it != args.end(); ++it_boundaries){
+        printf("%3d: ", (*it)->getLine());
+        print_indentation(indentation);
+
+        cout << types.types[(*it)->getType()]->name << "(";
+        cout << (*it)->getName();
+        cout << ") in [" << (*it_boundaries).first << ", "
+             << (*it_boundaries).second << "]";
+        
+        if ( ++it != args.end() ){
+            cout << ",";
+        }
+        
+        cout << endl;
+        
+    }
+}
+
 void AST_statement::print(int indentation){
     
 }

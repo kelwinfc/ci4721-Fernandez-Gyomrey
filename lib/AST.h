@@ -393,6 +393,20 @@ class AST_arg_list : public AST_node {
         virtual void fill_and_check(symbol_table* st);
 };
 
+class AST_discrete_arg_list : public AST_arg_list {
+    public:
+        vector<pair<int,int> > boundaries;
+        
+        AST_discrete_arg_list();
+        
+        void add_argument( TYPE t, tokenId* id, int min_value, int max_value,
+                           bool constant = false );
+        
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+};
+
 class AST_function : public AST_declaration {
     public:
         

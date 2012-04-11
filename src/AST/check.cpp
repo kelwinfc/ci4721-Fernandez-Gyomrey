@@ -699,6 +699,50 @@ void AST_arg_list::fill_and_check(symbol_table* st){
     }
 }
 
+void AST_discrete_arg_list::fill_and_check(symbol_table* st){
+    
+    vector< pair<int, int> >::iterator it_boundaries = boundaries.begin();
+    
+    for ( vector<symbol*>::iterator it =args.begin(); it != args.end(); ++it){
+        
+        bool verify_types = true;
+        
+        int level = 0;
+        symbol* prev = st->lookup( (*it)->getName(), &level );
+        if ( prev ){
+            if ( level != 0 ){
+                st->insert( (*it) );
+                prev = *it;
+            } else {
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Argumento '%s' con identificador repetido.",
+                         (*it)->getName().c_str());
+                logger->error(line, column, e);
+
+                verify_types = false;
+                break;
+            }
+        } else {
+            st->insert( (*it) );
+            prev = *it;
+        }
+        
+        if ( verify_types ){
+            pair<int,int> b = *it_boundaries;
+            if ( b.first > b.second ){
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN, "Argumento '%s' con rango vacio.",
+                         (*it)->getName().c_str());
+                logger->error(line, column, e);
+            }
+        }
+        
+        ++it_boundaries;
+    }
+    
+}
+
 void AST_function::fill_and_check(symbol_table* st){
     
     symbol_table* nested_block = st->new_son();

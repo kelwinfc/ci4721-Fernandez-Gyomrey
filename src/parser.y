@@ -21,6 +21,9 @@ type_table types;
 vector<uint> offset;
 vector<uint> max_offset;
 
+AST_discrete_arg_list* discrete_list; // lista global para los parametros
+                                      // formales de una funcion memorizable
+
 %}
 
 %union{
@@ -34,7 +37,7 @@ vector<uint> max_offset;
 /* Bison declarations.  */
 %token TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR TK_STRING
 %token TK_IDENT
-%token TK_FUNCTION
+%token TK_FUNCTION TK_REMEMBER TK_FORGET
 %token TK_NONE
 %token TK_ENUM
 %token TK_ENUM_CONSTANT
@@ -77,7 +80,7 @@ vector<uint> max_offset;
           arg_list non_empty_arg_list lista_ident string
           block_statement loop_statement loop_block loop_block_statement
           else_statements expression aritmetic_expression boolean_expression
-          lvalue
+          lvalue discrete_type discrete_arg_list non_empty_discrete_arg_list
           
 %type<tk> TK_IDENT TK_FUNCTION TK_NONE TK_IF TK_ELSE TK_ENUM TK_ENUM_CONSTANT
           TK_CONST TK_INT TK_FLOAT TK_BOOLEAN TK_CHAR TK_STRING
@@ -252,6 +255,10 @@ declaration:
             delete $1;
             delete $4;
             delete $6;
+            }
+    | TK_REMEMBER TK_FUNCTION TK_IDENT '(' discrete_arg_list ')' block
+            {
+                
             }
     |   type_def TK_IDENT '(' arg_list ')' block
             {
@@ -640,7 +647,7 @@ enum_values:
             delete $3;
         }
 ;
-
+    
 // Lista de parámetros formales (puede ser vacía)
 arg_list:
       /* empty */        { $$ = new AST_arg_list(); }
@@ -698,6 +705,352 @@ non_empty_arg_list :
                 $$ = $1;
                 yyerrok;
             }
+;
+
+discrete_arg_list : /* empty */ 
+                        { $$ = new AST_discrete_arg_list(); }
+                  | non_empty_discrete_arg_list 
+                        { 
+                          $$ = discrete_list;
+                          discrete_list = 0;
+                        }
+                  ;
+
+discrete_type:
+        TK_CONST TK_IDENT TK_IDENT
+            {
+                if ( types.is_base( ((tokenId*)$2)->ident ) ){
+                    
+                    TYPE type = types.index_of( ((tokenId*)$2)->ident );
+                    
+                    if ( type == CHAR ){
+                        discrete_list->add_argument( type, (tokenId*)$3,
+                                                     0, 255, true );
+                    } else if ( type == BOOLEAN ){
+                        discrete_list->add_argument( type, (tokenId*)$3,
+                                                     0, 1, true );
+                    } else if ( type == INT ){
+                        char e[llog::ERR_LEN];
+                        snprintf(e, llog::ERR_LEN,
+                                 "Se deben establecer los limites de tipo"
+                                 "int.");
+                        logger->error($1->line, $1->column, e);
+                        delete $2;
+                        delete $3;
+                    } else {
+                        char e[llog::ERR_LEN];
+                        snprintf(e, llog::ERR_LEN,
+                                 "Tipo en funcion memorizable debe ser "
+                                 "primitivo discreto.");
+                        logger->error($1->line, $1->column, e);
+                        delete $2;
+                        delete $3;
+                    }
+                    
+                } else {
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo en funcion memorizable debe ser "
+                             "primitivo discreto.");
+                    logger->error($1->line, $1->column, e);
+                    delete $2;
+                    delete $3;
+                    
+                }
+                
+                delete $1;
+            }
+    |   TK_IDENT TK_IDENT
+            {
+                
+                if ( types.is_base( ((tokenId*)$1)->ident ) ){
+                    
+                    TYPE type = types.index_of( ((tokenId*)$1)->ident );
+                    
+                    if ( type == CHAR ){
+                        discrete_list->add_argument( type, (tokenId*)$2,
+                                                     0, 255, false );
+                    } else if ( type == BOOLEAN ){
+                        discrete_list->add_argument( type, (tokenId*)$2,
+                                                     0, 1, false );
+                    } else if ( type == INT ){
+                        char e[llog::ERR_LEN];
+                        snprintf(e, llog::ERR_LEN,
+                                 "Se deben establecer los limites de tipo"
+                                 "int.");
+                        logger->error($1->line, $1->column, e);
+                        delete $1;
+                        delete $2;
+                    } else {
+                        char e[llog::ERR_LEN];
+                        snprintf(e, llog::ERR_LEN,
+                                 "Tipo en funcion memorizable debe ser "
+                                 "primitivo discreto.");
+                        logger->error($1->line, $1->column, e);
+                        delete $1;
+                        delete $2;
+                    }
+                    
+                } else {
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo en funcion memorizable debe ser "
+                             "primitivo discreto.");
+                    logger->error($1->line, $1->column, e);
+                    delete $1;
+                    delete $2;
+                }
+            }
+    |   TK_CONST TK_IDENT TK_IDENT TK_IN '(' expression ',' expression ')'
+            {
+                if ( types.is_base( ((tokenId*)$2)->ident ) ){
+                    
+                    TYPE type = types.index_of( ((tokenId*)$2)->ident );
+                    
+                    if ( type == CHAR ){
+                        int upper, lower;
+                        upper = lower = 0;
+                        
+                        if ( typeid(*$6) == typeid(AST_char) ){
+                            //TODO verificar si esta escapado
+                            lower = ((AST_char*)$6)->value[1];
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite inferior debe evaluar constante "
+                                     "char.");
+                            logger->error($6->line, $6->column, e);
+                        }
+                        if ( typeid(*$8) == typeid(AST_char) ){
+                            //TODO verificar si esta escapado
+                            upper = ((AST_char*)$8)->value[1];
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite superior debe evaluar constante "
+                                     "char.");
+                            logger->error($8->line, $8->column, e);
+                        }
+                        
+                        discrete_list->add_argument( type, (tokenId*)$3,
+                                                     lower, upper, true );
+                        
+                    } else if ( type == BOOLEAN ){
+                        int upper, lower;
+                        upper = lower = 0;
+                        
+                        if ( typeid(*$6) == typeid(AST_boolean) ){
+                            //TODO verificar si esta escapado
+                            lower = ((AST_char*)$6)->value[1] ? 1 : 0;
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite inferior debe evaluar constante "
+                                     "boolean.");
+                            logger->error($6->line, $6->column, e);
+                        }
+                        if ( typeid(*$8) == typeid(AST_boolean) ){
+                            //TODO verificar si esta escapado
+                            upper = ((AST_char*)$8)->value[1] ? 1 : 0;
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite superior debe evaluar constante "
+                                     "boolean.");
+                            logger->error($8->line, $8->column, e);
+                        }
+                        
+                        discrete_list->add_argument( type, (tokenId*)$3,
+                                                     lower, upper, true );
+                        
+                    } else if ( type == INT ){
+                        
+                        int upper, lower;
+                        upper = lower = 0;
+                        
+                        if ( typeid(*$6) == typeid(AST_int) ){
+                            //TODO verificar si esta escapado
+                            lower = ((AST_char*)$6)->value[1] ? 1 : 0;
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite inferior debe evaluar constante "
+                                     "int.");
+                            logger->error($6->line, $6->column, e);
+                        }
+                        if ( typeid(*$8) == typeid(AST_int) ){
+                            //TODO verificar si esta escapado
+                            upper = ((AST_char*)$8)->value[1] ? 1 : 0;
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite superior debe evaluar constante "
+                                     "int.");
+                            logger->error($8->line, $8->column, e);
+                        }
+                        
+                        discrete_list->add_argument( type, (tokenId*)$3,
+                                                     lower, upper, true );
+                        
+                    } else {
+                        char e[llog::ERR_LEN];
+                        snprintf(e, llog::ERR_LEN,
+                                 "Tipo en funcion memorizable debe ser "
+                                 "primitivo discreto.");
+                        logger->error($1->line, $1->column, e);
+                        delete $2;
+                        delete $3;
+                    }
+                    
+                } else {
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo en funcion memorizable debe ser "
+                             "primitivo discreto.");
+                    logger->error($1->line, $1->column, e);
+                    delete $2;
+                    delete $3;
+                    
+                }
+                
+                delete $1;
+                delete $4;
+                delete $5;
+                delete $6;
+                delete $7;
+                delete $8;
+                delete $9;
+            }
+    |   TK_IDENT TK_IDENT TK_IN '(' expression ',' expression ')'
+            {
+                if ( types.is_base( ((tokenId*)$1)->ident ) ){
+                    
+                    TYPE type = types.index_of( ((tokenId*)$1)->ident );
+                    
+                    if ( type == CHAR ){
+                        int upper, lower;
+                        upper = lower = 0;
+                        
+                        if ( typeid(*$5) == typeid(AST_char) ){
+                            //TODO verificar si esta escapado
+                            lower = ((AST_char*)$5)->value[1];
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite inferior debe evaluar constante "
+                                     "char.");
+                            logger->error($5->line, $5->column, e);
+                        }
+                        if ( typeid(*$7) == typeid(AST_char) ){
+                            //TODO verificar si esta escapado
+                            upper = ((AST_char*)$7)->value[1];
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite superior debe evaluar constante "
+                                     "char.");
+                            logger->error($7->line, $7->column, e);
+                        }
+                        
+                        discrete_list->add_argument( type, (tokenId*)$2,
+                                                     lower, upper, true );
+                        
+                    } else if ( type == BOOLEAN ){
+                        int upper, lower;
+                        upper = lower = 0;
+                        
+                        if ( typeid(*$5) == typeid(AST_boolean) ){
+                            //TODO verificar si esta escapado
+                            lower = ((AST_char*)$5)->value[1] ? 1 : 0;
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite inferior debe evaluar constante "
+                                     "boolean.");
+                            logger->error($5->line, $5->column, e);
+                        }
+                        if ( typeid(*$7) == typeid(AST_boolean) ){
+                            //TODO verificar si esta escapado
+                            upper = ((AST_char*)$7)->value[1] ? 1 : 0;
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite superior debe evaluar constante "
+                                     "boolean.");
+                            logger->error($7->line, $7->column, e);
+                        }
+                        
+                        discrete_list->add_argument( type, (tokenId*)$2,
+                                                     lower, upper, true );
+                        
+                    } else if ( type == INT ){
+                        
+                        int upper, lower;
+                        upper = lower = 0;
+                        
+                        if ( typeid(*$5) == typeid(AST_int) ){
+                            //TODO verificar si esta escapado
+                            lower = ((AST_char*)$5)->value[1] ? 1 : 0;
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite inferior debe evaluar constante "
+                                     "int.");
+                            logger->error($5->line, $5->column, e);
+                        }
+                        if ( typeid(*$7) == typeid(AST_int) ){
+                            //TODO verificar si esta escapado
+                            upper = ((AST_char*)$7)->value[1] ? 1 : 0;
+                        } else {
+                            char e[llog::ERR_LEN];
+                            snprintf(e, llog::ERR_LEN,
+                                     "Limite superior debe evaluar constante "
+                                     "int.");
+                            logger->error($7->line, $7->column, e);
+                        }
+                        
+                        discrete_list->add_argument( type, (tokenId*)$2,
+                                                     lower, upper, true );
+                        
+                    } else {
+                        char e[llog::ERR_LEN];
+                        snprintf(e, llog::ERR_LEN,
+                                 "Tipo en funcion memorizable debe ser "
+                                 "primitivo discreto.");
+                        logger->error($1->line, $1->column, e);
+                        delete $1;
+                        delete $2;
+                    }
+                    
+                } else {
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Tipo en funcion memorizable debe ser "
+                             "primitivo discreto.");
+                    logger->error($1->line, $1->column, e);
+                    delete $1;
+                    delete $2;
+                    
+                }
+                
+                delete $3;
+                delete $4;
+                delete $5;
+                delete $6;
+                delete $7;
+                delete $8;
+            }
+    ;
+
+// Lista de parámetros que no puede ser vacía
+non_empty_discrete_arg_list :
+            
+            { discrete_list = new AST_discrete_arg_list(); }
+            
+        discrete_type
+            
+    |   non_empty_discrete_arg_list ',' discrete_type { delete $2; }
+    |   non_empty_discrete_arg_list ',' error         { delete $2; }
 ;
 
 // Definicion de bloques de anidamiento
