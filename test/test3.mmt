@@ -1,5 +1,5 @@
 char f;
-char g;
+char g = f;
 char h;
 char i;
 boolean j;
@@ -7,10 +7,13 @@ int a;
 int b;
 string aux = "hola";
 
-fun none hola(int a, , int c, int d){
+fun none hola(int a, int c, int d){
     int b;
     int c;
     int d;
+    int e;
+    hola(a,c,d);
+    hola(a,b,e);
 }
 
 fun none main(){
@@ -22,15 +25,12 @@ fun none main(){
         int e;
         int f;
     }
-    int g = ( );
-    3;
+    int g;
     int h;
-    3*;
-    
 }
 
 fun none mainDos(){
-    if ( true ) 3 elif ( ) {}
+    int d;
 }
 
 int c = 2+;

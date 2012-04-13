@@ -26,6 +26,7 @@ class symbol{
     public:
         
         bool is_function;
+        bool unused;
         
         unsigned int offset;
         unsigned int width;

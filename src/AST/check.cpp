@@ -150,7 +150,8 @@ void AST_op::fill_and_check(symbol_table* st){
                 {
                     char e[llog::ERR_LEN];
                     snprintf(e, llog::ERR_LEN,
-                             "Operando %s de tipo %s, esperado int, float o char.",
+                             "Operando %s de tipo %s, esperado int, float "
+                             "o char.",
                              nombre_valido,
                              types.types[valido->type]->name.c_str()
                             );
@@ -319,7 +320,8 @@ void AST_un_op::fill_and_check(symbol_table* st){
             type = BOOLEAN;
         } else {
             // Reportar error de argumento booleano y operando menos unario
-            logger->error(line, column, "Operando de tipo boolean, esperado float o int.");
+            logger->error(line, column,
+                          "Operando de tipo boolean, esperado float o int.");
         }
     } else if ( expr->type == INT || expr->type == FLOAT ){
         
@@ -375,16 +377,18 @@ void AST_ident::fill_and_check(symbol_table* st, bool lval){
         /* El simbolo es una function, uso incorrecto como variable */
         if ( sym->is_function ){
             char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Identificador '%s' definido como función en %d:%d "
-                " (se esperaba variable).", sym->getName().c_str(),
-                sym->getLine(), sym->getColumn());
+            snprintf(e, llog::ERR_LEN,
+                     "Identificador '%s' definido como función en %d:%d "
+                     " (se esperaba variable).", sym->getName().c_str(),
+                     sym->getLine(), sym->getColumn());
             logger->error(line, column, e);
             sym = 0;
-        } 
+        }
         /* Intento de acceso a constante como lvalue */
         else if ( lval && sym->isConst() ){
             char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Intento de acceso a constante %s definida en %d:%d",
+            snprintf(e, llog::ERR_LEN,
+                     "Intento de acceso a constante %s definida en %d:%d",
                      sym->getName().c_str(),
                      sym->getLine(), sym->getColumn());
             logger->error(line, column, e);
@@ -393,12 +397,17 @@ void AST_ident::fill_and_check(symbol_table* st, bool lval){
         } else {
             type = sym->getType();
         }
+        
+        if ( !lval ){
+            sym->unused = false;
+        }
     } else {
         /* El simbolo no existe en la tabla */
         type = INVALID;
 
         char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Identificador '%s' no definido previamente.", value.c_str());
+        snprintf(e, llog::ERR_LEN,
+                 "Identificador '%s' no definido previamente.", value.c_str());
         logger->error(line, column, e);
     }
 }
@@ -528,16 +537,18 @@ void AST_block::fill_and_check(symbol_table* st){
      */
     vector<AST_statement*>::iterator it;
     
-    for (vector<AST_statement*>::iterator it = statements.begin(); it != statements.end(); ++ it){
+    for (vector<AST_statement*>::iterator it = statements.begin();
+         it != statements.end(); ++ it)
+     {
         if ( typeid(**it) == typeid(AST_block) ){
             symbol_table* nested_block = st->new_son();
             (*it)->fill_and_check(nested_block);
+            
             delete nested_block;
         } else {
             (*it)->fill_and_check(st);
         }
     }
-    
 }
 
 void AST_parameters_list::fill_and_check(symbol_table* st,
@@ -650,7 +661,9 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
             logger->error(sym->getLine(), sym->getColumn(), e);
         } else if ( level == 0 ){
             char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Identificador '%s' ya fue definido previamente en alcance global en línea %d, columna %d.",
+            snprintf(e, llog::ERR_LEN,
+                     "Identificador '%s' ya fue definido previamente en "
+                     "línea %d, columna %d.",
                 sym->getName().c_str(), previous->getLine(), previous->getColumn());
             logger->error(sym->getLine(), sym->getColumn(), e);
         } else {

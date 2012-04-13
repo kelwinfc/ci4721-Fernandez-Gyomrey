@@ -1,12 +1,16 @@
 #ifndef __SYMBOL_TABLE
 #define __SYMBOL_TABLE
 
-#include<map>
-#include<string>
-#include "symbol.h"
+#include <map>
+#include <string>
 #include <typeinfo>
 #include <vector>
 #include <iostream>
+#include <cstdio>
+#include "llog.h"
+#include "symbol.h"
+
+extern llog* logger;
 
 using namespace std;
 
@@ -24,6 +28,21 @@ class symbol_table {
         
         symbol_table();
         
+        ~symbol_table(){
+            /* Verificar si hay simbolos sin ser utilizados en el bloque */
+            map<string, symbol*>::iterator it;
+            for (it = table.begin(); it != table.end(); ++it){
+                symbol* sym = it->second;
+                if ( sym->unused && !sym->is_function ){
+                    char e[llog::ERR_LEN];
+                    snprintf(e, llog::ERR_LEN,
+                             "Identificador sin utilizar '%s'.",
+                             sym->getName().c_str());
+                    logger->warning(sym->getLine(), sym->getColumn(), e);
+                }
+            }
+        }
+
         symbol_table(symbol_table* p);
         
         symbol_table getParent();

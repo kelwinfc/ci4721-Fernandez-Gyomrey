@@ -17,6 +17,8 @@ symbol::symbol(string name, bool constant, TYPE type, int line,
     this->width = 0;
     this->alignment = 1;
     this->offset = 0;
+    
+    this->unused = true;
 }
 
 string symbol::getName(){
@@ -57,6 +59,7 @@ symbol_function::symbol_function(string name, int line, int column,
     this->column = column;
     this->initialized = false;
     this->is_function = true;
+    this->unused = true;
     
     vector< TYPE >::iterator it;
     for ( it = types.begin(); it != types.end(); ++it ){
@@ -75,6 +78,7 @@ symbol_function::symbol_function(string name, TYPE type, int line, int column,
     this->initialized = false;
     this->type = type;
     this->is_function = true;
+    this->unused = true;
     
     vector< TYPE >::iterator it;
     for ( it = types.begin(); it != types.end(); ++it ){

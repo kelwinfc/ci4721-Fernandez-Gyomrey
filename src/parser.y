@@ -1620,10 +1620,12 @@ int main (int argc,char **argv)
         } while (!feof(yyin));
     }
 
-    symbol_table st;
+    symbol_table* st = new symbol_table();
 
-    p->fill_and_check(&st);
-
+    p->fill_and_check(st);
+    
+    delete st;
+    
     if ( logger->exists_registered_error() ){
         logger->dump();
     }
