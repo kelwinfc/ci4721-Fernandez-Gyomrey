@@ -303,9 +303,9 @@ class AST_parameters_list : public AST_node {
         void add_element(AST_expression* e);
 
         virtual void print(int indentation);
-        
+
         virtual void fill_and_check(symbol_table* st);
-        
+
         virtual void fill_and_check(symbol_table* st, vector<bool>& constant);
 };
 

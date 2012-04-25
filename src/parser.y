@@ -8,6 +8,8 @@
 #include "lib/symbol_table.h"
 #include "lib/llog.h"
 #include "lib/type_table.h"
+#include "lib/block.h"
+#include "lib/inst.h"
 
 int yylex (void);
 void yyerror (char const *);
@@ -1606,6 +1608,7 @@ int main (int argc,char **argv)
 {
     logger = new llog();
     p = new AST_program();
+    block* q = new block();
 
     if (argc == 1){
         yyparse();

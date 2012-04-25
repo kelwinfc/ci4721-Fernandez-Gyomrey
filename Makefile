@@ -13,7 +13,9 @@ FILES=token\
       type_descriptor\
       type_table\
       llog\
-      label_generator
+      label_generator\
+      block\
+      inst
 
 DEP_AST=token utils symbol symbol_table llog
 DEP_token=utils llog
@@ -21,6 +23,7 @@ DEP_symbol_table=symbol
 DEP_type_descriptor=utils symbol symbol_table
 DEP_type_table=utils symbol symbol_table type_descriptor
 DEP_label_generator=
+DEP_block=inst
 
 all: bla
 
@@ -46,6 +49,8 @@ bin/llog.o: $(DEP_llog:%=src/%.cpp) $(DEP_llog:%=lib/%.h)
 bin/type_descriptor.o: $(DEP_type_descriptor:%=src/%.cpp) $(DEP_type_descriptor:%=lib/%.h)
 bin/type_table.o: $(DEP_type_table:%=src/%.cpp) $(DEP_type_table:%=lib/%.h)
 bin/label_generator.o: $(DEP_label_generator:%=src/%.cpp) $(DEP_label_generator:%=lib/%.h)
+bin/block.o: $(DEP_block:%=src/%.cpp) $(DEP_block:%=lib/%.h)
+bin/inst.o: $(DEP_inst:%=src/%.cpp) $(DEP_inst:%=lib/%.h)
 
 doc:
 	markdown2pdf doc/especificacion_primera_entrega.mdwn -o doc/especificacion_primera_entrega.pdf
