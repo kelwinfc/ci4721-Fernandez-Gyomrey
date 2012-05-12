@@ -4,7 +4,10 @@ block::block(){
 
 }
 
+void block::append_inst(inst* i) {
+    linst.push_back(i);
+}
 
-list<inst*> block::get_inst(){
-    return linst;
+void block::dump() {
+
 }

@@ -898,7 +898,7 @@ void AST_conditional::fill_and_check(symbol_table* st){
     }
     
     symbol_table* nested_block = st->new_son();
-    block->fill_and_check(nested_block);
+    blck->fill_and_check(nested_block);
     
     delete nested_block;
     
@@ -916,7 +916,7 @@ void AST_loop::fill_and_check(symbol_table* st){
     }
     
     symbol_table* nested_block = st->new_son();
-    block->fill_and_check(nested_block);
+    blck->fill_and_check(nested_block);
     delete nested_block;
 }
 
@@ -948,7 +948,7 @@ void AST_bounded_loop::fill_and_check(symbol_table* st){
     sym = new symbol(name, true, left_bound->type, line_name, column_name,true);
     nested_block->insert(sym);
     
-    block->fill_and_check(nested_block);
+    blck->fill_and_check(nested_block);
     delete nested_block;
     
 }

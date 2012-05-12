@@ -431,7 +431,7 @@ void AST_conditional::print(int indentation, bool first){
     print_indentation(indentation+1);
     cout << "     )\n";
     
-    block->print(indentation+1);
+    blck->print(indentation+1);
     
     if ( else_if ){
         else_if->print(indentation, false);
@@ -455,7 +455,7 @@ void AST_loop::print(int indentation){
     print_indentation(indentation+1);
     cout << "     )\n";
     
-    block->print(indentation+1);
+    blck->print(indentation+1);
 }
 
 void AST_bounded_loop::print(int indentation){
@@ -482,7 +482,7 @@ void AST_bounded_loop::print(int indentation){
     print_indentation(indentation+1);
     cout << "     )\n";
     
-    block->print(indentation+1);
+    blck->print(indentation+1);
 }
 
 void AST_read::print(int indentation){

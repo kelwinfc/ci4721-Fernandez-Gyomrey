@@ -13,7 +13,8 @@ class block{
 
     public:
         block();
-        list<inst*> get_inst();
+        void append_inst(inst* i);
+        void dump();
 };
 
 #endif

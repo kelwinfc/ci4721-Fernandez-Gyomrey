@@ -7,6 +7,7 @@
 #include "AST/print.cpp"
 #include "AST/check.cpp"
 #include "AST/constant_folding.cpp"
+#include "AST/gen_tac.cpp"
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
@@ -399,7 +400,7 @@ AST_conditional::AST_conditional(token* tk, AST_expression* e, AST_block* b,
     delete tk;
 
     expr = e;
-    block = b;
+    blck = b;
     else_if = branches;
     
     has_return = b->has_return;
@@ -432,9 +433,9 @@ AST_loop::AST_loop(token* tk, AST_expression* e, AST_block* b)
     delete tk;
 
     expr = e;
-    block = b;
+    blck = b;
     
-    if ( block->has_return != NO ){
+    if ( blck->has_return != NO ){
         has_return = MAYBE;
     } else {
         has_return = NO;
@@ -459,9 +460,9 @@ AST_bounded_loop::AST_bounded_loop(token* for_, tokenId* id,
     right_bound = r;
     
     sym = 0;
-    block = b;
+    blck = b;
     
-    if ( block->has_return != NO ){
+    if ( blck->has_return != NO ){
         has_return = MAYBE;
     } else {
         has_return = NO;

@@ -11,6 +11,7 @@
 #include "type_table.h"
 #include "llog.h"
 #include "utils.h"
+#include "block.h"
 
 using namespace std;
 
@@ -30,6 +31,8 @@ class AST_node{
         virtual void print(int indentation = 0);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_statement : public AST_node{
@@ -41,6 +44,8 @@ class AST_statement : public AST_node{
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_expression : public AST_node{
@@ -57,6 +62,8 @@ class AST_expression : public AST_node{
         }
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
         
         virtual void check_call(symbol_table* st){ fill_and_check(st); }
         
@@ -85,6 +92,8 @@ class AST_op : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
+        virtual void gen_tac(block* b);
+        
         virtual bool has_functions();
         
         virtual AST_expression* constant_folding();
@@ -108,6 +117,8 @@ class AST_un_op : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
+        virtual void gen_tac(block* b);
+        
         virtual bool has_functions();
         
         virtual AST_expression* constant_folding();
@@ -125,6 +136,8 @@ class AST_int : public AST_expression{
         
         virtual void fill_and_check(symbol_table* st);
         
+        virtual void gen_tac(block* b);
+        
         virtual AST_expression* constant_folding();
 };
 
@@ -139,6 +152,8 @@ class AST_float : public AST_expression{
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -155,6 +170,8 @@ class AST_boolean : public AST_expression{
         
         virtual void fill_and_check(symbol_table* st);
         
+        virtual void gen_tac(block* b);
+        
         virtual AST_expression* constant_folding();
 };
 
@@ -169,6 +186,8 @@ class AST_char : public AST_expression {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -187,6 +206,8 @@ class AST_string : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
+        virtual void gen_tac(block* b);
+        
         virtual AST_expression* constant_folding();
 };
 
@@ -202,6 +223,8 @@ class AST_enum_constant : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
+        virtual void gen_tac(block* b);
+        
         virtual AST_expression* constant_folding();
 };
 
@@ -211,6 +234,8 @@ class AST_lval : public AST_expression {
         virtual void print(int indentation);
         
         void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
         
         virtual void fill_and_check(symbol_table* st, bool lval);
         
@@ -231,6 +256,8 @@ class AST_ident : public AST_lval {
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
         
+        virtual void gen_tac(block* b);
+        
         virtual void check_call(symbol_table* st);
         
         virtual AST_expression* constant_folding();
@@ -246,6 +273,8 @@ class AST_dereference : public AST_lval {
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
         
+        virtual void gen_tac(block* b);
+        
         virtual AST_expression* constant_folding();
 };
 
@@ -258,6 +287,8 @@ class AST_address : public AST_lval {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
+        
+        virtual void gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -275,6 +306,8 @@ class AST_array_access : public AST_lval {
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
         
+        virtual void gen_tac(block* b);
+        
         virtual AST_expression* constant_folding();
 };
 
@@ -288,6 +321,8 @@ class AST_struct_access : public AST_lval {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
+        
+        virtual void gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -305,6 +340,8 @@ class AST_parameters_list : public AST_node {
         virtual void print(int indentation);
 
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 
         virtual void fill_and_check(symbol_table* st, vector<bool>& constant);
 };
@@ -327,6 +364,8 @@ class AST_function_call : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
+        virtual void gen_tac(block* b);
+        
         virtual bool has_functions();
         
         virtual AST_expression* constant_folding();
@@ -341,6 +380,8 @@ class AST_declaration : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_variable_declaration : public AST_declaration {
@@ -360,6 +401,8 @@ class AST_variable_declaration : public AST_declaration {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_block : public AST_node {
@@ -377,6 +420,8 @@ class AST_block : public AST_node {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_arg_list : public AST_node {
@@ -391,6 +436,8 @@ class AST_arg_list : public AST_node {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_discrete_arg_list : public AST_arg_list {
@@ -405,6 +452,8 @@ class AST_discrete_arg_list : public AST_arg_list {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_function : public AST_declaration {
@@ -422,6 +471,8 @@ class AST_function : public AST_declaration {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_program : public AST_node {
@@ -437,6 +488,8 @@ class AST_program : public AST_node {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_assignment : public AST_statement {
@@ -450,6 +503,8 @@ class AST_assignment : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_return : public AST_statement {
@@ -463,6 +518,8 @@ class AST_return : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_conditional : public AST_statement {
@@ -471,7 +528,7 @@ class AST_conditional : public AST_statement {
 
         AST_expression* expr;
 
-        AST_block* block;
+        AST_block* blck;
 
         AST_conditional* else_if;
 
@@ -483,6 +540,8 @@ class AST_conditional : public AST_statement {
         virtual void print(int indentation, bool first);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_loop : public AST_statement {
@@ -491,13 +550,15 @@ class AST_loop : public AST_statement {
 
         AST_expression* expr;
 
-        AST_block* block;
+        AST_block* blck;
 
         AST_loop(token* tk, AST_expression* e, AST_block* b);
 
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 
@@ -515,7 +576,7 @@ class AST_bounded_loop : public AST_statement {
 
         AST_expression* right_bound;
 
-        AST_block* block;
+        AST_block* blck;
 
         AST_bounded_loop(token* for_, tokenId* id,
                          AST_expression* l,
@@ -525,6 +586,8 @@ class AST_bounded_loop : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_break : public AST_statement {
@@ -536,6 +599,8 @@ class AST_break : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_continue: public AST_statement {
@@ -547,6 +612,8 @@ class AST_continue: public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_read : public AST_statement {
@@ -560,6 +627,8 @@ class AST_read : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_print : public AST_statement {
@@ -573,6 +642,8 @@ class AST_print : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_fill : public AST_statement {
@@ -586,6 +657,8 @@ class AST_fill : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_map : public AST_statement {
@@ -600,6 +673,8 @@ class AST_map : public AST_statement {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
 };
 
 class AST_conversion : public AST_expression {
@@ -613,6 +688,8 @@ class AST_conversion : public AST_expression {
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
         
         virtual bool has_functions();
 };

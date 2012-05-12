@@ -1608,7 +1608,7 @@ int main (int argc,char **argv)
 {
     logger = new llog();
     p = new AST_program();
-    block* q = new block();
+    block *b = new block();
 
     if (argc == 1){
         yyparse();
@@ -1636,6 +1636,11 @@ int main (int argc,char **argv)
     types.dump();
 
     p->print(0);
+
+    p->gen_tac(b);
+
+    b->dump();
+
     fprintf(stdout, "-------------------------------------------------------\n\n");
 
     if ( logger->exists_registered_error() ){
