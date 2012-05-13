@@ -3,7 +3,7 @@ BISON  = bison
 BFLAGS = --defines=y.tab.h --output=y.tab.c
 
 GCC=g++
-GCC_FLAGS= -Ilib -Wall -O3
+GCC_FLAGS= -Ilib -Wall -O3 -ggdb
 
 FILES=token\
       AST\

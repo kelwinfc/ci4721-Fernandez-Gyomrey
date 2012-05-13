@@ -31,8 +31,6 @@ class AST_node{
         virtual void print(int indentation = 0);
         
         virtual void fill_and_check(symbol_table* st);
-        
-        virtual void gen_tac(block* b);
 };
 
 class AST_statement : public AST_node{
@@ -63,7 +61,7 @@ class AST_expression : public AST_node{
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual void check_call(symbol_table* st){ fill_and_check(st); }
         
@@ -92,7 +90,7 @@ class AST_op : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual bool has_functions();
         
@@ -117,7 +115,7 @@ class AST_un_op : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual bool has_functions();
         
@@ -136,7 +134,7 @@ class AST_int : public AST_expression{
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -153,7 +151,7 @@ class AST_float : public AST_expression{
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -170,7 +168,7 @@ class AST_boolean : public AST_expression{
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -187,7 +185,7 @@ class AST_char : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -206,7 +204,7 @@ class AST_string : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -223,7 +221,7 @@ class AST_enum_constant : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -235,7 +233,7 @@ class AST_lval : public AST_expression {
         
         void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual void fill_and_check(symbol_table* st, bool lval);
         
@@ -256,7 +254,7 @@ class AST_ident : public AST_lval {
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual void check_call(symbol_table* st);
         
@@ -273,7 +271,7 @@ class AST_dereference : public AST_lval {
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -288,7 +286,7 @@ class AST_address : public AST_lval {
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -306,7 +304,7 @@ class AST_array_access : public AST_lval {
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -322,7 +320,7 @@ class AST_struct_access : public AST_lval {
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual AST_expression* constant_folding();
 };
@@ -364,7 +362,7 @@ class AST_function_call : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual bool has_functions();
         
@@ -689,7 +687,7 @@ class AST_conversion : public AST_expression {
         
         virtual void fill_and_check(symbol_table* st);
         
-        virtual void gen_tac(block* b);
+        virtual opd *gen_tac(block* b);
         
         virtual bool has_functions();
 };

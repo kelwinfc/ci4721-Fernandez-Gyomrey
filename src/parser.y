@@ -1637,9 +1637,12 @@ int main (int argc,char **argv)
 
     p->print(0);
 
-    p->gen_tac(b);
+    if ( !logger->exists_registered_error() ){
+        printf("hola, debería haber tac =)\n");
+        p->gen_tac(b);
 
-    b->dump();
+        b->dump();
+    }
 
     fprintf(stdout, "-------------------------------------------------------\n\n");
 

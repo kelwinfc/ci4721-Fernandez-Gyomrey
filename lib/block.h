@@ -2,6 +2,7 @@
 #define _BLOCK
 
 #include<list>
+#include <cstdio>
 #include "inst.h"
 
 using namespace std;

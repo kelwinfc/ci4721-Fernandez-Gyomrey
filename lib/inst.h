@@ -1,24 +1,58 @@
 #ifndef _INST
 #define _INST
 
+#include <sstream>
+#include <cstdio>
+
+#define O_SYM    0
+#define O_TEMP   1
+#define O_INT    2
+#define O_CHAR   3
+#define O_DOUBLE 4
+#define O_BOOL   5
+
+#include "symbol.h"
+
 int newtemp();
 
-class inst{
+struct opd{
+    symbol *sym;
+    int temp;
+    int pint;
+    char pchar;
+    bool pbool;
+    double pdouble;
+    char type;
 
+    opd(symbol *s);
+    opd();
+    opd(int s);
+    opd(char s);
+    opd(bool s);
+    opd(double s);
+
+    string to_string();
+};
+
+class inst{
+    public:
+        string to_string();
 };
 
 class quad : public inst{
     public:
-        enum OP {ADD, CALL, PARAM, ACCESS, REF, DEREF};
+        enum OP {CP, ADD, CALL, PARAM, ACCESS, REF, DEREF};
 
     private:
         OP op;
-        int arg0;
-        int arg1;
-        int arg2;
+        opd *arg0;
+        opd *arg1;
+        opd *arg2;
 
     public:
-        quad(OP op, int arg0, int arg1 = -1, int arg2 = -1);
+        quad(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0);
+
+        string to_string();
 };
 
 class mi : public inst{

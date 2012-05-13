@@ -757,17 +757,17 @@ void AST_discrete_arg_list::fill_and_check(symbol_table* st){
 }
 
 void AST_function::fill_and_check(symbol_table* st){
-    
+
     symbol_table* nested_block = st->new_son();
-    
+
     expected_return = func->getType();
 
 
     formal_parameters->fill_and_check(nested_block);
     instructions->fill_and_check(nested_block);
-    
+
     expected_return = UNDEFINED;
-    
+
     delete nested_block;
 }
 
