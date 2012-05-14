@@ -1,9 +1,10 @@
 
 void AST_statement::gen_tac(block *b){
-    //TODO throw exception. se supone que no debería usarse este método
+    // Unused
 }
 
 opd *AST_expression::gen_tac(block *b){
+    // Unused
     return 0;
 }
 
@@ -24,39 +25,52 @@ opd *AST_int::gen_tac(block *b){
 }
 
 opd *AST_float::gen_tac(block *b){
-    return 0;
+    return new opd(value);
 }
 
 opd *AST_char::gen_tac(block *b){
-    return 0;
+    return new opd(value[0]);
 }
 
 opd *AST_string::gen_tac(block *b){
+    // TODO en función de una tabla realizar la asignación del apuntador
+    // al string. sólo se requiere el valor completo del string al imprimir
     return 0;
 }
 
 opd *AST_enum_constant::gen_tac(block *b){
+    // TODO las constantes deben tener un índice. esto pasa a ser un número
+    // a bajo nivel.
     return 0;
 }
 
 opd *AST_boolean::gen_tac(block *b){
-    return 0;
+    return new opd(value);
 }
 
 opd *AST_ident::gen_tac(block* b){
-    return 0;
+    return new opd(sym);
 }
 
 opd *AST_dereference::gen_tac(block *b){
-    return 0;
+    opd *t = new opd(), *v = value->gen_tac(b);
+    b->append_inst(new quad(quad::DEREF, t, v));
+    return t;
 }
 
 opd *AST_address::gen_tac(block *b){
-    return 0;
+    opd *t = new opd(), *v = value->gen_tac(b);
+    b->append_inst(new quad(quad::REF, t, v));
+    return t;
 }
 
 opd *AST_array_access::gen_tac(block *b){
-    return 0;
+    opd *var = value->gen_tac(b),
+        *ind = index->gen_tac(b),
+        *t = new opd();
+
+    b->append_inst(new quad(quad::LD, t, var, ind));
+    return t;
 }
 
 opd *AST_struct_access::gen_tac(block *b){
@@ -120,7 +134,6 @@ void AST_program::gen_tac(block *b){
             declarations[i]->gen_tac(b);
         }
     }
-    printf("imprimiendo main\n");
     m->gen_tac(b);
 }
 

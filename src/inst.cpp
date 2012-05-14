@@ -20,8 +20,8 @@ opd::opd(int s){
     type = O_INT;
 }
 
-opd::opd(char s){
-    pchar = s;
+opd::opd(char c){
+    pchar = c;
     type = O_CHAR;
 }
 
@@ -30,20 +30,20 @@ opd::opd(bool s){
     type = O_BOOL;
 }
 
-opd::opd(double s){
-    pdouble = s;
-    type = O_DOUBLE;
+opd::opd(float s){
+    pfloat = s;
+    type = O_FLOAT;
 }
 
 string opd::to_string() {
     std::stringstream out; 
     switch (type) {
-        case O_SYM:    return sym->getName() + ":S";
-        case O_TEMP:   out << temp; return out.str() + ":T";
-        case O_INT:    out << pint; return out.str() + ":I";
-        case O_CHAR:   return pchar + ":C";
-        case O_BOOL:   return (pbool ? "true:B" : "false:B");
-        case O_DOUBLE: out << pdouble; return out.str() + ":D";
+        case O_SYM:   return sym->getName() + ":S";
+        case O_TEMP:  out << temp; return out.str() + ":T";
+        case O_INT:   out << pint; return out.str() + ":I";
+        case O_CHAR:  return string(1, pchar) + ":C";
+        case O_BOOL:  return (pbool ? "true:B" : "false:B");
+        case O_FLOAT: out << pfloat; return out.str() + ":D";
     }
     return ":UKNOWN_TYPE";
 }
@@ -65,7 +65,6 @@ string quad::to_string(){
     opd *opds[] = {arg0, arg1, arg2};
     for (int i = 0; i < 3; ++ i) {
         if (opds[i]) {
-            printf("i:%d ", i);
             r += (0 == i ? "" : ", ") + opds[i]->to_string();
         }
     }
@@ -77,6 +76,7 @@ string quad::to_string(){
         case ACCESS: return "ACCESS " + r;
         case REF:    return "REF " + r;
         case DEREF:  return "DEREF " + r;
+        case LD:     return "LD " + r;
     }
     return r;
 }

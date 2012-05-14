@@ -4,12 +4,12 @@
 #include <sstream>
 #include <cstdio>
 
-#define O_SYM    0
-#define O_TEMP   1
-#define O_INT    2
-#define O_CHAR   3
-#define O_DOUBLE 4
-#define O_BOOL   5
+#define O_SYM   0
+#define O_TEMP  1
+#define O_INT   2
+#define O_CHAR  3
+#define O_FLOAT 4
+#define O_BOOL  5
 
 #include "symbol.h"
 
@@ -21,7 +21,7 @@ struct opd{
     int pint;
     char pchar;
     bool pbool;
-    double pdouble;
+    float pfloat;
     char type;
 
     opd(symbol *s);
@@ -29,7 +29,7 @@ struct opd{
     opd(int s);
     opd(char s);
     opd(bool s);
-    opd(double s);
+    opd(float s);
 
     string to_string();
 };
@@ -41,7 +41,7 @@ class inst{
 
 class quad : public inst{
     public:
-        enum OP {CP, ADD, CALL, PARAM, ACCESS, REF, DEREF};
+        enum OP {CP, ADD, CALL, PARAM, ACCESS, REF, DEREF, LD};
 
     private:
         OP op;

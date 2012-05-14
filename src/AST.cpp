@@ -118,6 +118,7 @@ AST_char::AST_char(tokenId* tk){
     line = tk->line;
     column = tk->column;
     value = tk->ident + "";
+    value = value.substr(1, value.length() - 2);
     delete tk;
 }
 
