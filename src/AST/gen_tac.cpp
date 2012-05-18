@@ -83,6 +83,7 @@ opd *AST_op::gen_tac(block *b){
                 b->append_inst(new quad(quad::GOTO, 0));
             }
             break;
+        
         /* Operadores de relación de orden: <, <=, >, >= */
         case LESS:
             {
@@ -222,6 +223,9 @@ void AST_block::gen_tac(block *b){
     for ( uint i = 0; i != nsize; i++){
         statements[i]->gen_tac(b);
     }
+    if ( nsize > 0 ){
+        next_list = statements.back()->next_list;
+    }
 }
 
 void AST_parameters_list::gen_tac(block* b){
@@ -239,6 +243,7 @@ void AST_declaration::gen_tac(block *b){
 void AST_variable_declaration::gen_tac(block *b){
     if (0 != value) {
         b->append_inst(new quad(quad::CP, new opd(sym), value->gen_tac(b)));
+        next_list.clear();
     }
 }
 
@@ -273,11 +278,13 @@ void AST_program::gen_tac(block *b){
 }
 
 void AST_assignment::gen_tac(block *b){
-
+    next_list.clear();
+    
+    //TODO: codigo intermedio de la generacion
 }
 
 void AST_return::gen_tac(block *b){
-
+    
 }
 
 void AST_conditional::gen_tac(block *b){

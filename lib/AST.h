@@ -40,6 +40,8 @@ class AST_statement : public AST_node{
         
         RETURN has_return;
         
+        list<int> next_list;
+        
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);
@@ -415,7 +417,8 @@ class AST_block : public AST_node {
         RETURN has_return;
         
         vector<AST_statement*> statements;
-
+        
+        list<int> next_list;
         AST_block(int l, int c);
 
         void add_statement(AST_statement* s);

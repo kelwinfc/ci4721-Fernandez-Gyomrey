@@ -159,9 +159,17 @@ void AST_address::print(int indentation){
     value->print(indentation+1);
 }
 
-void AST_array_access::print(int indentation){
+void 
+AST_array_access::print(int indentation){
+    
     printf("%3d: ", line );
     print_indentation(indentation);
+    
+    if (index == 0){
+        cout << "Error in array access\n";
+        return;
+    }
+    
     cout << "Get: [" << types.types[type]->name << "]\n";
     
     // si hay un error, no habría índice

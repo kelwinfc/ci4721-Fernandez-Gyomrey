@@ -45,9 +45,15 @@ void AST_lval::fill_and_check(symbol_table* st, bool lval){
 /* Verificacion de ambos operandos de un operador binario
 */
 void AST_op::fill_and_check(symbol_table* st){
+    if ( left )
+        left->fill_and_check(st);
     
-    left->fill_and_check(st);
-    right->fill_and_check(st);
+    if ( right )
+        right->fill_and_check(st);
+    
+    if ( !left || !right ){
+        return;
+    }
     
     // Ambos argumentos son invalidos
     if ( left->type == INVALID && right->type == INVALID ){
@@ -396,10 +402,10 @@ void AST_ident::fill_and_check(symbol_table* st, bool lval){
             type = sym->getType();
         } else {
             type = sym->getType();
-        }
-        
-        if ( !lval ){
-            sym->unused = false;
+            
+            if ( !lval ){
+                sym->unused = false;
+            }
         }
     } else {
         /* El simbolo no existe en la tabla */
@@ -410,6 +416,7 @@ void AST_ident::fill_and_check(symbol_table* st, bool lval){
                  "Identificador '%s' no definido previamente.", value.c_str());
         logger->error(line, column, e);
     }
+    
 }
 
 void AST_ident::check_call(symbol_table* st){ 
@@ -464,6 +471,10 @@ void AST_address::fill_and_check(symbol_table* st, bool lval){
 }
 
 void AST_array_access::fill_and_check(symbol_table* st, bool lval){
+    
+    if ( !value )
+        return;
+    
     value->fill_and_check(st, lval);
     
     if ( typeid(*(types.types[ value->type ])) != typeid(array_descriptor) ){
@@ -475,6 +486,7 @@ void AST_array_access::fill_and_check(symbol_table* st, bool lval){
     } else {
         type = ((array_descriptor*)types.types[ value->type ])->base;
     }
+    
 }
 
 void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
@@ -757,18 +769,17 @@ void AST_discrete_arg_list::fill_and_check(symbol_table* st){
 }
 
 void AST_function::fill_and_check(symbol_table* st){
-
+    
     symbol_table* nested_block = st->new_son();
-
+    
     expected_return = func->getType();
-
-
     formal_parameters->fill_and_check(nested_block);
     instructions->fill_and_check(nested_block);
-
+    
     expected_return = UNDEFINED;
-
+    
     delete nested_block;
+    
 }
 
 extern int yylineno;
@@ -989,9 +1000,13 @@ void AST_read::fill_and_check(symbol_table* st){
 }
 
 void AST_print::fill_and_check(symbol_table* st){
+    
     vector<AST_expression*>::iterator it;
     for (it=list.begin(); it!=list.end(); ++it){
+        cout << "aca\n";
+        (*it)->print(0);
         (*it)->fill_and_check(st);
+        cout << "aca no\n";
     }
 }
 

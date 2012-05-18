@@ -426,6 +426,7 @@ declaration:
 
             $$ = 0;
         }
+    | error ';' { $$ = 0; }
 ;
 
 // Declaracion de variables
@@ -441,7 +442,8 @@ variable_declaration :
              delete $6;
             }
     | TK_CONST type_def TK_IDENT '=' error ';' 
-            { char e[llog::ERR_LEN];
+            { 
+              char e[llog::ERR_LEN];
               snprintf(e, llog::ERR_LEN,
                        "Inicializacion de variable '%s' invalida.\n",
                        ((tokenId*)$3)->ident.c_str()
@@ -497,7 +499,7 @@ variable_declaration :
 
               delete $3;
               delete $5;
-
+              
               yyerrok;
             }
     | type_def TK_IDENT ';'
@@ -1227,10 +1229,10 @@ statement :
                             }
     | TK_READ TK_IDENT error ';'  {
                                 char e[llog::ERR_LEN];
-                                    snprintf(e, llog::ERR_LEN,
-                                             "Lista de lectura debe ser terminada ';'");
-                                    logger->error($1->line, $1->column, e);
-                                $$ = new AST_read( (tokenId*)$2 );
+                                snprintf(e, llog::ERR_LEN,
+                                         "Lista de lectura debe ser terminada ';'");
+                                logger->error($1->line, $1->column, e);
+                                $$ = 0;
                                 delete $1;
                                 delete $4;
                                 yyerrok;
@@ -1243,11 +1245,11 @@ statement :
     | TK_PRINT lista_ident error ';'  {
             
                                     char e[llog::ERR_LEN];
-                                        snprintf(e, llog::ERR_LEN,
-                                                 "Lista de impresión debe ser terminada ';'");
-                                        logger->error($1->line, $1->column, e);
+                                    snprintf(e, llog::ERR_LEN,
+                                             "Lista de impresión debe ser terminada ';'");
+                                    logger->error($1->line, $1->column, e);
             
-                                    $$ = $2;
+                                    $$ = 0;
                                     delete $1;
                                     delete $4;
                                     yyerrok;
@@ -1298,6 +1300,10 @@ lista_ident : expression                 {
                                          }
             | lista_ident ',' expression {
                                             ((AST_print*)$1)->add_argument( (AST_expression*)$3 );
+                                            $$ = $1;
+                                            delete $2;
+                                         }
+            | lista_ident ',' error      {
                                             $$ = $1;
                                             delete $2;
                                          }
@@ -1444,7 +1450,6 @@ aritmetic_expression:
             { $$ = new AST_un_op((tokenId*)$1, (AST_expression*)$2); }
     |   expression '+' expression
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
-
     |   expression '-' expression
             { $$ = new AST_op((AST_expression*)$1, (tokenId*)$2, (AST_expression*)$3 ); }
 
@@ -1622,9 +1627,9 @@ int main (int argc,char **argv)
             yyparse();
         } while (!feof(yyin));
     }
-
+    
     symbol_table* st = new symbol_table();
-
+    
     p->fill_and_check(st);
     
     delete st;
@@ -1642,7 +1647,7 @@ int main (int argc,char **argv)
 
         b->dump();
     }
-
+    
     fprintf(stdout, "-------------------------------------------------------\n\n");
 
     if ( logger->exists_registered_error() ){
