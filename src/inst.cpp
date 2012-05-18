@@ -77,6 +77,9 @@ string quad::to_string(){
         case REF:    return "REF " + r;
         case DEREF:  return "DEREF " + r;
         case LD:     return "LD " + r;
+        case GOTO:   return "GOTO " + r;
+        case IFEQ:   return "IFEQ " + r;
+        case IFNEQ:  return "IFNEQ " + r;
     }
     return r;
 }

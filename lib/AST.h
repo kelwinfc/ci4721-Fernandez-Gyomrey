@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <list>
 #include "token.h"
 #include "symbol.h"
 #include "symbol_table.h"
@@ -53,6 +54,10 @@ class AST_expression : public AST_node{
         
         bool is_constant;
         
+        // Util en jumping code
+        list<int> truelist;
+        list<int> falselist;
+        
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st, bool lval){
@@ -100,13 +105,13 @@ class AST_op : public AST_expression {
 class AST_un_op : public AST_expression {
 
     public:
-
+        
         enum OPER_TYPE { NEG, NOT };
-
+        
         OPER_TYPE oper_type;
-
+        
         AST_expression *expr;
-
+        
         AST_un_op(tokenId* o, AST_expression* e);
         
         string unary_operator();
@@ -161,9 +166,9 @@ class AST_boolean : public AST_expression{
     public:
 
         bool value;
-
+        
         AST_boolean(tokenBoolean* tk);
-
+        
         virtual void print(int indentation);
         
         virtual void fill_and_check(symbol_table* st);

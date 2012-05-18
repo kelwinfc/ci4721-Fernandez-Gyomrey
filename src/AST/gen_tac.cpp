@@ -13,10 +13,143 @@ opd *AST_lval::gen_tac(block *b){
 }
 
 opd *AST_op::gen_tac(block *b){
+    switch( oper_type ){
+        case AND:
+            left->gen_tac(b);
+            b->backpatch(left->truelist, b->next_instruction() );
+            
+            right->gen_tac(b);
+            
+            falselist.splice(falselist.end(),left->falselist);
+            falselist.splice(falselist.end(),right->falselist);
+            truelist  = right->truelist;
+            break;
+            
+        case OR:
+            left->gen_tac(b);
+            b->backpatch(left->falselist, b->next_instruction() );
+            
+            right->gen_tac(b);
+            
+            truelist.splice(truelist.end(),left->truelist);
+            truelist.splice(truelist.end(),right->truelist);
+            falselist  = right->falselist;
+            break;
+            
+        case IMP:
+            left->gen_tac(b);
+            b->backpatch(left->truelist, b->next_instruction() );
+            
+            right->gen_tac(b);
+            
+            truelist.splice(truelist.end(),left->falselist);
+            truelist.splice(truelist.end(),right->truelist);
+            falselist  = right->falselist;
+            break;
+            
+        case CONSEQ:
+            right->gen_tac(b);
+            b->backpatch(right->truelist, b->next_instruction() );
+            
+            left->gen_tac(b);
+            
+            truelist.splice(truelist.end(),right->falselist);
+            truelist.splice(truelist.end(),left->truelist);
+            falselist  = left->falselist;
+            break;
+        
+        /* Operadores de comparación de igualdad: ==, != */
+        case EQ:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                truelist.push_back( b->next_instruction() );
+                falselist.push_back( b->next_instruction() + 1);
+                
+                b->append_inst(new quad(quad::IFEQ, l, r, 0));
+                b->append_inst(new quad(quad::GOTO, 0));
+            }
+            break;
+        case UNEQ:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                truelist.push_back( b->next_instruction() );
+                falselist.push_back( b->next_instruction() + 1);
+                
+                b->append_inst(new quad(quad::IFNEQ, l, r, 0));
+                b->append_inst(new quad(quad::GOTO, 0));
+            }
+            break;
+        /* Operadores de relación de orden: <, <=, >, >= */
+        case LESS:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                truelist.push_back( b->next_instruction() );
+                falselist.push_back( b->next_instruction() + 1);
+                
+                b->append_inst(new quad(quad::IFL, l, r, 0));
+                b->append_inst(new quad(quad::GOTO, 0));
+            }
+            break;
+        case LESS_EQ:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                truelist.push_back( b->next_instruction() );
+                falselist.push_back( b->next_instruction() + 1);
+                
+                b->append_inst(new quad(quad::IFLEQ, l, r, 0));
+                b->append_inst(new quad(quad::GOTO, 0));
+            }
+            break;
+        case GREAT:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                truelist.push_back( b->next_instruction() );
+                falselist.push_back( b->next_instruction() + 1);
+                
+                b->append_inst(new quad(quad::IFG, l, r, 0));
+                b->append_inst(new quad(quad::GOTO, 0));
+            }
+            break;
+        case GREAT_EQ:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                truelist.push_back( b->next_instruction() );
+                falselist.push_back( b->next_instruction() + 1);
+                
+                b->append_inst(new quad(quad::IFGEQ, l, r, 0));
+                b->append_inst(new quad(quad::GOTO, 0));
+            }
+            break;
+        default:
+            break;
+    }
     return 0;
 }
 
 opd *AST_un_op::gen_tac(block *b){
+    expr->gen_tac(b);
+    
+    switch( oper_type ){
+        case NOT:
+            falselist = expr->truelist;
+            truelist  = expr->falselist;
+            break;
+        default:
+            break;
+    }
+    
     return 0;
 }
 
@@ -45,6 +178,8 @@ opd *AST_enum_constant::gen_tac(block *b){
 }
 
 opd *AST_boolean::gen_tac(block *b){
+    //TODO: hacer el jumping code, notese que aca no se genera temporal sino
+    // un cambio en el flujo
     return new opd(value);
 }
 

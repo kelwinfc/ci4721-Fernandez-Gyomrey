@@ -23,7 +23,7 @@ struct opd{
     bool pbool;
     float pfloat;
     char type;
-
+    
     opd(symbol *s);
     opd();
     opd(int s);
@@ -41,8 +41,10 @@ class inst{
 
 class quad : public inst{
     public:
-        enum OP {CP, ADD, CALL, PARAM, ACCESS, REF, DEREF, LD};
-
+        enum OP {CP, ADD, CALL, PARAM, ACCESS, REF, DEREF, LD,
+                 GOTO,
+                 IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ};
+    
     private:
         OP op;
         opd *arg0;
