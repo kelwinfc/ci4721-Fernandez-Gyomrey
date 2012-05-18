@@ -179,9 +179,14 @@ opd *AST_enum_constant::gen_tac(block *b){
 }
 
 opd *AST_boolean::gen_tac(block *b){
-    //TODO: hacer el jumping code, notese que aca no se genera temporal sino
-    // un cambio en el flujo
-    return new opd(value);
+    if ( value ){
+        truelist.clear();
+        truelist.push_back(b->next_instruction());
+    } else {
+        falselist.clear();
+        falselist.push_back(b->next_instruction());
+    }
+    b->append_inst(new quad(quad::GOTO, 0));
 }
 
 opd *AST_ident::gen_tac(block* b){
@@ -288,7 +293,32 @@ void AST_return::gen_tac(block *b){
 }
 
 void AST_conditional::gen_tac(block *b){
-
+    
+    // Codigo que verifica la condicion del if
+    expr->gen_tac(b);
+    
+    // Se marcan los saltos positivos a la siguiente instruccion, donde empezara
+    // el codigo de la primera rama
+    b->backpatch(expr->truelist, b->next_instruction());
+    
+    // Codigo de la primera rama
+    blck->gen_tac(b);
+    
+    // Si el if tiene otra rama
+    
+    if ( else_if ){
+        // generar un goto proveniente de la ejecucion de la rama anterior
+        // agregar el goto a la nextlist de este condicional
+        
+        // marcar los saltos de la condicion negativa del if a la siguiente
+        // instruccion donde se alojara la verificacion del codigo de esta
+        b->backpatch(expr->falselist, b->next_instruction());
+        else_if->gen_tac(b);
+        
+        //next_list->splice(next_list.end(), blck->next_list, 
+    } else {
+        
+    }
 }
 
 void AST_loop::gen_tac(block *b){
