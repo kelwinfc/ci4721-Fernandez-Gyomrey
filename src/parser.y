@@ -1313,7 +1313,7 @@ lista_ident : expression                 {
 loop_block:
         '{' 
             {
-                if ( offset.size() == 1 ){
+                if ( offset.size() <= 1 ){
                     offset.push_back(0);
                     max_offset.push_back(0);
                 } else {
@@ -1322,7 +1322,7 @@ loop_block:
                 }
             }
         loop_block_statement '}'
-            { 
+            {
                 $$ = $3;
                 delete $1;
                 delete $4;
@@ -1613,7 +1613,7 @@ int main (int argc,char **argv)
 {
     logger = new llog();
     p = new AST_program();
-    block *b = new block();
+    block *b = new block(true);
 
     if (argc == 1){
         yyparse();

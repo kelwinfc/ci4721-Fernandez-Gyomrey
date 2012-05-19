@@ -1,4 +1,7 @@
 #include "block.h"
+#include <iostream>
+
+using namespace std;
 
 block::block(bool with_vector){
     num_instr = 0;
@@ -22,14 +25,17 @@ void block::append_inst(inst* i) {
 }
 
 void block::dump() {
+    int index = 0;
     if ( w_vector ){
         vector<inst*>::iterator it = instructions.vinst->begin();
         for (; it != instructions.vinst->end(); ++ it) {
+            cout << "L" << index++ << ": ";
             printf("%s\n", ((quad*)(*it))->to_string().c_str());
         }
     } else {
         list<inst*>::iterator it = instructions.linst->begin();
         for (; it != instructions.linst->end(); ++ it) {
+            cout << "L" << index++ << ": ";
             printf("%s\n", ((quad*)(*it))->to_string().c_str());
         }
     }
@@ -41,8 +47,9 @@ int block::next_instruction(){
 
 //TODO
 void block::backpatch(list<int>& l, int instr){
-    vector<int>::iterator it = instructions.vlist.begin();
-    for (; it != instructions.vlist.end(); ++it){
-        
+    list<int>::iterator it;
+    for (it = l.begin(); it != l.end(); ++it){
+        quad* in = (quad*)(*(instructions.vinst))[*it];
+        in->arg2 = new opd(instr,true);
     }
 }

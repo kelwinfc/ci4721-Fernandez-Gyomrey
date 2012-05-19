@@ -10,6 +10,7 @@
 #define O_CHAR  3
 #define O_FLOAT 4
 #define O_BOOL  5
+#define O_LABEL 6
 
 #include "symbol.h"
 
@@ -26,7 +27,7 @@ struct opd{
     
     opd(symbol *s);
     opd();
-    opd(int s);
+    opd(int s, int label=0 );
     opd(char s);
     opd(bool s);
     opd(float s);
@@ -43,9 +44,8 @@ class quad : public inst{
     public:
         enum OP {CP, ADD, CALL, PARAM, ACCESS, REF, DEREF, LD,
                  GOTO,
-                 IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ};
-    
-    private:
+                 IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ};
+        
         OP op;
         opd *arg0;
         opd *arg1;

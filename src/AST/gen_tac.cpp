@@ -68,7 +68,7 @@ opd *AST_op::gen_tac(block *b){
                 falselist.push_back( b->next_instruction() + 1);
                 
                 b->append_inst(new quad(quad::IFEQ, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
             }
             break;
         case UNEQ:
@@ -80,7 +80,7 @@ opd *AST_op::gen_tac(block *b){
                 falselist.push_back( b->next_instruction() + 1);
                 
                 b->append_inst(new quad(quad::IFNEQ, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
             }
             break;
         
@@ -94,7 +94,7 @@ opd *AST_op::gen_tac(block *b){
                 falselist.push_back( b->next_instruction() + 1);
                 
                 b->append_inst(new quad(quad::IFL, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0));
+                b->append_inst(new quad(quad::GOTO, 0,0, 0));
             }
             break;
         case LESS_EQ:
@@ -106,7 +106,7 @@ opd *AST_op::gen_tac(block *b){
                 falselist.push_back( b->next_instruction() + 1);
                 
                 b->append_inst(new quad(quad::IFLEQ, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
             }
             break;
         case GREAT:
@@ -118,7 +118,7 @@ opd *AST_op::gen_tac(block *b){
                 falselist.push_back( b->next_instruction() + 1);
                 
                 b->append_inst(new quad(quad::IFG, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
             }
             break;
         case GREAT_EQ:
@@ -130,7 +130,7 @@ opd *AST_op::gen_tac(block *b){
                 falselist.push_back( b->next_instruction() + 1);
                 
                 b->append_inst(new quad(quad::IFGEQ, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
             }
             break;
         default:
@@ -186,10 +186,17 @@ opd *AST_boolean::gen_tac(block *b){
         falselist.clear();
         falselist.push_back(b->next_instruction());
     }
-    b->append_inst(new quad(quad::GOTO, 0));
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0));
 }
 
 opd *AST_ident::gen_tac(block* b){
+    if ( sym->getType() == BOOLEAN ){
+        truelist.push_back( b->next_instruction() );
+        falselist.push_back( b->next_instruction() + 1);
+        
+        b->append_inst(new quad(quad::IF, new opd(sym)));
+        b->append_inst(new quad(quad::GOTO, 0,0, 0));
+    }
     return new opd(sym);
 }
 
@@ -294,39 +301,56 @@ void AST_return::gen_tac(block *b){
 
 void AST_conditional::gen_tac(block *b){
     
-    // Codigo que verifica la condicion del if
-    expr->gen_tac(b);
-    
-    // Se marcan los saltos positivos a la siguiente instruccion, donde empezara
-    // el codigo de la primera rama
-    b->backpatch(expr->truelist, b->next_instruction());
-    
-    // Codigo de la primera rama
-    blck->gen_tac(b);
-    
-    // Si el if tiene otra rama
-    
-    if ( else_if ){
-        // generar un goto proveniente de la ejecucion de la rama anterior
-        // agregar el goto a la nextlist de este condicional
+    // Si la rama actual tiene condicion
+    if ( expr ){
+        // Codigo que verifica la condicion del if
+        expr->gen_tac(b);
         
-        // marcar los saltos de la condicion negativa del if a la siguiente
-        // instruccion donde se alojara la verificacion del codigo de esta
-        b->backpatch(expr->falselist, b->next_instruction());
-        else_if->gen_tac(b);
+        // Se marcan los saltos positivos a la siguiente instruccion, donde
+        // empezara el codigo de la primera rama
+        b->backpatch(expr->truelist, b->next_instruction());
         
-        //next_list->splice(next_list.end(), blck->next_list, 
+        // Codigo de la primera rama
+        blck->gen_tac(b);
+        
+        // Si el if tiene otra rama
+        if ( else_if ){
+            // generar un goto proveniente de la ejecucion de la rama anterior
+            // agregar el goto a la nextlist de este condicional
+            next_list.push_back( b->next_instruction() );
+            b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+            
+            // marcar los saltos de la condicion negativa del if a la siguiente
+            // instruccion donde se alojara la verificacion del codigo de esta
+            b->backpatch(expr->falselist, b->next_instruction());
+            else_if->gen_tac(b);
+            
+            next_list.splice(next_list.end(), blck->next_list);
+            next_list.splice(next_list.end(), else_if->next_list);
+        } else {
+            next_list.splice(next_list.end(), blck->next_list);
+        }
     } else {
-        
+        // Rama else
+        blck->gen_tac(b);
     }
 }
 
 void AST_loop::gen_tac(block *b){
-
+    
+    int next_instr = b->next_instruction(); // etiqueta para el salto de la
+                                            // ultima instruccion del loop
+    
+    expr->gen_tac(b);
+    b->backpatch(expr->truelist, b->next_instruction());
+    blck->gen_tac(b);
+    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true)));
+    
+    next_list = expr->falselist;
 }
 
 void AST_bounded_loop::gen_tac(block *b){
-
+    
 }
 
 void AST_break::gen_tac(block *b){

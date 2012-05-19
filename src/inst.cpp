@@ -1,4 +1,7 @@
 #include "inst.h"
+#include <iostream>
+
+using namespace std;
 
 int newtemp(){
     static int t = 0;
@@ -15,9 +18,15 @@ opd::opd(){
     type = O_TEMP;
 }
 
-opd::opd(int s){
+opd::opd(int s, int label){
+    
     pint = s;
-    type = O_INT;
+    
+    if ( label ){
+        type = O_LABEL;
+    } else {
+        type = O_INT;
+    }
 }
 
 opd::opd(char c){
@@ -44,6 +53,7 @@ string opd::to_string() {
         case O_CHAR:  return string(1, pchar) + ":C";
         case O_BOOL:  return (pbool ? "true:B" : "false:B");
         case O_FLOAT: out << pfloat; return out.str() + ":D";
+        case O_LABEL: out << pint; return "L" + out.str();
     }
     return ":UKNOWN_TYPE";
 }
@@ -61,8 +71,31 @@ quad::quad(OP op, opd *arg0, opd *arg1, opd *arg2){
 }
 
 string quad::to_string(){
+    
     string r = "";
     opd *opds[] = {arg0, arg1, arg2};
+    
+    // Modo alternativo de impresion: si es preferible el otro basta con remover
+    // este segmento, me parece mas claro para Novich imprimir x := a + b que
+    // ADD x a b, o x := a que CP x a.
+    switch (op ){
+        case CP:
+            return opds[0]->to_string() + " := " + opds[1]->to_string();
+        case ADD:
+            return opds[0]->to_string() + " := " + opds[1]->to_string();
+                    + " + " + opds[2]->to_string();
+        case GOTO:
+            return "goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IFL:
+            return "if " + opds[0]->to_string() + " < " + opds[1]->to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IF:
+            return "if " + opds[0] -> to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        default:
+            break;
+    }
+    
     for (int i = 0; i < 3; ++ i) {
         if (opds[i]) {
             r += (0 == i ? "" : ", ") + opds[i]->to_string();
@@ -80,6 +113,10 @@ string quad::to_string(){
         case GOTO:   return "GOTO " + r;
         case IFEQ:   return "IFEQ " + r;
         case IFNEQ:  return "IFNEQ " + r;
+        case IFL:    return "IFLESS " + r;
+        default:
+            break;
     }
+    
     return r;
 }
