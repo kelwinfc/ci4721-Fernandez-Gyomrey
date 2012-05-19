@@ -233,6 +233,9 @@ void AST_block::gen_tac(block *b){
 
     uint nsize = statements.size();
     for ( uint i = 0; i != nsize; i++){
+        if ( i > 0 ){
+            b->backpatch(statements[i-1]->next_list, b->next_instruction());
+        }
         statements[i]->gen_tac(b);
     }
     if ( nsize > 0 ){
@@ -325,15 +328,15 @@ void AST_conditional::gen_tac(block *b){
             b->backpatch(expr->falselist, b->next_instruction());
             else_if->gen_tac(b);
             
-            next_list.splice(next_list.end(), blck->next_list);
             next_list.splice(next_list.end(), else_if->next_list);
         } else {
-            next_list.splice(next_list.end(), blck->next_list);
+            next_list.splice(next_list.end(), expr->falselist);
         }
     } else {
         // Rama else
         blck->gen_tac(b);
     }
+    next_list.splice(next_list.end(), blck->next_list);
 }
 
 void AST_loop::gen_tac(block *b){
@@ -350,7 +353,17 @@ void AST_loop::gen_tac(block *b){
 }
 
 void AST_bounded_loop::gen_tac(block *b){
+    opd* l = left_bound->gen_tac(b);
+    b->append_inst(new quad(quad::CP, new opd(sym), l));
     
+    int next_instr = b->next_instruction();
+    opd* r = right_bound->gen_tac(b);
+    //TODO completar marcar salto negativo a final de ciclo
+    b->append_inst(new quad(quad::IFLEQ, l, r, new opd(b->next_instruction()+2,true)));
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+    
+    blck->gen_tac(b);
+    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true)));
 }
 
 void AST_break::gen_tac(block *b){

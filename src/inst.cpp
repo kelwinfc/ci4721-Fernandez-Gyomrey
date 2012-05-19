@@ -89,6 +89,9 @@ string quad::to_string(){
         case IFL:
             return "if " + opds[0]->to_string() + " < " + opds[1]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IFLEQ:
+            return "if " + opds[0]->to_string() + " <= " + opds[1]->to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IF:
             return "if " + opds[0] -> to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
