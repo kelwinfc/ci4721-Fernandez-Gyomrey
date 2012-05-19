@@ -1,20 +1,29 @@
 #ifndef _BLOCK
 #define _BLOCK
 
-#include<list>
+#include <list>
 #include <cstdio>
+#include <vector>
 #include "inst.h"
 
 using namespace std;
 
-class block{
+typedef union instructions{
+    list<inst*>   *linst;
+    vector<inst*> *vinst;
+} seq_inst;
 
+class block{
+    
     protected:
-        list<inst*> linst;
-        int num_instr;
         
+        seq_inst instructions;
+        
+        int num_instr;
+        bool w_vector;
+    
     public:
-        block();
+        block(bool with_vector=false);
         void append_inst(inst* i);
         void dump();
         
