@@ -42,7 +42,8 @@ class inst{
 
 class quad : public inst{
     public:
-        enum OP {CP, ADD, CALL, PARAM, ACCESS, REF, DEREF, LD,
+        enum OP {CP, CALL, PARAM, ACCESS, REF, DEREF, LD,
+                 ADD, SUB, MUL, DIV, MOD,
                  GOTO,
                  IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ};
         

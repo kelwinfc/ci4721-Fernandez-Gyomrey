@@ -133,9 +133,65 @@ opd *AST_op::gen_tac(block *b){
                 b->append_inst(new quad(quad::GOTO, 0, 0, 0));
             }
             break;
+        case PLUS:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                opd* d = new opd();
+                b->append_inst(new quad(quad::ADD, d, l, r));
+                
+                return d;
+            }
+            break;
+        case MINUS:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                opd* d = new opd();
+                b->append_inst(new quad(quad::SUB, d, l, r));
+                
+                return d;
+            }
+            break;
+        case PROD:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                opd* d = new opd();
+                b->append_inst(new quad(quad::MUL, d, l, r));
+                
+                return d;
+            }
+            break;
+        case DIV:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                opd* d = new opd();
+                b->append_inst(new quad(quad::DIV, d, l, r));
+                
+                return d;
+            }
+            break;
+        case MOD:
+            {
+                opd* l = left->gen_tac(b);
+                opd* r = right->gen_tac(b);
+                
+                opd* d = new opd();
+                b->append_inst(new quad(quad::MOD, d, l, r));
+                
+                return d;
+            }
+            break;
         default:
             break;
     }
+    
     return 0;
 }
 
@@ -231,19 +287,18 @@ opd *AST_conversion::gen_tac(block *b){
 
 void AST_block::gen_tac(block *b){
     uint nsize = statements.size();
-    cout << "compilando\n";
-    print(5);
+    
     for ( uint i = 0; i != nsize; i++){
         if ( i > 0 ){
             b->backpatch(statements[i-1]->next_list, b->next_instruction());
         }
         statements[i]->gen_tac(b);
         continue_list.splice(continue_list.end(), statements[i]->continue_list);
+        break_list.splice(break_list.end(), statements[i]->break_list);
     }
     if ( nsize > 0 ){
         next_list = statements.back()->next_list;
     }
-    cout << "compilado\n";
 }
 
 void AST_parameters_list::gen_tac(block* b){
@@ -298,7 +353,11 @@ void AST_program::gen_tac(block *b){
 void AST_assignment::gen_tac(block *b){
     next_list.clear();
     
-    //TODO: codigo intermedio de la generacion
+    //TODO: verificar si es booleano, en ese caso manejar el jumping code
+    opd* r = expr->gen_tac(b);
+    opd* l = lvalue->gen_tac(b);
+    
+    b->append_inst(new quad(quad::CP, l, r));
 }
 
 void AST_return::gen_tac(block *b){
@@ -358,9 +417,11 @@ void AST_loop::gen_tac(block *b){
     b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true)));
     
     next_list = expr->falselist;
+    next_list.splice(next_list.end(), blck->break_list);
 }
 
 void AST_bounded_loop::gen_tac(block *b){
+    /*
     opd* l = left_bound->gen_tac(b);
     b->append_inst(new quad(quad::CP, new opd(sym), l));
     
@@ -372,10 +433,12 @@ void AST_bounded_loop::gen_tac(block *b){
     
     blck->gen_tac(b);
     b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true)));
+    */
 }
 
 void AST_break::gen_tac(block *b){
-
+    break_list.push_back(b->next_instruction());
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0));
 }
 
 void AST_continue::gen_tac(block *b){
@@ -384,7 +447,6 @@ void AST_continue::gen_tac(block *b){
 }
 
 void AST_read::gen_tac(block *b){
-
 }
 
 void AST_print::gen_tac(block *b){

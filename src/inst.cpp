@@ -81,9 +81,6 @@ string quad::to_string(){
     switch (op ){
         case CP:
             return opds[0]->to_string() + " := " + opds[1]->to_string();
-        case ADD:
-            return opds[0]->to_string() + " := " + opds[1]->to_string();
-                    + " + " + opds[2]->to_string();
         case GOTO:
             return "goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IFL:
@@ -93,8 +90,23 @@ string quad::to_string(){
             return "if " + opds[0]->to_string() + " <= " + opds[1]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IF:
-            return "if " + opds[0] -> to_string()
+            return "if " + opds[0]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case ADD:
+            return opds[0]->to_string() + " := " + opds[1]->to_string()
+                    + " + " + opds[2]->to_string();
+        case SUB:
+            return opds[0]->to_string() + " := " + opds[1]->to_string()
+                    + " - " + opds[2]->to_string();
+        case MUL:
+            return opds[0]->to_string() + " := " + opds[1]->to_string()
+                    + " * " + opds[2]->to_string();
+        case DIV:
+            return opds[0]->to_string() + " := " + opds[1]->to_string()
+                    + " / " + opds[2]->to_string();
+        case MOD:
+            return opds[0]->to_string() + " := " + opds[1]->to_string()
+                    + " % " + opds[2]->to_string();
         default:
             break;
     }
