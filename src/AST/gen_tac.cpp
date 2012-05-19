@@ -230,17 +230,20 @@ opd *AST_conversion::gen_tac(block *b){
 }
 
 void AST_block::gen_tac(block *b){
-
     uint nsize = statements.size();
+    cout << "compilando\n";
+    print(5);
     for ( uint i = 0; i != nsize; i++){
         if ( i > 0 ){
             b->backpatch(statements[i-1]->next_list, b->next_instruction());
         }
         statements[i]->gen_tac(b);
+        continue_list.splice(continue_list.end(), statements[i]->continue_list);
     }
     if ( nsize > 0 ){
         next_list = statements.back()->next_list;
     }
+    cout << "compilado\n";
 }
 
 void AST_parameters_list::gen_tac(block* b){
@@ -347,6 +350,11 @@ void AST_loop::gen_tac(block *b){
     expr->gen_tac(b);
     b->backpatch(expr->truelist, b->next_instruction());
     blck->gen_tac(b);
+    
+    // enviar los saltos de los continue hasta el principio del codigo de
+    // evaluacion de la condicion
+    b->backpatch(blck->continue_list, next_instr);
+    
     b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true)));
     
     next_list = expr->falselist;
@@ -371,7 +379,8 @@ void AST_break::gen_tac(block *b){
 }
 
 void AST_continue::gen_tac(block *b){
-
+    continue_list.push_back(b->next_instruction());
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0));
 }
 
 void AST_read::gen_tac(block *b){

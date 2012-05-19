@@ -41,6 +41,7 @@ class AST_statement : public AST_node{
         RETURN has_return;
         
         list<int> next_list;
+        list<int> continue_list;
         
         virtual void print(int indentation);
         
@@ -410,7 +411,7 @@ class AST_variable_declaration : public AST_declaration {
         virtual void gen_tac(block* b);
 };
 
-class AST_block : public AST_node {
+class AST_block : public AST_statement {
 
     public:
         
@@ -418,7 +419,6 @@ class AST_block : public AST_node {
         
         vector<AST_statement*> statements;
         
-        list<int> next_list;
         AST_block(int l, int c);
 
         void add_statement(AST_statement* s);

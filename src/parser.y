@@ -23,6 +23,8 @@ type_table types;
 vector<uint> offset;
 vector<uint> max_offset;
 
+int num_loops = 0;
+
 AST_discrete_arg_list* discrete_list; // lista global para los parametros
                                       // formales de una funcion memorizable
 
@@ -80,7 +82,7 @@ AST_discrete_arg_list* discrete_list; // lista global para los parametros
 %type<nd> input declaration variable_declaration block statement
           parameters_instance parameters_instance_non_empty
           arg_list non_empty_arg_list lista_ident string
-          block_statement loop_statement loop_block loop_block_statement
+          block_statement
           else_statements expression aritmetic_expression boolean_expression
           lvalue discrete_type discrete_arg_list non_empty_discrete_arg_list
           
@@ -1142,40 +1144,43 @@ statement :
 
               yyerrok;
             }
-    |   TK_WHILE '(' expression ')' loop_block
+    |   TK_WHILE '(' expression ')' { num_loops++; } block
             { $$ = new AST_loop( (token*)$1,
                                  (AST_expression*)$3,
-                                 (AST_block*)$5
+                                 (AST_block*)$6
                                );
+              num_loops--;
               delete $2;
               delete $4;
             }
-    |   TK_WHILE '(' error ')' loop_block
+    |   TK_WHILE '(' error ')' {num_loops++; } block
             { char e[llog::ERR_LEN];
               snprintf(e, llog::ERR_LEN,
                        "Expresión inválida en la expresión de condición.");
               logger->error($2->line, $2->column, e);
               $$ = new AST_loop( (token*)$1,
                                  (AST_expression*)0,
-                                 (AST_block*)$5
+                                 (AST_block*)$6
                                );
               delete $2;
               delete $4;
-
+              num_loops--;
               yyerrok;
             }
-    |   TK_FOR TK_IDENT TK_IN '(' expression ',' expression ')' loop_block
+    |   TK_FOR TK_IDENT TK_IN '(' expression ',' expression ')' 
+        { num_loops++; } block
             { $$ = new AST_bounded_loop( (token*)$1,
                                          (tokenId*)$2,
                                          (AST_expression*)$5,
                                          (AST_expression*)$7,
-                                         (AST_block*)$9);
+                                         (AST_block*)$10);
               delete $3;
               delete $4;
               delete $6;
               delete $8;
+              num_loops--;
             }
-    |   TK_FOR TK_IDENT TK_IN '(' error ')' loop_block
+    |   TK_FOR TK_IDENT TK_IN '(' error ')' { num_loops++; } block
             { 
               $$ = new AST_assignment((AST_lval*)$1, 0);
               char e[llog::ERR_LEN];
@@ -1186,7 +1191,8 @@ statement :
                                          (tokenId*)$2,
                                          (AST_expression*)0,
                                          (AST_expression*)0,
-                                         (AST_block*)$7);
+                                         (AST_block*)$8);
+              num_loops--;
               delete $3;
               delete $4;
               delete $6;
@@ -1280,14 +1286,46 @@ statement :
             delete $4;
             delete $6;
         }
+    |   TK_BREAK ';'
+        { 
+            delete $2;
+            if ( num_loops > 0 ){
+                $$ = new AST_break($1);
+            } else {
+                
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Sentencia break fuera del alcance de un ciclo.");
+                logger->error($1->line, $1->column, e);
+                
+                delete $1;
+                $$ = 0;
+            }
+        }
+    |   TK_CONTINUE ';'
+        {
+            delete $2;
+            if ( num_loops > 0 ){
+                $$ = new AST_continue($1);
+            } else {
+                
+                char e[llog::ERR_LEN];
+                snprintf(e, llog::ERR_LEN,
+                         "Sentencia continue fuera del alcance de un ciclo.");
+                logger->error($1->line, $1->column, e);
+                
+                delete $1;
+                $$ = 0;
+            }
+        }
     | error ';'
         {
             $$ = 0;
             
             char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Error en instruccion.");
-                logger->error($2->line, $2->column, e);
+            snprintf(e, llog::ERR_LEN,
+                     "Error en instruccion.");
+            logger->error($2->line, $2->column, e);
             
             delete $2;
             yyerrok;
@@ -1308,56 +1346,6 @@ lista_ident : expression                 {
                                             delete $2;
                                          }
             ;
-
-// Loop blocks: includes break and continue to statements
-loop_block:
-        '{' 
-            {
-                if ( offset.size() <= 1 ){
-                    offset.push_back(0);
-                    max_offset.push_back(0);
-                } else {
-                    offset.push_back(offset.back());
-                    max_offset.push_back(max_offset.back());
-                }
-            }
-        loop_block_statement '}'
-            {
-                $$ = $3;
-                delete $1;
-                delete $4;
-            }
-    |   '{' '}'
-            {
-                $$ = new AST_block(((tokenId*)$1)->line, ((tokenId*)$1)->column);
-                delete $1;
-                delete $2;
-            }
-;
-
-loop_block_statement:
-        loop_statement
-            {
-                AST_block* b = new AST_block(((AST_statement*)$1)->line,
-                                             ((AST_statement*)$1)->column
-                                            );
-                if ( $1 != 0 )
-                    b->add_statement((AST_statement*)$1);
-                $$ = b;
-            }
-    |   loop_block_statement loop_statement
-            {
-                if ( $2 != 0 )
-                    ((AST_block*)$1)->add_statement((AST_statement*)$2);
-                $$ = $1;
-            }
-;
-
-loop_statement :
-        statement       { $$ = $1;                    }
-    |   TK_BREAK ';'    { $$ = new AST_break($1); delete $2; }
-    |   TK_CONTINUE ';' { $$ = new AST_continue($1); delete $2; }
-;
 
 else_statements :
             { $$ = 0; }
@@ -1637,14 +1625,16 @@ int main (int argc,char **argv)
     if ( logger->exists_registered_error() ){
         logger->dump();
     }
-
+    
     types.dump();
-
+    
     p->print(0);
 
+    fprintf(stdout, "-------------------------------------------------------\n\n");
+    
     if ( !logger->exists_registered_error() ){
         p->gen_tac(b);
-
+        
         b->dump();
     }
     
