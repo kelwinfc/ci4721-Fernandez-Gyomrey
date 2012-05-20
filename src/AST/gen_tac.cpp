@@ -204,6 +204,14 @@ opd *AST_un_op::gen_tac(block *b){
             truelist  = expr->falselist;
             break;
         default:
+            {
+                opd* e = expr->gen_tac(b);
+                
+                opd* d = new opd();
+                b->append_inst(new quad(quad::UMINUS, d, e));
+                
+                return d;
+            }
             break;
     }
     

@@ -107,6 +107,8 @@ string quad::to_string(){
         case MOD:
             return opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " % " + opds[2]->to_string();
+        case UMINUS:
+            return opds[0]->to_string() + " := -" + opds[1]->to_string();
         default:
             break;
     }
