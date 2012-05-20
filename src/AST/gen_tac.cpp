@@ -361,11 +361,25 @@ void AST_program::gen_tac(block *b){
 void AST_assignment::gen_tac(block *b){
     next_list.clear();
     
-    //TODO: verificar si es booleano, en ese caso manejar el jumping code
-    opd* r = expr->gen_tac(b);
     opd* l = lvalue->gen_tac(b);
+    b->backpatch(lvalue->truelist, b->next_instruction());
+    b->backpatch(lvalue->falselist, b->next_instruction());
     
-    b->append_inst(new quad(quad::CP, l, r));
+    opd* r = expr->gen_tac(b);
+    
+    if ( expr->type == BOOLEAN){
+        
+        b->backpatch( expr->truelist, b->next_instruction() );
+        b->append_inst(new quad(quad::CP, l, new opd(true)));
+        
+        next_list.push_back( b->next_instruction() );
+        b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+        
+        b->backpatch( expr->falselist, b->next_instruction() );
+        b->append_inst(new quad(quad::CP, l, new opd(false)));
+    } else {
+        b->append_inst(new quad(quad::CP, l, r));
+    }
 }
 
 void AST_return::gen_tac(block *b){
