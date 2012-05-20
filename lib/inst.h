@@ -37,7 +37,7 @@ struct opd{
 
 class inst{
     public:
-        string to_string();
+        virtual string to_string();
 };
 
 class quad : public inst{
@@ -46,7 +46,6 @@ class quad : public inst{
                  ADD, SUB, MUL, DIV, MOD, UMINUS,
                  GOTO,
                  IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ};
-        
         OP op;
         opd *arg0;
         opd *arg1;

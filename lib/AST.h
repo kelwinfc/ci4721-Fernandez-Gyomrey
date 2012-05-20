@@ -315,6 +315,10 @@ class AST_array_access : public AST_lval {
         
         virtual opd *gen_tac(block* b);
         
+        virtual opd *gen_tac(block* b, opd *i1, int l1, int w);
+
+        virtual opd *end_tac(block *b, opd *i1, int l1, int w);
+        
         virtual AST_expression* constant_folding();
 };
 

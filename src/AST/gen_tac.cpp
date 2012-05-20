@@ -1,14 +1,17 @@
 
 void AST_statement::gen_tac(block *b){
+    printf("INVALID CALL TO void *AST_statement::gen_tac(block *b)\n");
     // Unused
 }
 
 opd *AST_expression::gen_tac(block *b){
     // Unused
+    printf("INVALID CALL TO opd AST_expression::gen_tac(block *b)\n");
     return 0;
 }
 
 opd *AST_lval::gen_tac(block *b){
+    printf("INVALID CALL TO opd *AST_lval::gen_tac(block *b)\n");
     return 0;
 }
 
@@ -191,7 +194,6 @@ opd *AST_op::gen_tac(block *b){
         default:
             break;
     }
-    
     return 0;
 }
 
@@ -214,7 +216,6 @@ opd *AST_un_op::gen_tac(block *b){
             }
             break;
     }
-    
     return 0;
 }
 
@@ -233,12 +234,14 @@ opd *AST_char::gen_tac(block *b){
 opd *AST_string::gen_tac(block *b){
     // TODO en función de una tabla realizar la asignación del apuntador
     // al string. sólo se requiere el valor completo del string al imprimir
+    printf("UNIMPLEMENTED opd *AST_string::gen_tac(block *b)\n");
     return 0;
 }
 
 opd *AST_enum_constant::gen_tac(block *b){
     // TODO las constantes deben tener un índice. esto pasa a ser un número
     // a bajo nivel.
+    printf("UNIMPLEMENTED opd *AST_enum_constant::gen_tac(block *b)\n");
     return 0;
 }
 
@@ -251,6 +254,7 @@ opd *AST_boolean::gen_tac(block *b){
         falselist.push_back(b->next_instruction());
     }
     b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+    return 0;
 }
 
 opd *AST_ident::gen_tac(block* b){
@@ -276,20 +280,77 @@ opd *AST_address::gen_tac(block *b){
     return t;
 }
 
+/**
+ * índice más derecho de un acceso de arreglo
+ */
 opd *AST_array_access::gen_tac(block *b){
-    opd *var = value->gen_tac(b),
-        *ind = index->gen_tac(b),
-        *t = new opd();
 
-    b->append_inst(new quad(quad::LD, t, var, ind));
-    return t;
+    array_descriptor* ad = ((array_descriptor*)types.types[ type ]);
+
+    opd *i1 = index->gen_tac(b);
+    if (O_INT == i1->type) {
+        opd* t = new opd();
+        b->append_inst(new quad(quad::CP, t, i1));
+        i1 = t;
+    }
+    printf("ad->base: %d\n", ad->base);
+    int w = types.types[ ad->base ]->width;
+
+    return end_tac(b, i1, ad->lower_index, w);
+}
+
+/**
+ * caso recursivo de un acceso por índice a un arreglo
+ */
+opd *AST_array_access::gen_tac(block *b, opd *i1, int l1, int w){
+
+    array_descriptor* ad = ((array_descriptor*)types.types[ type ]);
+
+    // (i1 x n2) + i2 >>= i1
+    b->append_inst(new quad(quad::MUL, i1, i1, new opd(ad->num_elements)));
+    b->append_inst(new quad(quad::ADD, i1, i1, index->gen_tac(b)));
+
+    // (l1 x n2) + l2 >>= l1
+    l1 = l1 * ad->num_elements + ad->lower_index;
+
+    return end_tac(b, i1, l1, w);
+}
+
+/**
+ * acciones comunes al acceso por arreglo ya sea el más derecho o el caso recursivo
+ */
+opd *AST_array_access::end_tac(block *b, opd *i1, int l1, int w){
+
+    if (typeid(AST_array_access) == typeid(*value)) {
+
+        // como la llamada actual es un acceso a índices, sólo la llamada recursiva
+        // conoce el temporal/variable que contiene el resultado de acceso
+        return ((AST_array_access*)value)->gen_tac(b, i1, l1, w);
+    } else {
+        // multiplicar la base por el ancho
+        l1 *= w;
+        // multiplicar la suma de índices por el ancho
+        b->append_inst(new quad(quad::MUL, i1, i1, new opd(w)));
+        // restar de la dirección base para volverla absoluta
+        //b->append_inst(new quad(quad::MIN, l1, ???, l1); // esto debe venir probablemente en la llamada recursiva
+
+        // sumar la base con el cálculo de los índices
+        b->append_inst(new quad(quad::ADD, i1, i1, new opd(l1)));
+
+        // cargar esa la posición
+        b->append_inst(new quad(quad::LD, i1, value->gen_tac(b), i1));
+
+        return i1;
+    }
 }
 
 opd *AST_struct_access::gen_tac(block *b){
+    printf("UNIMPLEMENTED opd *AST_struct_access::gen_tac(block *b)\n");
     return 0;
 }
 
 opd *AST_conversion::gen_tac(block *b){
+    printf("UNIMPLEMENTED opd *AST_conversion::gen_tac(block *b)\n");
     return 0;
 }
 
@@ -310,15 +371,16 @@ void AST_block::gen_tac(block *b){
 }
 
 void AST_parameters_list::gen_tac(block* b){
-
+    printf("UNIMPLEMENTED opd *AST_parameters_list::gen_tac(block *b)\n");
 }
 
 opd *AST_function_call::gen_tac(block *b){
+    printf("UNIMPLEMENTED opd *AST_function_call::gen_tac(block *b)\n");
     return 0;
 }
 
 void AST_declaration::gen_tac(block *b){
-    //TODO throw exception. se supone que no debería usarse este método
+    printf("INVALID CALL TO opd *AST_declaration::gen_tac(block *b)\n");
 }
 
 void AST_variable_declaration::gen_tac(block *b){
@@ -329,11 +391,11 @@ void AST_variable_declaration::gen_tac(block *b){
 }
 
 void AST_arg_list::gen_tac(block *b){
-
+    printf("UNIMPLEMENTED opd *AST_arg_list::gen_tac(block *b)\n");
 }
 
 void AST_discrete_arg_list::gen_tac(block *b){
-
+    printf("UNIMPLEMENTED opd *AST_discrete_arg_list::gen_tac(block *b)\n");
 }
 
 void AST_function::gen_tac(block *b){
@@ -469,16 +531,17 @@ void AST_continue::gen_tac(block *b){
 }
 
 void AST_read::gen_tac(block *b){
+    printf("UNIMPLEMENTED opd *AST_assignment::gen_tac(block *b)\n");
 }
 
 void AST_print::gen_tac(block *b){
-
+    printf("UNIMPLEMENTED opd *AST_print::gen_tac(block *b)\n");
 }
 
 void AST_fill::gen_tac(block *b){
-
+    printf("UNIMPLEMENTED opd *AST_fill::gen_tac(block *b)\n");
 }
 
 void AST_map::gen_tac(block *b){
-
+    printf("UNIMPLEMENTED opd *AST_map::gen_tac(block *b)\n");
 }
