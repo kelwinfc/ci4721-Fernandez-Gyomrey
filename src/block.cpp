@@ -15,27 +15,29 @@ block::block(bool with_vector){
 
 void block::append_inst(inst* i) {
     
+    int ninst = next_instruction();
     if ( w_vector ){
         instructions.vinst->push_back(i);
+        instructions.vinst->back()->label = ninst;
     } else {
         instructions.linst->push_back(i);
+        instructions.linst->back()->label = ninst;
     }
     
     num_instr++;
 }
 
 void block::dump() {
-    int index = 0;
     if ( w_vector ){
         vector<inst*>::iterator it = instructions.vinst->begin();
         for (; it != instructions.vinst->end(); ++ it) {
-            cout << "L" << index++ << ": ";
+            cout << "L" << (*it)->label << ": ";
             printf("%s\n", ((quad*)(*it))->to_string().c_str());
         }
     } else {
         list<inst*>::iterator it = instructions.linst->begin();
         for (; it != instructions.linst->end(); ++ it) {
-            cout << "L" << index++ << ": ";
+            cout << "L" << (*it)->label << ": ";
             printf("%s\n", ((quad*)(*it))->to_string().c_str());
         }
     }

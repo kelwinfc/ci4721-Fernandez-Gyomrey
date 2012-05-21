@@ -1,5 +1,6 @@
 #include "inst.h"
 #include <iostream>
+#include <cassert>
 
 using namespace std;
 
@@ -138,4 +139,9 @@ string quad::to_string(){
     }
     
     return r;
+}
+
+unsigned int quad::get_goal_label(){
+    assert (op == GOTO);
+    return arg2->pint;
 }

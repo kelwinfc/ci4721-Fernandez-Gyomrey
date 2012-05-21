@@ -31,13 +31,16 @@ struct opd{
     opd(char s);
     opd(bool s);
     opd(float s);
-
+    
     string to_string();
 };
 
 class inst{
     public:
+        
+        unsigned int label;
         virtual string to_string();
+        
 };
 
 class quad : public inst{
@@ -47,6 +50,7 @@ class quad : public inst{
                  GOTO,
                  IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ};
         OP op;
+        
         opd *arg0;
         opd *arg1;
         opd *arg2;
@@ -55,6 +59,8 @@ class quad : public inst{
         quad(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0);
 
         string to_string();
+        
+        unsigned get_goal_label();
 };
 
 class mi : public inst{

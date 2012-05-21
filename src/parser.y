@@ -10,6 +10,7 @@
 #include "lib/type_table.h"
 #include "lib/block.h"
 #include "lib/inst.h"
+#include "lib/optimizer.h"
 
 int yylex (void);
 void yyerror (char const *);
@@ -1634,6 +1635,7 @@ int main (int argc,char **argv)
     
     if ( !logger->exists_registered_error() ){
         p->gen_tac(b);
+        useless_jumps(*b);
         
         b->dump();
     }

@@ -15,7 +15,8 @@ FILES=token\
       llog\
       label_generator\
       block\
-      inst
+      inst\
+      optimizer
 
 DEP_AST=token utils symbol symbol_table llog
 DEP_token=utils llog
@@ -24,6 +25,7 @@ DEP_type_descriptor=utils symbol symbol_table
 DEP_type_table=utils symbol symbol_table type_descriptor
 DEP_label_generator=
 DEP_block=inst
+DEP_optimizer=inst block
 
 all: bla
 
@@ -51,6 +53,7 @@ bin/type_table.o: $(DEP_type_table:%=src/%.cpp) $(DEP_type_table:%=lib/%.h)
 bin/label_generator.o: $(DEP_label_generator:%=src/%.cpp) $(DEP_label_generator:%=lib/%.h)
 bin/block.o: $(DEP_block:%=src/%.cpp) $(DEP_block:%=lib/%.h)
 bin/inst.o: $(DEP_inst:%=src/%.cpp) $(DEP_inst:%=lib/%.h)
+bin/optimizer.o: $(DEP_optimizer:%=src/%.cpp) $(DEP_optimizer:%=lib/%.h)
 
 doc:
 	markdown2pdf doc/especificacion_primera_entrega.mdwn -o doc/especificacion_primera_entrega.pdf

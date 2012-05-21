@@ -16,13 +16,12 @@ typedef union instructions{
 class block{
     
     protected:
-        
-        seq_inst instructions;
-        
         int num_instr;
-        bool w_vector;
     
     public:
+        bool w_vector;
+        seq_inst instructions;
+        
         block(bool with_vector=false);
         void append_inst(inst* i);
         void dump();
