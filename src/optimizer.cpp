@@ -35,7 +35,7 @@ void next_instruction_jumps(block& code){
     }
 }
 
-void fall_jumps(code){
+void fall_jumps(block& code){
     
 }
 
