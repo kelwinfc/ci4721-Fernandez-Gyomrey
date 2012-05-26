@@ -3,7 +3,7 @@ BISON  = bison
 BFLAGS = --defines=y.tab.h --output=y.tab.c
 
 GCC=g++
-GCC_FLAGS= -Ilib -Wall -O3 
+GCC_FLAGS= -Ilib -Wall -O3 -ggdb
 
 FILES=token\
       AST\
@@ -30,7 +30,7 @@ DEP_optimizer=inst block
 all: bla
 
 bla: lex.yy.c y.tab.c $(FILES:%=bin/%.o)
-	g++ $^ -o $@
+	g++ -ggdb $^ -o $@
 
 y.tab.c: src/parser.y $(FILES:%=bin/%.o)
 	bison -v -dy $<

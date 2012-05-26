@@ -4,18 +4,14 @@
 
 using namespace std;
 
-int newtemp(){
-    static int t = 0;
-    return ++ t;
-}
-
 opd::opd(symbol *s){
     sym = s;
     type = O_SYM;
 }
 
 opd::opd(){
-    temp = newtemp();
+    static int t = 0;
+    temp = ++ t;
     type = O_TEMP;
 }
 
@@ -128,7 +124,6 @@ string quad::to_string(){
         case CALL:   return "CALL  " + r;
         case PARAM:  return "PARAM " + r;
         case REF:    return "REF   " + r;
-        case DEREF:  return "DEREF " + r;
         case LD:     return "LD    " + r;
         case GOTO:   return "GOTO  " + r;
         case IFEQ:   return "IFEQ  " + r;

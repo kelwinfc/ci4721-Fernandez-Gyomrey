@@ -1,17 +1,12 @@
 
 void AST_statement::gen_tac(block *b){
-    printf("INVALID CALL TO void *AST_statement::gen_tac(block *b)\n");
     // Unused
+    printf("INVALID CALL TO void *AST_statement::gen_tac(block *b)\n");
 }
 
 opd *AST_expression::gen_tac(block *b){
     // Unused
     printf("INVALID CALL TO opd AST_expression::gen_tac(block *b)\n");
-    return 0;
-}
-
-opd *AST_lval::gen_tac(block *b){
-    printf("INVALID CALL TO opd *AST_lval::gen_tac(block *b)\n");
     return 0;
 }
 
@@ -257,96 +252,121 @@ opd *AST_boolean::gen_tac(block *b){
     return 0;
 }
 
-opd *AST_ident::gen_tac(block* b){
+opd *AST_lval::gen_tac(block *b){
+    int sta_base = 0;
+    opd *din_base = gen_tac_lval(b, &sta_base);
+    return gen_tac_lval_disp(b, din_base, sta_base);
+}
+
+opd *AST_lval::gen_tac_lval(block *b, int *sta_base){
+    // Unused
+    printf("INVALID CALL TO opd AST_lval::gen_tac_lval(block *b, int *sta_base)\n");
+    return 0;
+}
+
+opd *AST_lval::gen_tac_lval_disp(block *b, opd *din_base, int abs_base){
+    opd *t;
+    if (0 != abs_base && O_TEMP != din_base->type) {
+        t = new opd();
+    } else {
+        t = din_base;// nuevo resultado de las operaciones
+    }
+    if (0 != abs_base) {
+        b->append_inst(new quad(quad::ADD, t, din_base, new opd(abs_base)));// sumar primero si hace falta
+    }
+    return t;
+}
+
+opd *AST_lval::gen_tac_arr(block* b, int *sta_base, opd **ind_addr, int *arr_base){
+    // el lval en el que estamos parados es un arreglo. la base estática comienza por el lower index
+    *arr_base = ((array_descriptor*)types.types[ type ])->lower_index;
+    return gen_tac_lval(b, sta_base);
+}
+
+opd *AST_ident::gen_tac_lval(block* b, int *sta_base){
+    *sta_base = 0;
     if ( sym->getType() == BOOLEAN ){
         truelist.push_back( b->next_instruction() );
         falselist.push_back( b->next_instruction() + 1);
         
         b->append_inst(new quad(quad::IF, new opd(sym)));
-        b->append_inst(new quad(quad::GOTO, 0,0, 0));
+        b->append_inst(new quad(quad::GOTO, 0, 0, 0));
     }
     return new opd(sym);
 }
 
-opd *AST_dereference::gen_tac(block *b){
-    opd *t = new opd(), *v = value->gen_tac(b);
-    b->append_inst(new quad(quad::DEREF, t, v));
+opd *AST_dereference::gen_tac_lval(block *b, int *sta_base){
+    opd *t, *din_base = value->gen_tac_lval(b, sta_base);
+    din_base = gen_tac_lval_disp(b, din_base, *sta_base);
+    if (O_TEMP != din_base->type) {
+        t = new opd();
+    } else {
+        t = din_base;
+    }
+    b->append_inst(new quad(quad::LD, t, din_base));
+    *sta_base = 0;
     return t;
 }
 
-opd *AST_address::gen_tac(block *b){
-    opd *t = new opd(), *v = value->gen_tac(b);
-    b->append_inst(new quad(quad::REF, t, v));
-    return t;
+/**
+ * AST_address no es más que un contenedor para especificar que no se debe
+ * dereferenciar el apuntador devuelto por el AST_lval
+ */
+opd *AST_address::gen_tac_lval(block *b, int *sta_base){
+    return value->gen_tac_lval(b, sta_base);
 }
 
 /**
  * índice más derecho de un acceso de arreglo
  */
-opd *AST_array_access::gen_tac(block *b){
+opd *AST_array_access::gen_tac_lval(block *b, int *sta_base){
+    int arr_base = 0;
+    opd **ind_addr = new opd*();
+    *ind_addr = 0;// indicar que alguien va a tener que colocar aquí la dirección apropiada
+    opd *din_base = gen_tac_arr(b, sta_base, ind_addr, &arr_base);
 
-    array_descriptor* ad = ((array_descriptor*)types.types[ type ]);
+    type_descriptor* ad = types.types[ type ];
+    *sta_base -= arr_base * ad->width;
 
-    opd *i1 = index->gen_tac(b);
-    if (O_INT == i1->type) {
-        opd* t = new opd();
-        b->append_inst(new quad(quad::CP, t, i1));
-        i1 = t;
-    }
-    printf("ad->base: %d\n", ad->base);
-    int w = types.types[ ad->base ]->width;
+    // multiplicar la suma de índices por el ancho de lo que alberga el arreglo
+    b->append_inst(new quad(quad::MUL, *ind_addr, *ind_addr, new opd(ad->width)));
 
-    return end_tac(b, i1, ad->lower_index, w);
+    // sumar la posición del arreglo (din_base) con el índice dinámico (ind_base)
+    b->append_inst(new quad(quad::MUL, *ind_addr, din_base, *ind_addr));
+
+    din_base = *ind_addr;
+    delete ind_addr;
+
+    return din_base;
 }
 
-/**
- * caso recursivo de un acceso por índice a un arreglo
- */
-opd *AST_array_access::gen_tac(block *b, opd *i1, int l1, int w){
+opd *AST_array_access::gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int *arr_base){
+    opd *din_base = value->gen_tac_arr(b, sta_base, ind_addr, arr_base);
 
-    array_descriptor* ad = ((array_descriptor*)types.types[ type ]);
-
-    // (i1 x n2) + i2 >>= i1
-    b->append_inst(new quad(quad::MUL, i1, i1, new opd(ad->num_elements)));
-    b->append_inst(new quad(quad::ADD, i1, i1, index->gen_tac(b)));
-
-    // (l1 x n2) + l2 >>= l1
-    l1 = l1 * ad->num_elements + ad->lower_index;
-
-    return end_tac(b, i1, l1, w);
-}
-
-/**
- * acciones comunes al acceso por arreglo ya sea el más derecho o el caso recursivo
- */
-opd *AST_array_access::end_tac(block *b, opd *i1, int l1, int w){
-
-    if (typeid(AST_array_access) == typeid(*value)) {
-
-        // como la llamada actual es un acceso a índices, sólo la llamada recursiva
-        // conoce el temporal/variable que contiene el resultado de acceso
-        return ((AST_array_access*)value)->gen_tac(b, i1, l1, w);
+    if (0 == *ind_addr) {
+        *ind_addr = index->gen_tac(b);
     } else {
-        // multiplicar la base por el ancho
-        l1 *= w;
-        // multiplicar la suma de índices por el ancho
-        b->append_inst(new quad(quad::MUL, i1, i1, new opd(w)));
-        // restar de la dirección base para volverla absoluta
-        //b->append_inst(new quad(quad::MIN, l1, ???, l1); // esto debe venir probablemente en la llamada recursiva
-
-        // sumar la base con el cálculo de los índices
-        b->append_inst(new quad(quad::ADD, i1, i1, new opd(l1)));
-
-        // cargar esa la posición
-        b->append_inst(new quad(quad::LD, i1, value->gen_tac(b), i1));
-
-        return i1;
+        // (i1 x n2) + i2 >>= i1 (parte de la suma)
+        b->append_inst(new quad(quad::ADD, *ind_addr, *ind_addr, index->gen_tac(b)));
     }
+
+    if (typeid(*types.types[ type ]) == typeid(array_descriptor)){
+        array_descriptor* ad = (array_descriptor*)types.types[ type ];
+
+        // (i1 x n2) + i2 (parte del producto)
+        b->append_inst(new quad(quad::MUL, *ind_addr, *ind_addr, new opd(ad->num_elements)));
+
+        // (l1 x n2) + l2
+        *arr_base = *arr_base * ad->num_elements + ad->lower_index;
+    }
+
+    return din_base;
 }
 
-opd *AST_struct_access::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_struct_access::gen_tac(block *b)\n");
-    return 0;
+opd *AST_struct_access::gen_tac_lval(block *b, int *sta_base){
+    opd *din_base = value->gen_tac_lval(b, sta_base);
+    sta_base += sym->offset;
+    return din_base;
 }
 
 opd *AST_conversion::gen_tac(block *b){

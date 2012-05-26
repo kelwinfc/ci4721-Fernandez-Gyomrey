@@ -1,0 +1,19 @@
+
+b + (i1 - l1) * w1
+< agrupando operaciones sin i* >
+i1 * w1 + (b - l1 * w1)
+
+b + (i1 - l1) * w1 + (i2 - l2) * w2
+< n2 * w2 = w1 >
+b + (i1 - l1) * n2 * w2 + (i2 - l2) * w2
+b + ((i1 - l1) * n2 + (i2 - l2)) * w2
+< agrupando operaciones sin i* >
+(i1 * n2 + i2) * w2 + (b - (l1 * n2 + l2) * w2)
+
+b + (i1 - l1) * w1 + (i2 - l2) * w2 + (i3 - l3) * w3
+< n2 * (n3 * w3) = w1 /\  n3 * w3 = w2  >
+b + (i1 - l1) * n2 * (n3 * w3) + (i2 - l2) * n3 * w3 + (i3 - l3) * w3
+b + ((i1 - l1) * n2 * n3 + (i2 - l2) * n3 + (i3 - l3)) * w3
+b + (((i1 - l1) * n2 + (i2 - l2)) * n3 + (i3 - l3)) * w3
+< agrupando operaciones sin i* >
+(((i1 * n2) + i2) * n3 + i3) * w3 + (b - ((((l1 * n2 + l2) * n3) + l3) * w3)

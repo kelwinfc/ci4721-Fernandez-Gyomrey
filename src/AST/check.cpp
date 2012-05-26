@@ -455,23 +455,29 @@ void AST_dereference::fill_and_check(symbol_table* st, bool lval){
 }
 
 void AST_address::fill_and_check(symbol_table* st, bool lval){
-    
+
     value->fill_and_check(st, true);
-    
-    pointer_descriptor* pd = new pointer_descriptor( value->type,
-                                                     types.types[
-                                                         value->type]->name);
-    
-    if ( !types.has_type( pd->name ) ){
-        type = types.add_type( pd );
+
+    if (typeid(value) == typeid(AST_address)) {
+        type = INVALID;
     } else {
-        type = types.index_of( pd->name );
-        delete pd;
+
+        pointer_descriptor* pd = new pointer_descriptor( value->type,
+                                                         types.types[
+                                                             value->type]->name);
+
+        if ( !types.has_type( pd->name ) ){
+            type = types.add_type( pd );
+        } else {
+            type = types.index_of( pd->name );
+            delete pd;
+        }
     }
 }
 
 void AST_array_access::fill_and_check(symbol_table* st, bool lval){
     
+    //en caso de haber un error de sintáxis con recuperación de errores puede no haber valor
     if ( !value )
         return;
     
@@ -509,17 +515,17 @@ void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
             logger->error(line, column, e);
         type = INVALID;
     } else {
-        symbol* s = ((struct_type*)td)->fields->lookup( field );
+        symbol* sym = ((struct_type*)td)->fields->lookup( field );
         
-        if ( s != 0 ){
-            type = s->getType();
+        if ( sym != 0 ){
+            type = sym->getType();
             
-            if ( s->isConst() ){
+            if ( sym->isConst() ){
                 char e[llog::ERR_LEN];
                 snprintf(e, llog::ERR_LEN,
                          "Intento de acceso a constante %s definida en %d:%d",
-                         s->getName().c_str(),
-                         s->getLine(), s->getColumn()
+                         sym->getName().c_str(),
+                         sym->getLine(), sym->getColumn()
                     );
                 logger->error(line, column, e);
             }

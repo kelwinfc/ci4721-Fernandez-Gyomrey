@@ -14,8 +14,6 @@
 
 #include "symbol.h"
 
-int newtemp();
-
 struct opd{
     symbol *sym;
     int temp;
@@ -45,7 +43,7 @@ class inst{
 
 class quad : public inst{
     public:
-        enum OP {CP, CALL, PARAM, ACCESS, REF, DEREF, LD,
+        enum OP {CP, CALL, PARAM, REF, LD,
                  ADD, SUB, MUL, DIV, MOD, UMINUS,
                  GOTO,
                  IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ};

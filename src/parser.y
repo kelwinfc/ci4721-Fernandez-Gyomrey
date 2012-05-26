@@ -123,6 +123,7 @@ type_def:
         TK_IDENT
           {
               $$ = types.index_of( ((tokenId*)$1)->ident );
+              printf("TK_IDENT %s(%d)\n", ((tokenId*)$1)->ident.c_str(), $$);
               delete $1;
           }
       | '[' expression ']' type_def

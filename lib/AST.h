@@ -238,15 +238,21 @@ class AST_enum_constant : public AST_expression {
 class AST_lval : public AST_expression {
     public:
         
-        virtual void print(int indentation);
+        virtual AST_expression* constant_folding();
         
         void fill_and_check(symbol_table* st);
         
-        virtual opd *gen_tac(block* b);
-        
         virtual void fill_and_check(symbol_table* st, bool lval);
+
+        virtual opd *gen_tac(block* b);
+
+        virtual opd *gen_tac_lval(block* b, int *sta_base);
+
+        virtual opd *gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int *arr_base);
+
+        static opd *gen_tac_lval_disp(block* b, opd *din_base, int sta_base);
         
-        virtual AST_expression* constant_folding();
+        virtual void print(int indentation);
 };
 
 class AST_ident : public AST_lval {
@@ -259,15 +265,15 @@ class AST_ident : public AST_lval {
 
         AST_ident(tokenId* tk);
         
-        virtual void print(int indentation);
+        virtual AST_expression* constant_folding();
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
-        
-        virtual opd *gen_tac(block* b);
-        
+
         virtual void check_call(symbol_table* st);
+
+        virtual opd *gen_tac_lval(block* b, int *sta_base);
         
-        virtual AST_expression* constant_folding();
+        virtual void print(int indentation);
 };
 
 class AST_dereference : public AST_lval {
@@ -276,28 +282,28 @@ class AST_dereference : public AST_lval {
         
         AST_dereference(AST_lval* l);
         
-        virtual void print(int indentation);
+        virtual AST_expression* constant_folding();
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
+
+        virtual opd *gen_tac_lval(block* b, int *sta_base);
         
-        virtual opd *gen_tac(block* b);
-        
-        virtual AST_expression* constant_folding();
+        virtual void print(int indentation);
 };
 
 class AST_address : public AST_lval {
     public:
         AST_lval* value;
-        
+
         AST_address(AST_lval* l);
-        
-        virtual void print(int indentation);
-        
-        virtual void fill_and_check(symbol_table* st, bool lval = false);
-        
-        virtual opd *gen_tac(block* b);
-        
+
         virtual AST_expression* constant_folding();
+
+        virtual void fill_and_check(symbol_table* st, bool lval = false);
+
+        virtual opd *gen_tac_lval(block* b, int *sta_base);
+
+        virtual void print(int indentation);
 };
 
 class AST_array_access : public AST_lval {
@@ -309,33 +315,32 @@ class AST_array_access : public AST_lval {
         
         AST_array_access( AST_lval* lvalue, AST_expression* ind);
         
-        virtual void print(int indentation);
+        virtual AST_expression* constant_folding();
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
-        
-        virtual opd *gen_tac(block* b);
-        
-        virtual opd *gen_tac(block* b, opd *i1, int l1, int w);
 
-        virtual opd *end_tac(block *b, opd *i1, int l1, int w);
+        virtual opd *gen_tac_lval(block* b, int *sta_base);
+
+        virtual opd *gen_tac_arr(block* b, int *sta_base, opd **ind_addr, int *arr_base);
         
-        virtual AST_expression* constant_folding();
+        virtual void print(int indentation);
 };
 
 class AST_struct_access : public AST_lval {
     public:
         AST_lval* value;
         string field;
+        symbol* sym;
         
         AST_struct_access( AST_lval* lvalue, tokenId* f);
         
-        virtual void print(int indentation);
+        virtual AST_expression* constant_folding();
         
         virtual void fill_and_check(symbol_table* st, bool lval = false);
+
+        virtual opd *gen_tac_lval(block* b, int *sta_base);
         
-        virtual opd *gen_tac(block* b);
-        
-        virtual AST_expression* constant_folding();
+        virtual void print(int indentation);
 };
 
 class AST_parameters_list : public AST_node {
