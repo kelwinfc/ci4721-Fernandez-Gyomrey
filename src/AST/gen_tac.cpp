@@ -56,7 +56,7 @@ opd *AST_op::gen_tac(block *b){
             falselist  = left->falselist;
             break;
         
-        /* Operadores de comparaci�n de igualdad: ==, != */
+        /* Operadores de comparación de igualdad: ==, != */
         case EQ:
             {
                 opd* l = left->gen_tac(b);
@@ -65,8 +65,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFEQ, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+                b->append_inst(new quad(quad::IFEQ, l, r, 0, "comparación de igualdad"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional comparación de igualdad"));
             }
             break;
         case UNEQ:
@@ -77,12 +77,12 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFNEQ, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+                b->append_inst(new quad(quad::IFNEQ, l, r, 0, "comparación de desigualdad"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de desigualdad"));
             }
             break;
         
-        /* Operadores de relaci�n de orden: <, <=, >, >= */
+        /* Operadores de relación de orden: <, <=, >, >= */
         case LESS:
             {
                 opd* l = left->gen_tac(b);
@@ -91,8 +91,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFL, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0,0, 0));
+                b->append_inst(new quad(quad::IFL, l, r, 0, "comparación de menor que"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de menor qué"));
             }
             break;
         case LESS_EQ:
@@ -103,8 +103,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFLEQ, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+                b->append_inst(new quad(quad::IFLEQ, l, r, 0, "comparación de menor o igual"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de menor o igual"));
             }
             break;
         case GREAT:
@@ -115,8 +115,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFG, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+                b->append_inst(new quad(quad::IFG, l, r, 0, "comparación de mayor"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de mayor"));
             }
             break;
         case GREAT_EQ:
@@ -127,8 +127,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFGEQ, l, r, 0));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+                b->append_inst(new quad(quad::IFGEQ, l, r, 0, "comparación de mayor o igual"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de mayor o igual"));
             }
             break;
         case PLUS:
@@ -137,7 +137,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::ADD, d, l, r));
+                b->append_inst(new quad(quad::ADD, d, l, r, "operación binaria de suma"));
                 
                 return d;
             }
@@ -148,7 +148,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::SUB, d, l, r));
+                b->append_inst(new quad(quad::SUB, d, l, r, "operación binaria de resta"));
                 
                 return d;
             }
@@ -159,7 +159,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::MUL, d, l, r));
+                b->append_inst(new quad(quad::MUL, d, l, r, "operación binaria de producto"));
                 
                 return d;
             }
@@ -170,7 +170,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::DIV, d, l, r));
+                b->append_inst(new quad(quad::DIV, d, l, r, "operación binaria de división"));
                 
                 return d;
             }
@@ -181,7 +181,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::MOD, d, l, r));
+                b->append_inst(new quad(quad::MOD, d, l, r, "operación binaria de módulo"));
                 
                 return d;
             }
@@ -205,7 +205,7 @@ opd *AST_un_op::gen_tac(block *b){
                 opd* e = expr->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::UMINUS, d, e));
+                b->append_inst(new quad(quad::UMINUS, d, e, 0, "operación binaria de inverso"));
                 
                 return d;
             }
@@ -227,14 +227,14 @@ opd *AST_char::gen_tac(block *b){
 }
 
 opd *AST_string::gen_tac(block *b){
-    // TODO en funci�n de una tabla realizar la asignaci�n del apuntador
-    // al string. s�lo se requiere el valor completo del string al imprimir
+    // TODO en función de una tabla realizar la asignación del apuntador
+    // al string. sólo se requiere el valor completo del string al imprimir
     printf("UNIMPLEMENTED opd *AST_string::gen_tac(block *b)\n");
     return 0;
 }
 
 opd *AST_enum_constant::gen_tac(block *b){
-    // TODO las constantes deben tener un �ndice. esto pasa a ser un n�mero
+    // TODO las constantes deben tener un índice. esto pasa a ser un número
     // a bajo nivel.
     printf("UNIMPLEMENTED opd *AST_enum_constant::gen_tac(block *b)\n");
     return 0;
@@ -248,7 +248,7 @@ opd *AST_boolean::gen_tac(block *b){
         falselist.clear();
         falselist.push_back(b->next_instruction());
     }
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de booleano"));
     return 0;
 }
 
@@ -264,21 +264,21 @@ opd *AST_lval::gen_tac_lval(block *b, int *sta_base){
     return 0;
 }
 
-opd *AST_lval::gen_tac_lval_disp(block *b, opd *din_base, int abs_base){
+opd *AST_lval::gen_tac_lval_disp(block *b, opd *din_base, int sta_base){
     opd *t;
-    if (0 != abs_base && O_TEMP != din_base->type) {
+    if (0 != sta_base && O_TEMP != din_base->type) {
         t = new opd();
     } else {
         t = din_base;// nuevo resultado de las operaciones
     }
-    if (0 != abs_base) {
-        b->append_inst(new quad(quad::ADD, t, din_base, new opd(abs_base)));// sumar primero si hace falta
+    if (0 != sta_base) {
+        b->append_inst(new quad(quad::ADD, t, din_base, new opd(sta_base), "sumar base estática a base dinámica (no se pudo retrasar más la suma)"));
     }
     return t;
 }
 
 opd *AST_lval::gen_tac_arr(block* b, int *sta_base, opd **ind_addr, int *arr_base){
-    // el lval en el que estamos parados es un arreglo. la base est�tica comienza por el lower index
+    // el lval en el que estamos parados es un arreglo. la base estática comienza por el lower index
     *arr_base = ((array_descriptor*)types.types[ type ])->lower_index;
     return gen_tac_lval(b, sta_base);
 }
@@ -289,8 +289,8 @@ opd *AST_ident::gen_tac_lval(block* b, int *sta_base){
         truelist.push_back( b->next_instruction() );
         falselist.push_back( b->next_instruction() + 1);
         
-        b->append_inst(new quad(quad::IF, new opd(sym)));
-        b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+        b->append_inst(new quad(quad::IF, new opd(sym), 0, 0, "identificador de tipo booleano"));
+        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de identificador de tipo booleano"));
     }
     return new opd(sym);
 }
@@ -303,13 +303,13 @@ opd *AST_dereference::gen_tac_lval(block *b, int *sta_base){
     } else {
         t = din_base;
     }
-    b->append_inst(new quad(quad::LD, t, din_base));
+    b->append_inst(new quad(quad::LD, t, din_base, 0, "dereferenciar un lvalue"));
     *sta_base = 0;
     return t;
 }
 
 /**
- * AST_address no es m�s que un contenedor para especificar que no se debe
+ * AST_address no es más que un contenedor para especificar que no se debe
  * dereferenciar el apuntador devuelto por el AST_lval
  */
 opd *AST_address::gen_tac_lval(block *b, int *sta_base){
@@ -317,22 +317,22 @@ opd *AST_address::gen_tac_lval(block *b, int *sta_base){
 }
 
 /**
- * �ndice m�s derecho de un acceso de arreglo
+ * índice más derecho de un acceso de arreglo
  */
 opd *AST_array_access::gen_tac_lval(block *b, int *sta_base){
     int arr_base = 0;
     opd **ind_addr = new opd*();
-    *ind_addr = 0;// indicar que alguien va a tener que colocar aqu� la direcci�n apropiada
+    *ind_addr = 0;// indicar que alguien va a tener que colocar aquí la dirección apropiada
     opd *din_base = gen_tac_arr(b, sta_base, ind_addr, &arr_base);
 
     type_descriptor* ad = types.types[ type ];
     *sta_base -= arr_base * ad->width;
 
-    // multiplicar la suma de �ndices por el ancho de lo que alberga el arreglo
-    b->append_inst(new quad(quad::MUL, *ind_addr, *ind_addr, new opd(ad->width)));
+    // multiplicar la suma de índices por el ancho de lo que alberga el arreglo
+    b->append_inst(new quad(quad::MUL, *ind_addr, *ind_addr, new opd(ad->width), "multiplicar el aplanamiento de índices por el ancho del tipo"));
 
-    // sumar la posici�n del arreglo (din_base) con el �ndice din�mico (ind_base)
-    b->append_inst(new quad(quad::MUL, *ind_addr, din_base, *ind_addr));
+    // sumar la posición del arreglo (din_base) con el índice dinámico (ind_base)
+    b->append_inst(new quad(quad::ADD, *ind_addr, din_base, *ind_addr, "sumar la base del arreglo con el desplazamiento hasta la posición solicitada"));
 
     din_base = *ind_addr;
     delete ind_addr;
@@ -345,16 +345,21 @@ opd *AST_array_access::gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int 
 
     if (0 == *ind_addr) {
         *ind_addr = index->gen_tac(b);
+        if (O_TEMP != (*ind_addr)->type) {
+            opd *t = new opd();
+            b->append_inst(new quad(quad::CP, t, *ind_addr, 0, "el índice más izquierdo de un arreglo es entero, se copia a temporal para poder operar sobre él"));
+            *ind_addr = t;
+        }
     } else {
         // (i1 x n2) + i2 >>= i1 (parte de la suma)
-        b->append_inst(new quad(quad::ADD, *ind_addr, *ind_addr, index->gen_tac(b)));
+        b->append_inst(new quad(quad::ADD, *ind_addr, *ind_addr, index->gen_tac(b), "parte dinámica del acceso a arreglo. sumar al acumulador el índice dinámico"));
     }
 
     if (typeid(*types.types[ type ]) == typeid(array_descriptor)){
         array_descriptor* ad = (array_descriptor*)types.types[ type ];
 
         // (i1 x n2) + i2 (parte del producto)
-        b->append_inst(new quad(quad::MUL, *ind_addr, *ind_addr, new opd(ad->num_elements)));
+        b->append_inst(new quad(quad::MUL, *ind_addr, *ind_addr, new opd(ad->num_elements), "como aún nos encontramos en un arreglo, multiplicar el índice dinámico por el tamaño del siguiente índice a la derecha"));
 
         // (l1 x n2) + l2
         *arr_base = *arr_base * ad->num_elements + ad->lower_index;
@@ -405,7 +410,7 @@ void AST_declaration::gen_tac(block *b){
 
 void AST_variable_declaration::gen_tac(block *b){
     if (0 != value) {
-        b->append_inst(new quad(quad::CP, new opd(sym), value->gen_tac(b)));
+        b->append_inst(new quad(quad::CP, new opd(sym), value->gen_tac(b), 0, "declaración de variable"));
         next_list.clear();
     }
 }
@@ -452,15 +457,15 @@ void AST_assignment::gen_tac(block *b){
     if ( expr->type == BOOLEAN){
         
         b->backpatch( expr->truelist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(true)));
+        b->append_inst(new quad(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido al lvalue"));
         
         next_list.push_back( b->next_instruction() );
-        b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional después de asignar el valor booleano"));
         
         b->backpatch( expr->falselist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(false)));
+        b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido al lvalue"));
     } else {
-        b->append_inst(new quad(quad::CP, l, r));
+        b->append_inst(new quad(quad::CP, l, r, 0, "asignación de un valor escalar obtenido al lvalue"));
     }
 }
 
@@ -487,7 +492,7 @@ void AST_conditional::gen_tac(block *b){
             // generar un goto proveniente de la ejecucion de la rama anterior
             // agregar el goto a la nextlist de este condicional
             next_list.push_back( b->next_instruction() );
-            b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+            b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de else_if"));
             
             // marcar los saltos de la condicion negativa del if a la siguiente
             // instruccion donde se alojara la verificacion del codigo de esta
@@ -518,7 +523,7 @@ void AST_loop::gen_tac(block *b){
     // evaluacion de la condicion
     b->backpatch(blck->continue_list, next_instr);
     
-    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true)));
+    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true), "salto condicional de un loop"));
     
     next_list = expr->falselist;
     next_list.splice(next_list.end(), blck->break_list);
@@ -542,12 +547,12 @@ void AST_bounded_loop::gen_tac(block *b){
 
 void AST_break::gen_tac(block *b){
     break_list.push_back(b->next_instruction());
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "break"));
 }
 
 void AST_continue::gen_tac(block *b){
     continue_list.push_back(b->next_instruction());
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0));
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "continue"));
 }
 
 void AST_read::gen_tac(block *b){

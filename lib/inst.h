@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <cstdio>
+#include <string>
 
 #define O_SYM   0
 #define O_TEMP  1
@@ -52,9 +53,10 @@ class quad : public inst{
         opd *arg0;
         opd *arg1;
         opd *arg2;
+        string comment;
 
     public:
-        quad(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0);
+        quad(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0, string comment = "");
 
         string to_string();
         

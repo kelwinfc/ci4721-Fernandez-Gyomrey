@@ -60,11 +60,15 @@ string inst::to_string(){
 }
 
 
-quad::quad(OP op, opd *arg0, opd *arg1, opd *arg2){
+quad::quad(OP op, opd *arg0, opd *arg1, opd *arg2, string comment){
     this->op = op;
     this->arg0 = arg0;
     this->arg1 = arg1;
     this->arg2 = arg2;
+    if (comment.compare("")) {
+        comment = "# " + comment + "\n";
+    }
+    this->comment = comment;
 }
 
 string quad::to_string(){
@@ -77,35 +81,35 @@ string quad::to_string(){
     // ADD x a b, o x := a que CP x a.
     switch (op ){
         case CP:
-            return opds[0]->to_string() + " := " + opds[1]->to_string();
+            return comment + opds[0]->to_string() + " := " + opds[1]->to_string();
         case GOTO:
-            return "goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+            return comment + "goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IFL:
-            return "if " + opds[0]->to_string() + " < " + opds[1]->to_string()
+            return comment + "if " + opds[0]->to_string() + " < " + opds[1]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IFLEQ:
-            return "if " + opds[0]->to_string() + " <= " + opds[1]->to_string()
+            return comment + "if " + opds[0]->to_string() + " <= " + opds[1]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IF:
-            return "if " + opds[0]->to_string()
+            return comment + "if " + opds[0]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case ADD:
-            return opds[0]->to_string() + " := " + opds[1]->to_string()
+            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " + " + opds[2]->to_string();
         case SUB:
-            return opds[0]->to_string() + " := " + opds[1]->to_string()
+            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " - " + opds[2]->to_string();
         case MUL:
-            return opds[0]->to_string() + " := " + opds[1]->to_string()
+            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " * " + opds[2]->to_string();
         case DIV:
-            return opds[0]->to_string() + " := " + opds[1]->to_string()
+            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " / " + opds[2]->to_string();
         case MOD:
-            return opds[0]->to_string() + " := " + opds[1]->to_string()
+            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " % " + opds[2]->to_string();
         case UMINUS:
-            return opds[0]->to_string() + " := -" + opds[1]->to_string();
+            return comment + opds[0]->to_string() + " := -" + opds[1]->to_string();
         default:
             break;
     }
