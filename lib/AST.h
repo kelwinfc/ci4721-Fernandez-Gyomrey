@@ -13,11 +13,13 @@
 #include "llog.h"
 #include "utils.h"
 #include "block.h"
+#include "string_table.h"
 
 using namespace std;
 
 extern llog* logger;
 extern type_table types;
+extern string_table strings;
 
 enum RETURN {YES, NO, MAYBE};
 
@@ -204,6 +206,8 @@ class AST_string : public AST_expression {
     public:
 
         string value;
+
+        int offset;
 
         AST_string(tokenId* tk);
 

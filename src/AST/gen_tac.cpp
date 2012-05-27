@@ -227,10 +227,9 @@ opd *AST_char::gen_tac(block *b){
 }
 
 opd *AST_string::gen_tac(block *b){
-    // TODO en función de una tabla realizar la asignación del apuntador
-    // al string. sólo se requiere el valor completo del string al imprimir
-    printf("UNIMPLEMENTED opd *AST_string::gen_tac(block *b)\n");
-    return 0;
+    opd *t = new opd();
+    b->append_inst(new quad(quad::CP, t, new opd(offset), 0, string("dirección relativa del string en la tabla \"") + strings.to_string(value) + "\""));
+    return t;
 }
 
 opd *AST_enum_constant::gen_tac(block *b){

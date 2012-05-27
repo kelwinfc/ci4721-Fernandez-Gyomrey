@@ -11,6 +11,7 @@
 #include "lib/block.h"
 #include "lib/inst.h"
 #include "lib/optimizer.h"
+#include "lib/string_table.h"
 
 using namespace std;
 
@@ -27,6 +28,7 @@ llog* logger;
 type_table types;
 vector<uint> offset;
 vector<uint> max_offset;
+string_table strings;
 
 int num_loops = 0;
 
@@ -1632,6 +1634,7 @@ int main (int argc,char **argv)
     }
     
     types.dump();
+    strings.dump();
     
     p->print(0);
 

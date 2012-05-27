@@ -1,5 +1,4 @@
 #include "type_table.h"
-#include <iostream>
 
 using namespace std;
 
