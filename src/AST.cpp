@@ -8,9 +8,11 @@
 #include "AST/check.cpp"
 #include "AST/constant_folding.cpp"
 #include "AST/gen_tac.cpp"
+#define DEBUG(L,V) printf((string(L) + " data   : %s (%d, %d)\n").c_str(), typeid(*V).name(), (*V).line, (*V).column); printf((string(L) + " return : %s(%d)\n").c_str(), (*V).has_return == YES ? "YES" : ((*V).has_return == NO ? "NO" : ((*V).has_return == MAYBE ? "MAYBE" : "")), (*V).has_return);
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
+    is_constant = false;
     type = UNDEFINED;
 
     line = l->line;
@@ -60,6 +62,7 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
 
 AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
 
+    is_constant = false;
     type = UNDEFINED;
     
     if ( o->ident.compare("!") == 0 ){
@@ -148,6 +151,7 @@ AST_enum_constant::AST_enum_constant(tokenConstant* tk){
 }
 
 void AST_string::append(tokenId* tk){
+    is_constant = true;
     string c = tk->ident;
     value += c.substr(1, c.length() - 2);
     delete tk;
@@ -165,18 +169,21 @@ AST_ident::AST_ident(tokenId* tk){
 }
 
 AST_dereference::AST_dereference(AST_lval* v){
+    is_constant = false;
     value = v;
     line = v->line;
     column = v->column;
 }
 
 AST_address::AST_address(AST_lval* v){
+    is_constant = false;
     value = v;
     line = v->line;
     column = v->column;
 }
 
 AST_array_access::AST_array_access(AST_lval* lvalue, AST_expression* ind ){
+    is_constant = false;
     value = lvalue;
     line = lvalue->line;
     column = lvalue->column;
@@ -185,6 +192,7 @@ AST_array_access::AST_array_access(AST_lval* lvalue, AST_expression* ind ){
 }
 
 AST_struct_access::AST_struct_access( AST_lval* lvalue, tokenId* f){
+    is_constant = false;
     value = lvalue;
     line = f->line;
     column = f->column;
@@ -239,6 +247,7 @@ AST_variable_declaration::AST_variable_declaration(TYPE t, tokenId* id,
                                                   )
 {
     line = id->line;
+    column = id->column;
 
     sym = new symbol(string(id->ident), constant, t, id->line,
                      id->column, 0 != v
@@ -258,7 +267,7 @@ AST_block::AST_block(int l, int c){
 }
 
 void AST_block::add_statement(AST_statement* s){
-    
+
     if ( statements.size() != 0 ){
         if ( statements.back()->has_return == YES ){
             if (    ( statements.size() > 1 
@@ -278,9 +287,9 @@ void AST_block::add_statement(AST_statement* s){
             s->has_return = MAYBE;
         }
     }
-    
+
     has_return = s->has_return;
-    
+
     statements.push_back(s);
 }
 
@@ -362,6 +371,7 @@ AST_function::AST_function(TYPE t, tokenId* id, AST_arg_list* args,
             logger->warning(line, column, e);
         }
     }
+    has_return = NO;
     
 }
 
@@ -507,6 +517,7 @@ void AST_print::add_argument(AST_expression* e){
         line   = e->line;
         column = e->column;
     }
+    has_return = NO;
 }
 
 AST_fill::AST_fill(AST_expression* e, tokenId* f){

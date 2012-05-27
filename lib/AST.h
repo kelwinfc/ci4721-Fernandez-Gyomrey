@@ -223,6 +223,8 @@ class AST_enum_constant : public AST_expression {
     public:
         
         string value;
+
+        int enum_index;
         
         AST_enum_constant(tokenConstant* tk);
         
@@ -424,8 +426,6 @@ class AST_variable_declaration : public AST_declaration {
 class AST_block : public AST_statement {
 
     public:
-        
-        RETURN has_return;
         
         vector<AST_statement*> statements;
         

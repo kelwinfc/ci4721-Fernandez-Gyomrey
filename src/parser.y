@@ -12,6 +12,10 @@
 #include "lib/inst.h"
 #include "lib/optimizer.h"
 
+using namespace std;
+
+#define DEBUG(L,V) printf((string(L) + " data   : %s (%d, %d) (%d)\n").c_str(), typeid(*V).name(), (*V).line, (*V).column, (*V).uid); printf((string(L) + " return : %s(%d) (%d)\n").c_str(), (*V).has_return == YES ? "YES" : ((*V).has_return == NO ? "NO" : ((*V).has_return == MAYBE ? "MAYBE" : "")), (*V).has_return, (*V).uid);
+
 int yylex (void);
 void yyerror (char const *);
 
@@ -123,7 +127,6 @@ type_def:
         TK_IDENT
           {
               $$ = types.index_of( ((tokenId*)$1)->ident );
-              printf("TK_IDENT %s(%d)\n", ((tokenId*)$1)->ident.c_str(), $$);
               delete $1;
           }
       | '[' expression ']' type_def

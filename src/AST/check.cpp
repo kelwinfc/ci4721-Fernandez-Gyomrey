@@ -367,7 +367,23 @@ void AST_string::fill_and_check(symbol_table* st){
 }
 
 void AST_enum_constant::fill_and_check(symbol_table* st){
-
+    for (vector< type_descriptor* >::iterator it = types.types.begin(); it != types.types.end(); ++ it) {
+        if (typeid(**it) != typeid(enum_type)) {
+            continue;
+        }
+        set<string> *e = ((enum_type*)(*it))->values;
+        enum_index = 0;
+        set<string>::iterator ite;
+        for (ite = e->begin(); ite != e->end(); ++ ite) {
+            if (!value.compare(*ite)) {
+                break;
+            }
+            ++ enum_index;
+        }
+        if (ite != e->end()) {
+            break;
+        }
+    }
 }
 
 void AST_boolean::fill_and_check(symbol_table* st){

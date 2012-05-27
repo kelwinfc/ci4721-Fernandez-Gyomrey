@@ -234,10 +234,7 @@ opd *AST_string::gen_tac(block *b){
 }
 
 opd *AST_enum_constant::gen_tac(block *b){
-    // TODO las constantes deben tener un índice. esto pasa a ser un número
-    // a bajo nivel.
-    printf("UNIMPLEMENTED opd *AST_enum_constant::gen_tac(block *b)\n");
-    return 0;
+    return new opd(enum_index);
 }
 
 opd *AST_boolean::gen_tac(block *b){
@@ -465,7 +462,9 @@ void AST_assignment::gen_tac(block *b){
         b->backpatch( expr->falselist, b->next_instruction() );
         b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido al lvalue"));
     } else {
-        b->append_inst(new quad(quad::CP, l, r, 0, "asignación de un valor escalar obtenido al lvalue"));
+        // Al copiar apuntadores, sólo el caso del @ no se sabe cuál es el apuntador al apuntador (ej. variable global)
+        quad::OP op = typeid(*r) == typeid(AST_address) ? quad::CP : quad::LD;
+        b->append_inst(new quad(op, l, r, 0, "asignación de un valor escalar obtenido al lvalue"));
     }
 }
 

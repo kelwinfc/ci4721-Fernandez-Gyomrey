@@ -120,18 +120,12 @@ string quad::to_string(){
         }
     }
     switch (op) {
-        case CP:     return "CP    " + r;
-        case ADD:    return "ADD   " + r;
-        case MUL:    return "MUL   " + r;
-        case DIV:    return "DIV   " + r;
-        case SUB:    return "SUB   " + r;
-        case CALL:   return "CALL  " + r;
-        case PARAM:  return "PARAM " + r;
-        case REF:    return "REF   " + r;
-        case LD:     return "LD    " + r;
-        case GOTO:   return "GOTO  " + r;
-        case IFEQ:   return "IFEQ  " + r;
-        case IFNEQ:  return "IFNEQ " + r;
+        case CALL:   return "CALL   " + r;
+        case PARAM:  return "PARAM  " + r;
+        case LD:     return "LD     " + r;
+        case GOTO:   return "GOTO   " + r;
+        case IFEQ:   return "IFEQ   " + r;
+        case IFNEQ:  return "IFNEQ  " + r;
         case IFL:    return "IFLESS " + r;
         default:
             break;

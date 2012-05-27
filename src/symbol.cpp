@@ -60,6 +60,8 @@ symbol_function::symbol_function(string name, int line, int column,
     this->initialized = false;
     this->is_function = true;
     this->unused = true;
+
+    this->alignment = -1;
     
     vector< TYPE >::iterator it;
     for ( it = types.begin(); it != types.end(); ++it ){
