@@ -1,6 +1,14 @@
 
 enum color {AMARILLO, AZUL, ROJO}
 
+type nodo{
+    string nombre;
+    int valor;
+}
+type grafo{
+    [-10:100]nodo nodos;
+}
+
 fun none main(){
     int entero = 9;
     string pais = "Venezuela";
@@ -18,6 +26,8 @@ fun none main(){
 --    boolean d;
 --    d = true && false;
     color carro = AZUL;
+    [-2:10]grafo grafos;
+    grafos[0].nodos[0].valor = 1;
     
     if ( entero < 3 ){
         int d = 4;

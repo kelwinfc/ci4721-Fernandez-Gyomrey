@@ -72,8 +72,10 @@ quad::quad(OP op, opd *arg0, opd *arg1, opd *arg2, string comment){
 }
 
 string quad::to_string(){
-    
-    string r = "";
+
+    std::stringstream out;
+    out << label;
+    string r = "", _ = comment + "L" + out.str() + ": ";
     opd *opds[] = {arg0, arg1, arg2};
     
     // Modo alternativo de impresion: si es preferible el otro basta con remover
@@ -81,35 +83,35 @@ string quad::to_string(){
     // ADD x a b, o x := a que CP x a.
     switch (op ){
         case CP:
-            return comment + opds[0]->to_string() + " := " + opds[1]->to_string();
+            return _ + opds[0]->to_string() + " := " + opds[1]->to_string();
         case GOTO:
-            return comment + "goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+            return _ + "goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IFL:
-            return comment + "if " + opds[0]->to_string() + " < " + opds[1]->to_string()
+            return _ + "if " + opds[0]->to_string() + " < " + opds[1]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IFLEQ:
-            return comment + "if " + opds[0]->to_string() + " <= " + opds[1]->to_string()
+            return _ + "if " + opds[0]->to_string() + " <= " + opds[1]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IF:
-            return comment + "if " + opds[0]->to_string()
+            return _ + "if " + opds[0]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case ADD:
-            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
+            return _ + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " + " + opds[2]->to_string();
         case SUB:
-            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
+            return _ + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " - " + opds[2]->to_string();
         case MUL:
-            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
+            return _ + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " * " + opds[2]->to_string();
         case DIV:
-            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
+            return _ + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " / " + opds[2]->to_string();
         case MOD:
-            return comment + opds[0]->to_string() + " := " + opds[1]->to_string()
+            return _ + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " % " + opds[2]->to_string();
         case UMINUS:
-            return comment + opds[0]->to_string() + " := -" + opds[1]->to_string();
+            return _ + opds[0]->to_string() + " := -" + opds[1]->to_string();
         default:
             break;
     }
@@ -120,13 +122,14 @@ string quad::to_string(){
         }
     }
     switch (op) {
-        case CALL:   return "CALL   " + r;
-        case PARAM:  return "PARAM  " + r;
-        case LD:     return "LD     " + r;
-        case GOTO:   return "GOTO   " + r;
-        case IFEQ:   return "IFEQ   " + r;
-        case IFNEQ:  return "IFNEQ  " + r;
-        case IFL:    return "IFLESS " + r;
+        case CALL:   return _ + "CALL   " + r;
+        case PARAM:  return _ + "PARAM  " + r;
+        case LD:     return _ + "LD     " + r;
+        case SW:     return _ + "SW     " + r;
+        case GOTO:   return _ + "GOTO   " + r;
+        case IFEQ:   return _ + "IFEQ   " + r;
+        case IFNEQ:  return _ + "IFNEQ  " + r;
+        case IFL:    return _ + "IFLESS " + r;
         default:
             break;
     }

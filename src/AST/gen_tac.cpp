@@ -366,7 +366,7 @@ opd *AST_array_access::gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int 
 
 opd *AST_struct_access::gen_tac_lval(block *b, int *sta_base){
     opd *din_base = value->gen_tac_lval(b, sta_base);
-    sta_base += sym->offset;
+    *sta_base += sym->offset;
     return din_base;
 }
 
@@ -398,11 +398,13 @@ void AST_block::gen_tac(block *b){
 }
 
 void AST_parameters_list::gen_tac(block* b){
+    
     printf("UNIMPLEMENTED opd *AST_parameters_list::gen_tac(block *b)\n");
 }
 
 opd *AST_function_call::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_function_call::gen_tac(block *b)\n");
+    params->gen_tac(b);
+//        b->append_inst(new quad(quad::GOTO, new opd(sym), value->gen_tac(b), 0, "declaración de variable"));
     return 0;
 }
 
@@ -468,7 +470,7 @@ void AST_assignment::gen_tac(block *b){
         b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido al lvalue"));
     } else {
         // Al copiar apuntadores, sólo el caso del @ no se sabe cuál es el apuntador al apuntador (ej. variable global)
-        quad::OP op = typeid(*r) == typeid(AST_address) ? quad::CP : quad::LD;
+        quad::OP op = typeid(*r) == typeid(AST_address) ? quad::CP : quad::SW;
         b->append_inst(new quad(op, l, r, 0, "asignación de un valor escalar obtenido al lvalue"));
     }
 }

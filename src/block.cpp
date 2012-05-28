@@ -31,13 +31,11 @@ void block::dump() {
     if ( w_vector ){
         vector<inst*>::iterator it = instructions.vinst->begin();
         for (; it != instructions.vinst->end(); ++ it) {
-            cout << "L" << (*it)->label << ": ";
             printf("%s\n", ((quad*)(*it))->to_string().c_str());
         }
     } else {
         list<inst*>::iterator it = instructions.linst->begin();
         for (; it != instructions.linst->end(); ++ it) {
-            cout << "L" << (*it)->label << ": ";
             printf("%s\n", ((quad*)(*it))->to_string().c_str());
         }
     }

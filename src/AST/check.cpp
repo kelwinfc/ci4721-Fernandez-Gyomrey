@@ -531,7 +531,7 @@ void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
             logger->error(line, column, e);
         type = INVALID;
     } else {
-        symbol* sym = ((struct_type*)td)->fields->lookup( field );
+        sym = ((struct_type*)td)->fields->lookup( field );
         
         if ( sym != 0 ){
             type = sym->getType();
