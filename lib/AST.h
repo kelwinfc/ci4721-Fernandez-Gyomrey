@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdlib>
+#include <stdlib.h>
 #include <cstdio>
 #include <cstring>
 #include <list>

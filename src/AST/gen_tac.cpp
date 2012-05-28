@@ -371,8 +371,14 @@ opd *AST_struct_access::gen_tac_lval(block *b, int *sta_base){
 }
 
 opd *AST_conversion::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_conversion::gen_tac(block *b)\n");
-    return 0;
+    opd *v = expr->gen_tac(b);
+    if (O_TEMP != v->type) {
+        opd *t = new opd();
+        b->append_inst(new quad(quad::CP, t, v, 0, "la conversión de tipos requiere a juro un temporal"));
+        v = t;
+    }
+    b->append_inst(new quad(quad::CP, v, v, 0, string("conversión de tipo ") + PRINT_TYPE(original_type) + " a " + PRINT_TYPE(type)));
+    return v;
 }
 
 void AST_block::gen_tac(block *b){

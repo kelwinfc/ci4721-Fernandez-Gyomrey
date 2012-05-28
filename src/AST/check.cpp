@@ -561,6 +561,13 @@ void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
 void AST_conversion::fill_and_check(symbol_table* st){
     expr->fill_and_check(st);
     original_type = expr->type;
+    if (!types.is_base(original_type) || !types.is_base(type) || STRING == original_type || STRING == type) {
+        char e[llog::ERR_LEN];
+        snprintf(e, llog::ERR_LEN, "Conversión permitida sólo entre tipos primitivos (%s a %s)",
+                 types.types[original_type]->name.c_str() ,types.types[type]->name.c_str());
+        logger->error(line, column, e);
+        type = INVALID;
+    }
 }
 
 void AST_block::fill_and_check(symbol_table* st){
