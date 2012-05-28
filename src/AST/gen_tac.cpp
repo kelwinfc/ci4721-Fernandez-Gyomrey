@@ -286,7 +286,7 @@ opd *AST_ident::gen_tac_lval(block* b, int *sta_base){
         falselist.push_back( b->next_instruction() + 1);
         
         b->append_inst(new quad(quad::IF, new opd(sym), 0, 0, "identificador de tipo booleano"));
-        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de identificador de tipo booleano"));
+        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "identificador de tipo booleano"));
     }
     return new opd(sym);
 }
@@ -398,18 +398,21 @@ void AST_block::gen_tac(block *b){
 }
 
 void AST_parameters_list::gen_tac(block* b){
-    
-    printf("UNIMPLEMENTED opd *AST_parameters_list::gen_tac(block *b)\n");
+    for (vector< AST_expression* >::iterator it = elem.begin(); it != elem.end(); ++ it) {
+        b->append_inst(new quad(quad::PARAM, (*it)->gen_tac(b), 0, 0, "argumento de función"));
+    }
 }
 
 opd *AST_function_call::gen_tac(block *b){
     params->gen_tac(b);
-//        b->append_inst(new quad(quad::GOTO, new opd(sym), value->gen_tac(b), 0, "declaración de variable"));
-    return 0;
+    opd *t = new opd();
+    b->append_inst(new quad(quad::CALL, t, new opd(sym), 0, "llamada de función guardada en el primer argumento"));
+    return t;
 }
 
 void AST_declaration::gen_tac(block *b){
-    printf("INVALID CALL TO opd *AST_declaration::gen_tac(block *b)\n");
+    // Unused
+    printf("INVALID CALL TO void AST_declaration::gen_tac(block *b)\n");
 }
 
 void AST_variable_declaration::gen_tac(block *b){
@@ -420,11 +423,11 @@ void AST_variable_declaration::gen_tac(block *b){
 }
 
 void AST_arg_list::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_arg_list::gen_tac(block *b)\n");
+    printf("UNIMPLEMENTED void AST_arg_list::gen_tac(block *b)\n");
 }
 
 void AST_discrete_arg_list::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_discrete_arg_list::gen_tac(block *b)\n");
+    printf("UNIMPLEMENTED void AST_discrete_arg_list::gen_tac(block *b)\n");
 }
 
 void AST_function::gen_tac(block *b){
@@ -562,17 +565,17 @@ void AST_continue::gen_tac(block *b){
 }
 
 void AST_read::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_assignment::gen_tac(block *b)\n");
+    printf("UNIMPLEMENTED void AST_read::gen_tac(block *b)\n");
 }
 
 void AST_print::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_print::gen_tac(block *b)\n");
+    printf("UNIMPLEMENTED void AST_print::gen_tac(block *b)\n");
 }
 
 void AST_fill::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_fill::gen_tac(block *b)\n");
+    printf("UNIMPLEMENTED void AST_fill::gen_tac(block *b)\n");
 }
 
 void AST_map::gen_tac(block *b){
-    printf("UNIMPLEMENTED opd *AST_map::gen_tac(block *b)\n");
+    printf("UNIMPLEMENTED void AST_map::gen_tac(block *b)\n");
 }

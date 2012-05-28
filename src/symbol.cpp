@@ -81,6 +81,8 @@ symbol_function::symbol_function(string name, TYPE type, int line, int column,
     this->type = type;
     this->is_function = true;
     this->unused = true;
+
+    this->alignment = -1;
     
     vector< TYPE >::iterator it;
     for ( it = types.begin(); it != types.end(); ++it ){

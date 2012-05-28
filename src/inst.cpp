@@ -139,5 +139,9 @@ string quad::to_string(){
 
 unsigned int quad::get_goal_label(){
     assert (op == GOTO);
-    return arg2->pint;
+    if (0 != arg2) {
+        return arg2->pint;
+    } else {
+        return -1;
+    }
 }
