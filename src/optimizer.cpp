@@ -124,7 +124,7 @@ void gen_graph(block& src, block& dst){
         
         list_of_blocks.push_back(next_block);
         
-        cout << "B" << list_of_blocks.size() << ":";
+        //cout << "B" << list_of_blocks.size() << ":";
         
         // Añadir todas las instrucciones del bloque basico
         inst* current_inst = (*(src.instructions.vinst))[index];
@@ -133,7 +133,7 @@ void gen_graph(block& src, block& dst){
         do {
             list_of_blocks.back()->append_inst(current_inst, false);
             
-            cout << " " << current_inst->label;
+            //cout << " " << current_inst->label;
             
             index++;
             current_inst = (*(src.instructions.vinst))[index];
@@ -141,7 +141,7 @@ void gen_graph(block& src, block& dst){
         } while( index < src.instructions.vinst->size() 
                     && !IS_LEADER(leaders, current_inst->label)
                );
-        cout << endl;
+        //cout << endl;
     }
     
     // En este punto ya se puede eliminar el arreglo de lideres. Los lideres son
@@ -167,7 +167,7 @@ void gen_graph(block& src, block& dst){
         
         inst* last_inst = current_block->last_instruction();
         
-        if ( ((quad*)last_inst)->arg2 != 0 ){
+        if ( last_inst->is_jump() && ((quad*)last_inst)->arg2 != 0 ){
             
             current_block->sucessors.push_back( label_to_block[((quad*)last_inst)->arg2->pint] );
             cout << "  --> B"

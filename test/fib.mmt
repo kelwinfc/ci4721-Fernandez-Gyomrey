@@ -38,10 +38,13 @@ fun int fibIter(int n){
 fun none main(){
     int a;
     read a;
-    for i in (0,a){
-        int fR = fibRec(i);
-        int fI = fibIter(i);
+    while( a > 0 ){
+        {-
+        int fR = fibRec(a);
+        int fI = fibIter(a);
         
         print fR, fI;
+        a = a - 1;
+        -}
     }
 }

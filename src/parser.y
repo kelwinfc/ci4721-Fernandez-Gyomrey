@@ -1641,7 +1641,7 @@ int main (int argc,char **argv)
     
     if ( !logger->exists_registered_error() ){
         p->gen_tac(b);
-        useless_jumps(*b);
+        //useless_jumps(*b);
         b->dump();
     }
     

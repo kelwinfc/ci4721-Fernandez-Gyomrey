@@ -95,6 +95,12 @@ string quad::to_string(){
         case IF:
             return _ + "if " + opds[0]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IFG:
+            return _ + "if " + opds[0]->to_string() + " > " + opds[1]->to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IFGEQ:
+            return _ + "if " + opds[0]->to_string() + " >= " + opds[1]->to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case ADD:
             return _ + opds[0]->to_string() + " := " + opds[1]->to_string()
                     + " + " + opds[2]->to_string();
@@ -169,6 +175,7 @@ bool quad::is_jump(){
         case IFLEQ:
         case IFG:
         case IFGEQ:
+        case RETURN:
             return true;
         default:
             return false;
