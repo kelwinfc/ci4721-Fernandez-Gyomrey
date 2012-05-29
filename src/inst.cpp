@@ -176,6 +176,7 @@ bool quad::is_jump(){
         case IFG:
         case IFGEQ:
         case RETURN:
+        case CALL:
             return true;
         default:
             return false;
