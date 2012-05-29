@@ -340,6 +340,7 @@ opd *AST_array_access::gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int 
     opd *din_base = value->gen_tac_arr(b, sta_base, ind_addr, arr_base);
 
     if (0 == *ind_addr) {
+        // no se hace backpatck porque sabemos que es un entero
         *ind_addr = index->gen_tac(b);
         if (O_TEMP != (*ind_addr)->type) {
             opd *t = new opd();
@@ -383,12 +384,22 @@ opd *AST_struct_access::gen_tac_lval(block *b, int *sta_base){
 
 opd *AST_conversion::gen_tac(block *b){
     opd *v = expr->gen_tac(b);
-    if (O_TEMP != v->type) {
+    if (0 == v) {
+        v = new opd();
+    } else if (O_TEMP != v->type) {
         opd *t = new opd();
-        b->append_inst(new quad(quad::CONV, t, v, 0, "la conversión de tipos requiere a juro un temporal"));
+        b->append_inst(new quad(quad::CP, t, v, 0, "la conversión de tipos requiere a juro un temporal"));
         v = t;
     }
-    b->append_inst(new quad(quad::CP, v, v, 0, string("conversión de tipo ") + PRINT_TYPE(original_type) + " a " + PRINT_TYPE(type)));
+    if (BOOLEAN == expr->type) {
+        b->backpatch(expr->truelist, b->next_instruction() );
+        b->append_inst(new quad(quad::CP, v, new opd(true), 0, "asignación de valor booleano (true) obtenido al lvalue"));
+        b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+
+        b->backpatch( expr->falselist, b->next_instruction() );
+        b->append_inst(new quad(quad::CP, v, new opd(false), 0, "asignación de valor booleano (false) obtenido al lvalue"));
+    }
+    b->append_inst(new quad(quad::CONV, v, v, 0, string("conversión de tipo ") + PRINT_TYPE(original_type) + " a " + PRINT_TYPE(type)));
     return v;
 }
 
