@@ -358,35 +358,18 @@ opd *AST_array_access::gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int 
 
 opd *AST_struct_access::gen_tac_lval(block *b, int *sta_base){
     opd *din_base = value->gen_tac_lval(b, sta_base);
-    // TODO al asignar el espacio de memoria al símbolo, se debe colocar un cero en el entero de chequeo
     if (union_access) {
         union_type *ud = (union_type*)types.types[ sym->getType() ];
         din_base = gen_tac_lval_disp(b, din_base, sta_base);
         opd *t1 = new opd(), *t2 = new opd((int)sym->index);
-        b->append_inst(new quad(quad::LD, t1, din_base, new opd(ud->width - 4), "cargando identificador de tipo usado en el union"));
+        b->append_inst(new quad(quad::CP, t1, din_base, new opd(ud->width - 4), "cargando identificador de tipo usado en el union"));
         b->append_inst(new quad(quad::IFEQ, t1, t2, new opd(b->next_instruction() + 1, 1), "en caso estar actualizado el tipo usado, se mantiene"));
         // TODO write "Se trató de utilizar el tipo X pero el activo era el Y en (L, C)" ERR y modificar el next_instruction
-        b->append_inst(new quad(quad::ST, t2, din_base, new opd(ud->width - 4),
+        b->append_inst(new quad(quad::CP, t2, din_base, new opd(ud->width - 4),
             "guardando nuevo identificador de tipo usado en el union"));
     }
     *sta_base += sym->offset;
     return din_base;
-}
-
-opd *AST_rlval::gen_tac(block *b) {
-    opd *l = value->gen_tac(b);
-    // Al copiar apuntadores, sólo el caso del @ no se sabe cuál es el apuntador al apuntador (ej. variable global)
-    if (typeid(*value) != typeid(AST_address)) {
-        opd *t;
-        if (O_TEMP != l->type) {
-            t = new opd();
-        } else {
-            t = l;
-        }
-        b->append_inst(new quad(quad::LD, t, l, 0, "cargar el valor de un lvalue usado del lado derecho"));
-        l = t;
-    }
-    return l;
 }
 
 opd *AST_conversion::gen_tac(block *b){
@@ -436,18 +419,23 @@ void AST_block::gen_tac(block *b){
 }
 
 void AST_parameters_list::gen_tac(block* b){
+    vector<opd*> params;
     for (vector< AST_expression* >::iterator it = elem.begin(); it != elem.end(); ++ it) {
-        opd *v = (*it)->gen_tac(b);
+        opd *v = (*it)->gen_tac(b), *t = new opd();
         if ((*it)->type == BOOLEAN) {
             b->backpatch((*it)->truelist, b->next_instruction() );
-            b->append_inst(new quad(quad::PARAM, new opd(true), 0, 0, "argumento de función booleano (true)"));
+            b->append_inst(new quad(quad::CP, t, new opd(true), 0, "argumento de función booleano (true)"));
             b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
 
             b->backpatch( (*it)->falselist, b->next_instruction() );
-            b->append_inst(new quad(quad::PARAM, new opd(false), 0, 0, "argumento de función booleano (false)"));
+            b->append_inst(new quad(quad::CP, t, new opd(false), 0, "argumento de función booleano (false)"));
         } else {
-            b->append_inst(new quad(quad::PARAM, v, 0, 0, "argumento de función no booleano"));
+            b->append_inst(new quad(quad::CP, t, v, 0, "argumento de función no booleano"));
         }
+        params.push_back(t);
+    }
+    for (vector< opd* >::iterator it = params.begin(); it != params.end(); ++ it) {
+        b->append_inst(new quad(quad::PARAM, *it, 0, 0, "argumento de función"));
     }
 }
 
@@ -458,8 +446,10 @@ void AST_declaration::gen_tac(block *b){
 
 void AST_variable_declaration::gen_tac(block *b){
     next_list.clear();
-    // TODO si aquí es donde se asigna el espacio, aquí debería agregarse el indicador de tipo de union a cero
     if (0 == value) {
+        b->append_inst(new quad(quad::INIT, new opd(sym),
+            new opd(types.types[ sym->getType() ]->width), new opd(0),
+            "inicialización en cero"));
         return;
     }
     opd* l = new opd(sym);
@@ -468,15 +458,15 @@ void AST_variable_declaration::gen_tac(block *b){
     if ( value->type == BOOLEAN){
 
         b->backpatch( value->truelist, b->next_instruction() );
-        b->append_inst(new quad(quad::ST, l, new opd(true), 0, "declaración con asignación del valor booleano obtenido (true) al lvalue"));
+        b->append_inst(new quad(quad::CP, l, new opd(true), 0, "declaración con asignación del valor booleano obtenido (true) al lvalue"));
 
         next_list.push_back( b->next_instruction() );
         b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto después de declarar y asignar el valor booleano"));
 
         b->backpatch( value->falselist, b->next_instruction() );
-        b->append_inst(new quad(quad::ST, l, new opd(false), 0, "declaración con asignación de valor booleano obtenido al lvalue"));
+        b->append_inst(new quad(quad::CP, l, new opd(false), 0, "declaración con asignación de valor booleano obtenido al lvalue"));
     } else {
-        b->append_inst(new quad(quad::ST, l, r, 0, "declaración con asignación de un valor de cualquier tipo obtenido al lvalue"));
+        b->append_inst(new quad(quad::CP, l, r, 0, "declaración con asignación de un valor de cualquier tipo obtenido al lvalue"));
     }
 }
 
@@ -528,15 +518,15 @@ void AST_assignment::gen_tac(block *b){
     if ( expr->type == BOOLEAN){
 
         b->backpatch( expr->truelist, b->next_instruction() );
-        b->append_inst(new quad(quad::ST, l, new opd(true), 0, "asignación del valor booleano obtenido (true) al lvalue"));
+        b->append_inst(new quad(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) al lvalue"));
 
         next_list.push_back( b->next_instruction() );
         b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto después de asignar el valor booleano"));
 
         b->backpatch( expr->falselist, b->next_instruction() );
-        b->append_inst(new quad(quad::ST, l, new opd(false), 0, "asignación de valor booleano obtenido al lvalue"));
+        b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido al lvalue"));
     } else {
-        b->append_inst(new quad(quad::ST, l, r, 0, "asignación de un valor de cualquier tipo obtenido al lvalue"));
+        b->append_inst(new quad(quad::CP, l, r, 0, "asignación de un valor de cualquier tipo obtenido al lvalue"));
     }
 }
 
@@ -643,7 +633,7 @@ void AST_bounded_loop::gen_tac(block *b){
     // si ocurre un break en el ciclo
     next_list.splice(next_list.end(), blck->break_list);
 
-    b->append_inst(new quad(quad::ADD, os, new opd(1), 0, "tanto para enteros como para caracteres sumar uno hasta llegars"));
+    b->append_inst(new quad(quad::ADD, os, os, new opd(1), "tanto para enteros como para caracteres sumar uno hasta llegars"));
     // comenzar de nuevo
     b->append_inst(new quad(quad::GOTO, 0, 0, new opd(start_instr, true), "volver a comenzar el for acotado"));
 }
@@ -659,17 +649,31 @@ void AST_continue::gen_tac(block *b){
 }
 
 void AST_read::gen_tac(block *b){
-    printf("UNIMPLEMENTED void AST_read::gen_tac(block *b)\n");
+    b->append_inst(new quad(quad::READ, new opd(sym), 0, 0, "leer de entrada estándar"));
 }
 
 void AST_print::gen_tac(block *b){
-    printf("UNIMPLEMENTED void AST_print::gen_tac(block *b)\n");
+    for (vector<AST_expression*>::iterator it = list.begin(); it != list.end(); ++ it) {
+        if ( (*it)->type == BOOLEAN){
+            (*it)->gen_tac(b);
+            b->backpatch( (*it)->truelist, b->next_instruction() );
+            b->backpatch( (*it)->falselist, b->next_instruction() + 2 );
+            b->append_inst(new quad(quad::WRITE, new opd(true), 0, 0, "imprimir bool true a salida estándar"));
+            b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "impreso bool true a salida estándar"));
+            b->append_inst(new quad(quad::WRITE, new opd(false), 0, 0, "imprimir bool false a salida estándar"));
+        } else {
+            printf("pointer (%d): \n", (*it)->type);
+            b->append_inst(new quad(quad::WRITE, (*it)->gen_tac(b), 0, 0, "imprimir a salida estándar"));
+        }
+    }
 }
 
 void AST_fill::gen_tac(block *b){
-    printf("UNIMPLEMENTED void AST_fill::gen_tac(block *b)\n");
+    opd *t = expr->gen_tac(b);
+    b->append_inst(new quad(quad::FILL, new opd(sym), t, 0, "aplicar fill"));
 }
 
 void AST_map::gen_tac(block *b){
-    printf("UNIMPLEMENTED void AST_map::gen_tac(block *b)\n");
+    opd *t1 = src->gen_tac(b), *t2 = dst->gen_tac(b);
+    b->append_inst(new quad(quad::MAP, new opd(sym), t1, t2, "aplicar map"));
 }

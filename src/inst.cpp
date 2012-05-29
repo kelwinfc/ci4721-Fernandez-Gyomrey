@@ -145,6 +145,11 @@ string quad::to_string(){
         case IFEQ:   return _ + "IFEQ   " + r;
         case IFNEQ:  return _ + "IFNEQ  " + r;
         case IFL:    return _ + "IFLESS " + r;
+        case INIT:   return _ + "INIT   " + r;
+        case WRITE:  return _ + "WRITE  " + r;
+        case READ:   return _ + "READ   " + r;
+        case MAP:    return _ + "MAP    " + r;
+        case FILL:   return _ + "FILL   " + r;
         default:
             break;
     }

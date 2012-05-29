@@ -338,10 +338,6 @@ AST_expression* AST_array_access::constant_folding(){
     return this;
 }
 
-AST_expression* AST_rlval::constant_folding(){
-    return this;
-}
-
 AST_expression* AST_struct_access::constant_folding(){
     return this;
 }
