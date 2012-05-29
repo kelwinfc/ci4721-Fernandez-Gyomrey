@@ -115,6 +115,13 @@ void gen_graph(block& src, block& dst){
     // Creacion de los bloques basicos
     index = 0;
     ofstream fout("bla.blocks");
+    fout << "+-----------------------+\n"
+         << "|                       |\n"
+         << "| Definición de Bloques |\n"
+         << "|                       |\n"
+         << "+-----------------------+\n"
+         << endl;
+    
     while( index < src.instructions.vinst->size() ){
         
         // Agregar el siguiente bloque basico a la lista global de bloques
@@ -202,20 +209,45 @@ void gen_graph(block& src, block& dst){
             }
         }
     }
+    fout.close();
+    
+    fout.open("bla.gv");
+    fout << "##Command to produce the output: "
+         << "\"neato -Tpng bla.gv > bla.png\"\n"
+         << "digraph GrafoDeBloquesBasicos {\n"
+         << "    node [shape=circle,fixedsize=true,width=0.7];";
+    for (uint block_index = 0 ; block_index != list_of_blocks.size();
+         block_index++)
+    {
+        fout << " B" << block_index << ";";
+    }
+    fout << endl;
     
     for (uint block_index = 0 ; block_index != list_of_blocks.size();
          block_index++)
     {
-        cout << "B" << block_index << "  -->" ;
         if ( list_of_blocks[block_index]->mandatory_exit ){
-            cout << " B" << list_of_blocks[block_index]->mandatory_exit->index;
+            fout << "B" << block_index
+                 << "->B"
+                 << list_of_blocks[block_index]->mandatory_exit->index
+                 << ";" << endl;
         }
         
         vector<block*>::iterator it =
             list_of_blocks[block_index]->sucessors.begin();
         for ( ; it != list_of_blocks[block_index]->sucessors.end(); ++it ){
-            cout << " B" << (*it)->index;
+            fout << "B" << block_index
+                 << "->B"
+                 << (*it)->index
+                 << ";" << endl;
         }
-        cout << endl;
     }
+    
+    fout << endl
+         << "overlap=false\n"
+         << "label=\"Grafo de Bloques Basicos\"\n"
+         << "fontsize=10;\n"
+         << "}\n";
+    fout.close();
+    system("rm -rf bla.png; neato -Tpng bla.gv > bla.png; evince bla.png &");
 }
