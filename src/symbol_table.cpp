@@ -45,6 +45,7 @@ void symbol_table::insert(symbol* s){
     
     accumulate_offset( 0, s->alignment );
     s->offset = accumulated_offset;
+    s->index = ++ counter;
     
     accumulate_offset( s->width, s->alignment );
 }

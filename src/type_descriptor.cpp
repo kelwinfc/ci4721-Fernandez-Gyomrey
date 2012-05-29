@@ -31,6 +31,8 @@ union_type::union_type(string n, symbol_table* st){
         alignment = lcm(alignment,
                         types.types[(*it).second->getType()]->alignment );
     }
+    // entero de 4 bytes para indicar posición en uso actualmente
+    width += 4;
 }
 
 enum_type::enum_type( tokenId* tk, set<string>* v)

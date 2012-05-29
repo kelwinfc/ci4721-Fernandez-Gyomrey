@@ -20,6 +20,7 @@ class symbol_table {
     private:
 
         symbol_table* parent;
+        unsigned int counter;
 
     public:
         unsigned int accumulated_offset;

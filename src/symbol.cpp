@@ -17,6 +17,7 @@ symbol::symbol(string name, bool constant, TYPE type, int line,
     this->width = 0;
     this->alignment = 1;
     this->offset = 0;
+    this->index = -1;
     
     this->unused = true;
 }
@@ -62,6 +63,7 @@ symbol_function::symbol_function(string name, int line, int column,
     this->unused = true;
 
     this->alignment = -1;
+    this->index = -1;
     
     vector< TYPE >::iterator it;
     for ( it = types.begin(); it != types.end(); ++it ){
@@ -83,6 +85,7 @@ symbol_function::symbol_function(string name, TYPE type, int line, int column,
     this->unused = true;
 
     this->alignment = -1;
+    this->index = -1;
     
     vector< TYPE >::iterator it;
     for ( it = types.begin(); it != types.end(); ++it ){
