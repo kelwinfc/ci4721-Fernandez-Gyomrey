@@ -202,12 +202,6 @@ AST_struct_access::AST_struct_access( AST_lval* lvalue, tokenId* f){
     delete f;
 }
 
-AST_rlval::AST_rlval( AST_lval* lvalue ){
-    value = lvalue;
-    line = lvalue->line;
-    column = lvalue->column;
-}
-
 AST_parameters_list::AST_parameters_list(){
     elem.clear();
 }
