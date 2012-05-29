@@ -257,7 +257,7 @@ class AST_lval : public AST_expression {
 
         virtual opd *gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int *arr_base);
 
-        static opd *gen_tac_lval_disp(block* b, opd *din_base, int sta_base);
+        static opd *gen_tac_lval_disp(block* b, opd *din_base, int *sta_base);
         
         virtual void print(int indentation);
 };
@@ -338,6 +338,7 @@ class AST_struct_access : public AST_lval {
         AST_lval* value;
         string field;
         symbol* sym;
+        bool union_access;
         
         AST_struct_access( AST_lval* lvalue, tokenId* f);
         
@@ -347,6 +348,21 @@ class AST_struct_access : public AST_lval {
 
         virtual opd *gen_tac_lval(block* b, int *sta_base);
         
+        virtual void print(int indentation);
+};
+
+class AST_rlval : public AST_lval {
+    AST_lval* value;
+
+    public:
+        AST_rlval( AST_lval* lvalue);
+
+        virtual AST_expression* constant_folding();
+
+        virtual void fill_and_check(symbol_table* st, bool lval = false);
+
+        virtual opd *gen_tac(block* b);
+
         virtual void print(int indentation);
 };
 

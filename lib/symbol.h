@@ -31,6 +31,7 @@ class symbol{
         unsigned int offset;
         unsigned int width;
         unsigned int alignment;
+        unsigned int index;
         
         bool is_local;
         

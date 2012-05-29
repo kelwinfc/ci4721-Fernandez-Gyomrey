@@ -545,6 +545,7 @@ void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
                     );
                 logger->error(line, column, e);
             }
+            union_access = typeid(*td) == typeid(struct_type);
         } else {
             char e[llog::ERR_LEN];
             snprintf(e, llog::ERR_LEN, "Tipo %s no posee campo %s",
@@ -556,6 +557,11 @@ void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
         }
         
     }
+}
+
+void AST_rlval::fill_and_check(symbol_table* st, bool lval){
+    value->fill_and_check(st, lval);
+    type = value->type;
 }
 
 void AST_conversion::fill_and_check(symbol_table* st){

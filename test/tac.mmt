@@ -9,7 +9,12 @@ type grafo{
     [-10:100]nodo nodos;
 }
 
-fun int tomate(char ensalsa) {
+union grafo2{
+    [-10:100]nodo nodos1;
+    [-10:10]nodo nodos2;
+}
+
+fun int tomate(boolean ensalsa) {
     return 1;
 }
 
@@ -28,11 +33,14 @@ fun none main(){
 --    int i2 = ai1[0];
     
 --    boolean d;
---    d = true && false;
+    int andras = (true && false) as int;
     color carro = AZUL;
     [-2:10]grafo grafos;
     grafos[0].nodos[0].valor = 1;
-    int receta = tomate(1 as char);
+    [-2:10]grafo2 grafos2;
+    grafos2[0].nodos1[0].valor = 1;
+    int receta = tomate(false ==> true);
+    
     
     if ( entero < 3 ){
         int d = 4;
@@ -48,7 +56,7 @@ fun none main(){
     
     int d = 8;
     boolean e;
-    boolean f;
+    boolean f = e;
     
     if ( f && e ==> e ){
         d = 9;

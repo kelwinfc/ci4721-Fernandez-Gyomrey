@@ -65,8 +65,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFEQ, l, r, 0, "comparación de igualdad"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional comparación de igualdad"));
+                b->append_inst(new quad(quad::IFEQ, l, r, 0, "comparación de igualdad (true)"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de igualdad (false)"));
             }
             break;
         case UNEQ:
@@ -77,8 +77,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFNEQ, l, r, 0, "comparación de desigualdad"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de desigualdad"));
+                b->append_inst(new quad(quad::IFNEQ, l, r, 0, "comparación de desigualdad (true)"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de desigualdad (false)"));
             }
             break;
         
@@ -91,8 +91,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFL, l, r, 0, "comparación de menor que"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de menor qué"));
+                b->append_inst(new quad(quad::IFL, l, r, 0, "comparación de menor que (true)"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de menor que (false)"));
             }
             break;
         case LESS_EQ:
@@ -103,8 +103,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFLEQ, l, r, 0, "comparación de menor o igual"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de menor o igual"));
+                b->append_inst(new quad(quad::IFLEQ, l, r, 0, "comparación de menor o igual (true)"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de menor o igual (false)"));
             }
             break;
         case GREAT:
@@ -115,8 +115,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFG, l, r, 0, "comparación de mayor"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de mayor"));
+                b->append_inst(new quad(quad::IFG, l, r, 0, "comparación de mayor (true)"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de mayor (false)"));
             }
             break;
         case GREAT_EQ:
@@ -127,8 +127,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFGEQ, l, r, 0, "comparación de mayor o igual"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de comparación de mayor o igual"));
+                b->append_inst(new quad(quad::IFGEQ, l, r, 0, "comparación de mayor o igual (true)"));
+                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de mayor o igual (false)"));
             }
             break;
         case PLUS:
@@ -251,7 +251,7 @@ opd *AST_boolean::gen_tac(block *b){
 opd *AST_lval::gen_tac(block *b){
     int sta_base = 0;
     opd *din_base = gen_tac_lval(b, &sta_base);
-    return gen_tac_lval_disp(b, din_base, sta_base);
+    return gen_tac_lval_disp(b, din_base, &sta_base);
 }
 
 opd *AST_lval::gen_tac_lval(block *b, int *sta_base){
@@ -260,15 +260,15 @@ opd *AST_lval::gen_tac_lval(block *b, int *sta_base){
     return 0;
 }
 
-opd *AST_lval::gen_tac_lval_disp(block *b, opd *din_base, int sta_base){
+opd *AST_lval::gen_tac_lval_disp(block *b, opd *din_base, int *sta_base){
     opd *t;
-    if (0 != sta_base && O_TEMP != din_base->type) {
+    if (0 != *sta_base && O_TEMP != din_base->type) {
         t = new opd();
     } else {
         t = din_base;// nuevo resultado de las operaciones
     }
-    if (0 != sta_base) {
-        b->append_inst(new quad(quad::ADD, t, din_base, new opd(sta_base), "sumar base estática a base dinámica (no se pudo retrasar más la suma)"));
+    if (0 != *sta_base) {
+        b->append_inst(new quad(quad::ADD, t, din_base, new opd(*sta_base), "sumar base estática a base dinámica (no se pudo retrasar más la suma)"));
     }
     return t;
 }
@@ -281,19 +281,12 @@ opd *AST_lval::gen_tac_arr(block* b, int *sta_base, opd **ind_addr, int *arr_bas
 
 opd *AST_ident::gen_tac_lval(block* b, int *sta_base){
     *sta_base = 0;
-    if ( sym->getType() == BOOLEAN ){
-        truelist.push_back( b->next_instruction() );
-        falselist.push_back( b->next_instruction() + 1);
-        
-        b->append_inst(new quad(quad::IF, new opd(sym), 0, 0, "identificador de tipo booleano"));
-        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "identificador de tipo booleano"));
-    }
     return new opd(sym);
 }
 
 opd *AST_dereference::gen_tac_lval(block *b, int *sta_base){
     opd *t, *din_base = value->gen_tac_lval(b, sta_base);
-    din_base = gen_tac_lval_disp(b, din_base, *sta_base);
+    din_base = gen_tac_lval_disp(b, din_base, sta_base);
     if (O_TEMP != din_base->type) {
         t = new opd();
     } else {
@@ -340,6 +333,7 @@ opd *AST_array_access::gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int 
     opd *din_base = value->gen_tac_arr(b, sta_base, ind_addr, arr_base);
 
     if (0 == *ind_addr) {
+        // no se hace backpatck porque sabemos que es un entero
         *ind_addr = index->gen_tac(b);
         if (O_TEMP != (*ind_addr)->type) {
             opd *t = new opd();
@@ -366,19 +360,56 @@ opd *AST_array_access::gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int 
 
 opd *AST_struct_access::gen_tac_lval(block *b, int *sta_base){
     opd *din_base = value->gen_tac_lval(b, sta_base);
+    // TODO al asignar el espacio de memoria al símbolo, se debe colocar un cero en el entero de chequeo
+    if (union_access) {
+        union_type *ud = (union_type*)types.types[ sym->getType() ];
+        din_base = gen_tac_lval_disp(b, din_base, sta_base);
+        opd *t1 = new opd(), *t2 = new opd((int)sym->index);
+        b->append_inst(new quad(quad::LD, t1, din_base, new opd(ud->width - 4), "cargando identificador de tipo usado en el union"));
+        b->append_inst(new quad(quad::IFEQ, t1, t2, new opd(b->next_instruction() + 1, 1), "en caso estar actualizado el tipo usado, se mantiene"));
+        // TODO write "Se trató de utilizar el tipo X pero el activo era el Y en (L, C)" ERR y modificar el next_instruction
+        b->append_inst(new quad(quad::ST, t2, din_base, new opd(ud->width - 4),
+            "guardando nuevo identificador de tipo usado en el union"));
+    }
     *sta_base += sym->offset;
     return din_base;
 }
 
+opd *AST_rlval::gen_tac(block *b) {
+    opd *l = value->gen_tac(b);
+    // Al copiar apuntadores, sólo el caso del @ no se sabe cuál es el apuntador al apuntador (ej. variable global)
+    if (typeid(*value) != typeid(AST_address)) {
+        b->append_inst(new quad(quad::LD, l, l, 0, "cargar el valor de un lvalue usado del lado derecho"));
+    }
+    return l;
+}
+
 opd *AST_conversion::gen_tac(block *b){
     opd *v = expr->gen_tac(b);
-    if (O_TEMP != v->type) {
+    if (0 == v) {
+        v = new opd();
+    } else if (O_TEMP != v->type) {
         opd *t = new opd();
         b->append_inst(new quad(quad::CP, t, v, 0, "la conversión de tipos requiere a juro un temporal"));
         v = t;
     }
-    b->append_inst(new quad(quad::CP, v, v, 0, string("conversión de tipo ") + PRINT_TYPE(original_type) + " a " + PRINT_TYPE(type)));
+    if (BOOLEAN == expr->type) {
+        b->backpatch(expr->truelist, b->next_instruction() );
+        b->append_inst(new quad(quad::CP, v, new opd(true), 0, "asignación de valor booleano (true) obtenido al lvalue"));
+        b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+
+        b->backpatch( expr->falselist, b->next_instruction() );
+        b->append_inst(new quad(quad::CP, v, new opd(false), 0, "asignación de valor booleano (false) obtenido al lvalue"));
+    }
+    b->append_inst(new quad(quad::CONV, v, v, 0, string("conversión de tipo ") + PRINT_TYPE(original_type) + " a " + PRINT_TYPE(type)));
     return v;
+}
+
+opd *AST_function_call::gen_tac(block *b){
+    params->gen_tac(b);
+    opd *t = new opd();
+    b->append_inst(new quad(quad::CALL, t, new opd(sym), 0, "llamada de función guardada en el primer argumento"));
+    return t;
 }
 
 void AST_block::gen_tac(block *b){
@@ -399,15 +430,18 @@ void AST_block::gen_tac(block *b){
 
 void AST_parameters_list::gen_tac(block* b){
     for (vector< AST_expression* >::iterator it = elem.begin(); it != elem.end(); ++ it) {
-        b->append_inst(new quad(quad::PARAM, (*it)->gen_tac(b), 0, 0, "argumento de función"));
-    }
-}
+        opd *v = (*it)->gen_tac(b);
+        if ((*it)->type == BOOLEAN) {
+            b->backpatch((*it)->truelist, b->next_instruction() );
+            b->append_inst(new quad(quad::PARAM, new opd(true), 0, 0, "argumento de función booleano (true)"));
+            b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
 
-opd *AST_function_call::gen_tac(block *b){
-    params->gen_tac(b);
-    opd *t = new opd();
-    b->append_inst(new quad(quad::CALL, t, new opd(sym), 0, "llamada de función guardada en el primer argumento"));
-    return t;
+            b->backpatch( (*it)->falselist, b->next_instruction() );
+            b->append_inst(new quad(quad::PARAM, new opd(false), 0, 0, "argumento de función booleano (false)"));
+        } else {
+            b->append_inst(new quad(quad::PARAM, v, 0, 0, "argumento de función no booleano"));
+        }
+    }
 }
 
 void AST_declaration::gen_tac(block *b){
@@ -416,14 +450,31 @@ void AST_declaration::gen_tac(block *b){
 }
 
 void AST_variable_declaration::gen_tac(block *b){
-    if (0 != value) {
-        b->append_inst(new quad(quad::CP, new opd(sym), value->gen_tac(b), 0, "declaración de variable"));
-        next_list.clear();
+    next_list.clear();
+    // TODO si aquí es donde se asigna el espacio, aquí debería agregarse el indicador de tipo de union a cero
+    if (0 == value) {
+        return;
+    }
+    opd* l = new opd(sym);
+    opd* r = value->gen_tac(b);
+    
+    if ( value->type == BOOLEAN){
+
+        b->backpatch( value->truelist, b->next_instruction() );
+        b->append_inst(new quad(quad::ST, l, new opd(true), 0, "declaración con asignación del valor booleano obtenido (true) al lvalue"));
+
+        next_list.push_back( b->next_instruction() );
+        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto después de declarar y asignar el valor booleano"));
+
+        b->backpatch( value->falselist, b->next_instruction() );
+        b->append_inst(new quad(quad::ST, l, new opd(false), 0, "declaración con asignación de valor booleano obtenido al lvalue"));
+    } else {
+        b->append_inst(new quad(quad::ST, l, r, 0, "declaración con asignación de un valor de cualquier tipo obtenido al lvalue"));
     }
 }
 
 void AST_arg_list::gen_tac(block *b){
-    printf("UNIMPLEMENTED void AST_arg_list::gen_tac(block *b)\n");
+    // TAC no asigna los valores recibidos por PARAM. se asume que ya están en los respectivos símbolos
 }
 
 void AST_discrete_arg_list::gen_tac(block *b){
@@ -454,27 +505,22 @@ void AST_program::gen_tac(block *b){
 
 void AST_assignment::gen_tac(block *b){
     next_list.clear();
-    
+
     opd* l = lvalue->gen_tac(b);
-    b->backpatch(lvalue->truelist, b->next_instruction());
-    b->backpatch(lvalue->falselist, b->next_instruction());
-    
     opd* r = expr->gen_tac(b);
     
     if ( expr->type == BOOLEAN){
-        
+
         b->backpatch( expr->truelist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido al lvalue"));
-        
+        b->append_inst(new quad(quad::ST, l, new opd(true), 0, "asignación del valor booleano obtenido (true) al lvalue"));
+
         next_list.push_back( b->next_instruction() );
-        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional después de asignar el valor booleano"));
-        
+        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto después de asignar el valor booleano"));
+
         b->backpatch( expr->falselist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido al lvalue"));
+        b->append_inst(new quad(quad::ST, l, new opd(false), 0, "asignación de valor booleano obtenido al lvalue"));
     } else {
-        // Al copiar apuntadores, sólo el caso del @ no se sabe cuál es el apuntador al apuntador (ej. variable global)
-        quad::OP op = typeid(*r) == typeid(AST_address) ? quad::CP : quad::SW;
-        b->append_inst(new quad(op, l, r, 0, "asignación de un valor escalar obtenido al lvalue"));
+        b->append_inst(new quad(quad::ST, l, r, 0, "asignación de un valor de cualquier tipo obtenido al lvalue"));
     }
 }
 

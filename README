@@ -21,4 +21,4 @@ Para abrir el modo de lectura por entrada estandar:
     ./bla
 
 Errores conocidos
-- si la primera instrucción de una función es la declaración de un tipo, el programa no podrá ser interpretado
+    - si la primera instrucción de una función es la declaración de un tipo, el programa no podrá ser interpretado

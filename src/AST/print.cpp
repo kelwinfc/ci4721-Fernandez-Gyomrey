@@ -144,6 +144,10 @@ void AST_lval::print(int indentation){
     print_indentation(indentation);
     cout << "L-Value\n";
 }
+void AST_rlval::print(int indentation){
+    cout << "R-L-Value:\n";
+    value->print(indentation+1);
+}
 
 void AST_dereference::print(int indentation){
     printf("%3d: ", line );
@@ -159,8 +163,7 @@ void AST_address::print(int indentation){
     value->print(indentation+1);
 }
 
-void 
-AST_array_access::print(int indentation){
+void AST_array_access::print(int indentation){
     
     printf("%3d: ", line );
     print_indentation(indentation);

@@ -125,7 +125,9 @@ string quad::to_string(){
         case CALL:   return _ + "CALL   " + r;
         case PARAM:  return _ + "PARAM  " + r;
         case LD:     return _ + "LD     " + r;
-        case SW:     return _ + "SW     " + r;
+        case ST:     return _ + "ST     " + r;
+        case ERR:    return _ + "ERR    " + r;
+        case CONV:   return _ + "CONV   " + r;
         case GOTO:   return _ + "GOTO   " + r;
         case IFEQ:   return _ + "IFEQ   " + r;
         case IFNEQ:  return _ + "IFNEQ  " + r;
