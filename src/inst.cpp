@@ -112,6 +112,13 @@ string quad::to_string(){
                     + " % " + opds[2]->to_string();
         case UMINUS:
             return _ + opds[0]->to_string() + " := -" + opds[1]->to_string();
+        case PROLOGUE:
+            return _ + "prologue " + opds[2]->sym->getName();
+        case EPILOGUE:
+            return _ + "epilogue " + opds[2]->sym->getName();
+        case RETURN:
+            return _ + "return " + opds[0]->to_string()
+                     + " " + (opds[2] ? opds[2]->to_string() : "unkown");
         default:
             break;
     }

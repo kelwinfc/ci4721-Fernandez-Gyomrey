@@ -46,6 +46,7 @@ class AST_statement : public AST_node{
         list<int> next_list;
         list<int> continue_list;
         list<int> break_list;
+        list<int> return_list;
         
         virtual void print(int indentation);
         

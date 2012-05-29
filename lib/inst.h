@@ -48,7 +48,9 @@ class quad : public inst{
         enum OP {CP, CALL, PARAM, REF, LD, ST, ERR, CONV,
                  ADD, SUB, MUL, DIV, MOD, UMINUS,
                  GOTO,
-                 IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ};
+                 IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ,
+                 PROLOGUE, EPILOGUE, RETURN
+                };
         OP op;
         
         opd *arg0;

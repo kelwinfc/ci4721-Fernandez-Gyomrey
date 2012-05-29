@@ -420,7 +420,9 @@ void AST_block::gen_tac(block *b){
             b->backpatch(statements[i-1]->next_list, b->next_instruction());
         }
         statements[i]->gen_tac(b);
+        
         continue_list.splice(continue_list.end(), statements[i]->continue_list);
+        return_list.splice(return_list.end(), statements[i]->return_list);
         break_list.splice(break_list.end(), statements[i]->break_list);
     }
     if ( nsize > 0 ){
@@ -482,9 +484,16 @@ void AST_discrete_arg_list::gen_tac(block *b){
 }
 
 void AST_function::gen_tac(block *b){
-
-    formal_parameters->gen_tac(b);
+    b->append_inst(new quad(quad::PROLOGUE,  0, 0, new opd(func),
+                            "prologo de funcion" + func->getName() )
+                  );
+    
     instructions->gen_tac(b);
+    
+    b->backpatch( instructions->return_list, b->next_instruction() );
+    b->append_inst(new quad(quad::EPILOGUE,  0, 0, new opd(func),
+                            "epilogo de funcion" + func->getName() )
+                  );
 }
 
 void AST_program::gen_tac(block *b){
@@ -525,7 +534,14 @@ void AST_assignment::gen_tac(block *b){
 }
 
 void AST_return::gen_tac(block *b){
+    //TODO verificar si es booleano
+    opd* r = 0;
+    if ( expr ){
+        r = expr->gen_tac(b);
+    }
     
+    return_list.push_back(b->next_instruction());
+    b->append_inst(new quad(quad::RETURN, r, 0, 0, "retorno de funcion"));
 }
 
 void AST_conditional::gen_tac(block *b){
@@ -555,6 +571,10 @@ void AST_conditional::gen_tac(block *b){
             else_if->gen_tac(b);
             
             next_list.splice(next_list.end(), else_if->next_list);
+            continue_list.splice(continue_list.end(), else_if->continue_list);
+            break_list.splice(break_list.end(), else_if->break_list);
+            return_list.splice(return_list.end(), else_if->return_list);
+            
         } else {
             next_list.splice(next_list.end(), expr->falselist);
         }
@@ -562,7 +582,11 @@ void AST_conditional::gen_tac(block *b){
         // Rama else
         blck->gen_tac(b);
     }
+    
     next_list.splice(next_list.end(), blck->next_list);
+    continue_list.splice(continue_list.end(), blck->continue_list);
+    break_list.splice(break_list.end(), blck->break_list);
+    return_list.splice(return_list.end(), blck->return_list);
 }
 
 void AST_loop::gen_tac(block *b){

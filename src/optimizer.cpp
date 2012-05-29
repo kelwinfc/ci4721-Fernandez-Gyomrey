@@ -131,7 +131,7 @@ void gen_graph(block& src, block& dst){
         label_to_block[ current_inst->label ] = list_of_blocks.back();
         
         do {
-            list_of_blocks.back()->append_inst(current_inst);
+            list_of_blocks.back()->append_inst(current_inst, false);
             
             cout << " " << current_inst->label;
             
@@ -167,7 +167,11 @@ void gen_graph(block& src, block& dst){
         
         inst* last_inst = current_block->last_instruction();
         
-        current_block->sucessors.push_back( label_to_block[((quad*)last_inst)->arg2->pint] );
-        cout << "  --> B" << current_block->sucessors.back()->index << endl;
+        if ( ((quad*)last_inst)->arg2 != 0 ){
+            
+            current_block->sucessors.push_back( label_to_block[((quad*)last_inst)->arg2->pint] );
+            cout << "  --> B"
+                 << current_block->sucessors.back()->index << endl;
+        }
     }
 }
