@@ -41,6 +41,7 @@ class inst{
         virtual string to_string();
         
         virtual bool is_jump();
+        virtual bool mandatory_jump();
 };
 
 class quad : public inst{
@@ -65,6 +66,7 @@ class quad : public inst{
         unsigned get_goal_label();
         
         virtual bool is_jump();
+        virtual bool mandatory_jump();
 };
 
 class mi : public inst{

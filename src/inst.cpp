@@ -75,7 +75,8 @@ string quad::to_string(){
 
     std::stringstream out;
     out << label;
-    string r = "", _ = comment + "L" + out.str() + ": ";
+    string r = "", _ = /*comment +*/ "L" + out.str() + ": ";
+    
     opd *opds[] = {arg0, arg1, arg2};
     
     // Modo alternativo de impresion: si es preferible el otro basta con remover
@@ -145,11 +146,6 @@ string quad::to_string(){
         case IFEQ:   return _ + "IFEQ   " + r;
         case IFNEQ:  return _ + "IFNEQ  " + r;
         case IFL:    return _ + "IFLESS " + r;
-        case INIT:   return _ + "INIT   " + r;
-        case WRITE:  return _ + "WRITE  " + r;
-        case READ:   return _ + "READ   " + r;
-        case MAP:    return _ + "MAP    " + r;
-        case FILL:   return _ + "FILL   " + r;
         default:
             break;
     }
@@ -170,8 +166,12 @@ bool inst::is_jump(){
     return false;
 }
 
+bool inst::mandatory_jump(){
+    return false;
+}
+
 bool quad::is_jump(){
-    switch (op ){
+    switch ( op ){
         case GOTO:
         case IF:
         case IFEQ:
@@ -182,6 +182,20 @@ bool quad::is_jump(){
         case IFGEQ:
         case RETURN:
         case CALL:
+        case EPILOGUE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool quad::mandatory_jump(){
+    assert(is_jump());
+    switch ( op ){
+        case GOTO:
+//        case CALL:
+        case RETURN:
+        case EPILOGUE:
             return true;
         default:
             return false;

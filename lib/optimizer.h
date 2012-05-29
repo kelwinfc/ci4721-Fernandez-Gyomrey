@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <map>
+#include <fstream>
 
 void useless_jumps(block& code);
 

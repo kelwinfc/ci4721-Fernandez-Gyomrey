@@ -1,3 +1,5 @@
+map<string,int> func_to_prologue;
+map<string,int> func_to_epilogue;
 
 void AST_statement::gen_tac(block *b){
     // Unused
@@ -420,22 +422,31 @@ void AST_block::gen_tac(block *b){
 
 void AST_parameters_list::gen_tac(block* b){
     vector<opd*> params;
-    for (vector< AST_expression* >::iterator it = elem.begin(); it != elem.end(); ++ it) {
+    for (vector< AST_expression* >::iterator it = elem.begin();
+         it != elem.end(); ++ it)
+    {
         opd *v = (*it)->gen_tac(b), *t = new opd();
         if ((*it)->type == BOOLEAN) {
             b->backpatch((*it)->truelist, b->next_instruction() );
-            b->append_inst(new quad(quad::CP, t, new opd(true), 0, "argumento de función booleano (true)"));
-            b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+            b->append_inst(new quad(quad::CP, t, new opd(true), 0,
+                                    "argumento de función booleano (true)"));
+            b->append_inst(new quad(quad::GOTO, 0, 0,
+                            new opd(b->next_instruction() + 2, 1),
+                                "salto después de asignar el valor booleano"));
 
             b->backpatch( (*it)->falselist, b->next_instruction() );
-            b->append_inst(new quad(quad::CP, t, new opd(false), 0, "argumento de función booleano (false)"));
+            b->append_inst(new quad(quad::CP, t, new opd(false), 0,
+                                    "argumento de función booleano (false)"));
         } else {
-            b->append_inst(new quad(quad::CP, t, v, 0, "argumento de función no booleano"));
+            b->append_inst(new quad(quad::CP, t, v, 0,
+                                    "argumento de función no booleano"));
         }
         params.push_back(t);
     }
-    for (vector< opd* >::iterator it = params.begin(); it != params.end(); ++ it) {
-        b->append_inst(new quad(quad::PARAM, *it, 0, 0, "argumento de función"));
+    for (vector< opd* >::iterator it = params.begin();
+         it != params.end(); ++ it)
+    {
+        b->append_inst(new quad(quad::PARAM, *it, 0, 0,"argumento de función"));
     }
 }
 
@@ -479,8 +490,10 @@ void AST_discrete_arg_list::gen_tac(block *b){
 }
 
 void AST_function::gen_tac(block *b){
+    
+    func_to_prologue[func->getName()] = b->next_instruction();
     b->append_inst(new quad(quad::PROLOGUE,  0, 0, new opd(func),
-                            "prologo de funcion" + func->getName() )
+                            "prologo de funcion " + func->getName() )
                   );
     
     instructions->gen_tac(b);
@@ -488,8 +501,9 @@ void AST_function::gen_tac(block *b){
     b->backpatch( instructions->next_list, b->next_instruction() );
     b->backpatch( instructions->return_list, b->next_instruction() );
     
+    func_to_epilogue[func->getName()] = b->next_instruction();
     b->append_inst(new quad(quad::EPILOGUE,  0, 0, new opd(func),
-                            "epilogo de funcion" + func->getName() )
+                            "epilogo de funcion " + func->getName() )
                   );
 }
 
@@ -499,7 +513,9 @@ void AST_program::gen_tac(block *b){
     uint nsize = declarations.size();
     for ( uint i = 0; i != nsize; i++){
         if (   typeid(*declarations[i]) == typeid(AST_function)
-            && ((AST_function*)declarations[i])->func->getName().compare("main") == 0) {
+            && ((AST_function*)declarations[i])->func->getName().compare("main") 
+                    == 0)
+        {
 
             m = declarations[i];
         } else {

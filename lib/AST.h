@@ -15,6 +15,7 @@
 #include "utils.h"
 #include "block.h"
 #include "string_table.h"
+#include <map>
 
 using namespace std;
 

@@ -4,6 +4,8 @@
 using namespace std;
 
 extern vector<block*> list_of_blocks;
+extern map<string,int> func_to_prologue;
+extern map<string,int> func_to_epilogue;
 
 void next_instruction_jumps(block& code){
     if ( code.w_vector ){
@@ -94,37 +96,34 @@ void gen_graph(block& src, block& dst){
             was_jump = false;
         }
         
-        if ( current_inst->is_jump() && ((quad*)current_inst)->arg2 ){
-            int destino = ((quad*)current_inst)->arg2->pint;
-            SET_LEADER(leaders, destino);
-            
-            was_jump = true;
+        if ( current_inst->is_jump() ){
+            if ( ((quad*)current_inst)->op == quad::CALL ){
+                int destino = 
+                  func_to_prologue[((quad*)current_inst)->arg1->sym->getName()];
+                SET_LEADER(leaders, destino);
+                was_jump = true;
+            } else if (((quad*)current_inst)->arg2 != 0) {
+                int destino = ((quad*)current_inst)->arg2->pint;
+                SET_LEADER(leaders, destino);
+                was_jump = true;
+            }
         }
     }
-    
-    cout << "Leaders:";
-    for (uint index = 0; index != src.instructions.vinst->size(); index++){
-        inst* current_inst = (*(src.instructions.vinst))[index];
-        
-        if ( IS_LEADER(leaders, current_inst->label) ){
-            cout << " " << current_inst->label;
-        }
-    }
-    cout << endl;
     
     map<unsigned int, block*> label_to_block;
     
     // Creacion de los bloques basicos
     index = 0;
+    ofstream fout("bla.blocks");
     while( index < src.instructions.vinst->size() ){
         
         // Agregar el siguiente bloque basico a la lista global de bloques
         block* next_block = new block(false);
         next_block->index = list_of_blocks.size();
         
-        list_of_blocks.push_back(next_block);
+        fout << "B" << list_of_blocks.size() << ":\n";
         
-        //cout << "B" << list_of_blocks.size() << ":";
+        list_of_blocks.push_back(next_block);
         
         // Añadir todas las instrucciones del bloque basico
         inst* current_inst = (*(src.instructions.vinst))[index];
@@ -133,7 +132,7 @@ void gen_graph(block& src, block& dst){
         do {
             list_of_blocks.back()->append_inst(current_inst, false);
             
-            //cout << " " << current_inst->label;
+            fout << "| " << current_inst->to_string() << endl;
             
             index++;
             current_inst = (*(src.instructions.vinst))[index];
@@ -141,12 +140,11 @@ void gen_graph(block& src, block& dst){
         } while( index < src.instructions.vinst->size() 
                     && !IS_LEADER(leaders, current_inst->label)
                );
-        //cout << endl;
+        fout << "+--------------------------\n\n";
     }
     
     // En este punto ya se puede eliminar el arreglo de lideres. Los lideres son
-    // la primera instruccion de cada bloque basico y la ultima instruccion de
-    // cada uno marca el destino alternativo
+    // la primera instruccion de cada bloque basico.
     delete leaders;
     
     // Conectar los bloques
@@ -155,23 +153,69 @@ void gen_graph(block& src, block& dst){
     {
         block* current_block = list_of_blocks[block_index];
         
-        cout << "B" << block_index << endl;
-        
-        if ( block_index + 1 < list_of_blocks.size() ){
-            current_block->mandatory_exit = list_of_blocks[block_index+1];
-            
-            cout << "  --> B" << block_index+1 << endl;
-        } else {
-            current_block->mandatory_exit = 0;
+        /* Definicion de salida obligatoria
+         * Se coloca que la salida obligatoria de una funcion call es la
+         * siguiente para mantener informacion de la secuencialidad.
+         * En caso de no desear este comportamiento colocar en inst el operador
+         * call como obligatorio
+         */
+        current_block->mandatory_exit = 0;
+        if ( block_index + 1 < list_of_blocks.size()
+             && (    !list_of_blocks[block_index]->last_instruction()->is_jump()
+                  || !list_of_blocks[block_index]->last_instruction()
+                          ->mandatory_jump() )
+           )
+        {
+                current_block->mandatory_exit = list_of_blocks[block_index+1];
         }
         
         inst* last_inst = current_block->last_instruction();
         
-        if ( last_inst->is_jump() && ((quad*)last_inst)->arg2 != 0 ){
-            
-            current_block->sucessors.push_back( label_to_block[((quad*)last_inst)->arg2->pint] );
-            cout << "  --> B"
-                 << current_block->sucessors.back()->index << endl;
+        if ( last_inst->is_jump() && ((quad*)last_inst)->op == quad::GOTO ){
+            current_block->mandatory_exit = 
+                label_to_block[ ((quad*)last_inst)->arg2->pint ];
         }
+        
+        if ( ((quad*)last_inst)->op == quad::RETURN ){
+            current_block->mandatory_exit = 
+                label_to_block[((quad*)last_inst)->arg2->pint];
+        }
+        
+        // Marcar las salidas opcionales
+        if ( last_inst->is_jump() && !last_inst->mandatory_jump() )
+        {
+            if ( ((quad*)last_inst)->op == quad::CALL ){
+                string func = ((quad*)last_inst)->arg1->sym->getName();
+                
+                // Agregar salto desde el llamador al prologo del llamado
+                current_block->sucessors.push_back(
+                    label_to_block[ func_to_prologue[func]]);
+                
+                // Agregar salto desde el epilogo del llamado a la salida
+                // obligatoria de este bloque (siguiente instruccion despues
+                // de la llamada)
+                label_to_block[func_to_epilogue[func]]->sucessors.push_back(
+                    current_block->mandatory_exit);
+            } else if ( ((quad*)last_inst)->arg2 != 0 ){
+                current_block->sucessors.push_back(
+                            label_to_block[((quad*)last_inst)->arg2->pint] );
+            }
+        }
+    }
+    
+    for (uint block_index = 0 ; block_index != list_of_blocks.size();
+         block_index++)
+    {
+        cout << "B" << block_index << "  -->" ;
+        if ( list_of_blocks[block_index]->mandatory_exit ){
+            cout << " B" << list_of_blocks[block_index]->mandatory_exit->index;
+        }
+        
+        vector<block*>::iterator it =
+            list_of_blocks[block_index]->sucessors.begin();
+        for ( ; it != list_of_blocks[block_index]->sucessors.end(); ++it ){
+            cout << " B" << (*it)->index;
+        }
+        cout << endl;
     }
 }
