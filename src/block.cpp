@@ -1,10 +1,12 @@
 #include "block.h"
 #include <iostream>
 
+unsigned int next_label = 0;
+vector<block*> list_of_blocks;
+
 using namespace std;
 
 block::block(bool with_vector){
-    num_instr = 0;
     w_vector = with_vector;
     if ( with_vector ){
         instructions.vinst = new vector<inst*>();
@@ -13,18 +15,34 @@ block::block(bool with_vector){
     }
 }
 
-void block::append_inst(inst* i) {
+void block::append_inst(inst* i, bool gen_label) {
     
     int ninst = next_instruction();
     if ( w_vector ){
         instructions.vinst->push_back(i);
-        instructions.vinst->back()->label = ninst;
+        
+        if ( gen_label ){
+            instructions.vinst->back()->label = ninst;
+        }
     } else {
         instructions.linst->push_back(i);
-        instructions.linst->back()->label = ninst;
+        
+        if ( gen_label ){
+            instructions.linst->back()->label = ninst;
+        }
     }
     
-    num_instr++;
+    if ( gen_label ){
+        next_label++;
+    }
+}
+
+inst* block::last_instruction(){
+    if ( w_vector ){
+        return instructions.vinst->back();
+    } else {
+        return instructions.linst->back();
+    }
 }
 
 void block::dump() {
@@ -42,7 +60,7 @@ void block::dump() {
 }
 
 int block::next_instruction(){
-    return num_instr;
+    return next_label;
 }
 
 //TODO

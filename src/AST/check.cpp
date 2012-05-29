@@ -1032,10 +1032,7 @@ void AST_print::fill_and_check(symbol_table* st){
     
     vector<AST_expression*>::iterator it;
     for (it=list.begin(); it!=list.end(); ++it){
-        cout << "aca\n";
-        (*it)->print(0);
         (*it)->fill_and_check(st);
-        cout << "aca no\n";
     }
 }
 

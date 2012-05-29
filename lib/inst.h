@@ -40,6 +40,7 @@ class inst{
         unsigned int label;
         virtual string to_string();
         
+        virtual bool is_jump();
 };
 
 class quad : public inst{
@@ -54,13 +55,15 @@ class quad : public inst{
         opd *arg1;
         opd *arg2;
         string comment;
-
+        
     public:
         quad(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0, string comment = "");
 
         string to_string();
         
         unsigned get_goal_label();
+        
+        virtual bool is_jump();
 };
 
 class mi : public inst{

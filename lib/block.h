@@ -15,16 +15,19 @@ typedef union instructions{
 
 class block{
     
-    protected:
-        int num_instr;
-    
     public:
+        int index;
         bool w_vector;
         seq_inst instructions;
         
         block(bool with_vector=false);
-        void append_inst(inst* i);
+        void append_inst(inst* i, bool gen_label = true);
+        inst* last_instruction();
+        
         void dump();
+        
+        block* mandatory_exit;
+        vector<block*> sucessors;
         
         int next_instruction();
         void backpatch(list<int>& l, int instr);

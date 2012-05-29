@@ -145,3 +145,23 @@ unsigned int quad::get_goal_label(){
         return -1;
     }
 }
+
+bool inst::is_jump(){
+    return false;
+}
+
+bool quad::is_jump(){
+    switch (op ){
+        case GOTO:
+        case IF:
+        case IFEQ:
+        case IFNEQ:
+        case IFL:
+        case IFLEQ:
+        case IFG:
+        case IFGEQ:
+            return true;
+        default:
+            return false;
+    }
+}

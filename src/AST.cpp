@@ -11,13 +11,13 @@
 #define DEBUG(L,V) printf((string(L) + " data   : %s (%d, %d)\n").c_str(), typeid(*V).name(), (*V).line, (*V).column); printf((string(L) + " return : %s(%d)\n").c_str(), (*V).has_return == YES ? "YES" : ((*V).has_return == NO ? "NO" : ((*V).has_return == MAYBE ? "MAYBE" : "")), (*V).has_return);
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
-
+    
     is_constant = false;
     type = UNDEFINED;
-
+    
     line = l->line;
     column = l->column;
-
+    
     if ( o->ident.compare("+") == 0 ){
         oper_type = PLUS;
     } else if ( o->ident.compare("-") == 0 ){
@@ -51,17 +51,17 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
     } else {
         logger->critical("Error de implementación en identificación de operador de expresión binaria");
     }
-
+    
     line_op = o->line;
     column_op = o->column;
     delete o;
-
+    
     left = l;
     right = r;
 }
 
 AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
-
+    
     is_constant = false;
     type = UNDEFINED;
     
@@ -72,7 +72,7 @@ AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
     } else {
         logger->critical("Error de implementación en identificación de operador de expresión unaria");
     }
-
+    
     line = o->line;
     column = o->column;
     delete o;

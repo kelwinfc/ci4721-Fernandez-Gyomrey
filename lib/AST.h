@@ -431,6 +431,7 @@ class AST_variable_declaration : public AST_declaration {
 class AST_block : public AST_statement {
 
     public:
+        RETURN has_return;
         
         vector<AST_statement*> statements;
         

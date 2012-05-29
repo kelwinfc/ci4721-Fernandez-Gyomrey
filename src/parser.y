@@ -1643,12 +1643,16 @@ int main (int argc,char **argv)
     if ( !logger->exists_registered_error() ){
         p->gen_tac(b);
         useless_jumps(*b);
-        
         b->dump();
     }
     
     fprintf(stdout, "-------------------------------------------------------\n\n");
 
+    block graph;
+    gen_graph(*b,graph);
+    
+    fprintf(stdout, "-------------------------------------------------------\n\n");
+    
     if ( logger->exists_registered_error() ){
         logger->failure("context");
         return 0;
