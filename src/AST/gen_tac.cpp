@@ -193,7 +193,7 @@ opd *AST_op::gen_tac(block *b){
 }
 
 opd *AST_un_op::gen_tac(block *b){
-    expr->gen_tac(b);
+    opd* e = expr->gen_tac(b);
     
     switch( oper_type ){
         case NOT:
@@ -202,8 +202,6 @@ opd *AST_un_op::gen_tac(block *b){
             break;
         default:
             {
-                opd* e = expr->gen_tac(b);
-                
                 opd* d = new opd();
                 b->append_inst(new quad(quad::UMINUS, d, e, 0, "operación binaria de inverso"));
                 
@@ -379,7 +377,14 @@ opd *AST_rlval::gen_tac(block *b) {
     opd *l = value->gen_tac(b);
     // Al copiar apuntadores, sólo el caso del @ no se sabe cuál es el apuntador al apuntador (ej. variable global)
     if (typeid(*value) != typeid(AST_address)) {
-        b->append_inst(new quad(quad::LD, l, l, 0, "cargar el valor de un lvalue usado del lado derecho"));
+        opd *t;
+        if (O_TEMP != l->type) {
+            t = new opd();
+        } else {
+            t = l;
+        }
+        b->append_inst(new quad(quad::LD, t, l, 0, "cargar el valor de un lvalue usado del lado derecho"));
+        l = t;
     }
     return l;
 }
@@ -566,8 +571,8 @@ void AST_conditional::gen_tac(block *b){
 }
 
 void AST_loop::gen_tac(block *b){
-    
-    int next_instr = b->next_instruction(); // etiqueta para el salto de la
+    next_list.clear();
+    int start_instr = b->next_instruction(); // etiqueta para el salto de la
                                             // ultima instruccion del loop
     
     expr->gen_tac(b);
@@ -576,28 +581,45 @@ void AST_loop::gen_tac(block *b){
     
     // enviar los saltos de los continue hasta el principio del codigo de
     // evaluacion de la condicion
-    b->backpatch(blck->continue_list, next_instr);
+    b->backpatch(blck->continue_list, start_instr);
     
-    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true), "salto condicional de un loop"));
+    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(start_instr, true), "salto condicional de un loop"));
     
     next_list = expr->falselist;
     next_list.splice(next_list.end(), blck->break_list);
 }
 
 void AST_bounded_loop::gen_tac(block *b){
-    /*
+    next_list.clear();
+
     opd* l = left_bound->gen_tac(b);
-    b->append_inst(new quad(quad::CP, new opd(sym), l));
-    
-    int next_instr = b->next_instruction();
     opd* r = right_bound->gen_tac(b);
-    //TODO completar marcar salto negativo a final de ciclo
-    b->append_inst(new quad(quad::IFLEQ, l, r, new opd(b->next_instruction()+2,true)));
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0));
-    
+    opd* i = new opd(), *os = new opd(sym);
+    // prólogo
+    b->append_inst(new quad(quad::CP, i, new opd(-1), 0, "se asume que se va a restar en cada ciclo"));
+    b->append_inst(new quad(quad::IFGEQ, l, r, new opd(b->next_instruction() + 2,true), "en este caso, efectivamente, se resta en cada ciclo"));
+    b->append_inst(new quad(quad::CP, i, new opd(1), 0, "si se alcanzó esta instrucción, se va a sumar en cada ciclo"));
+    int start_instr = b->next_instruction();
+    // comienzo del ciclo
+    b->append_inst(new quad(quad::IFEQ, i, new opd(1), new opd(b->next_instruction() + 3,true), "verificar que se suma por ciclo"));
+    b->append_inst(new quad(quad::IFGEQ, l, r, new opd(b->next_instruction() + 4,true),
+        "dado que se resta por ciclo, verificar que no se alcanzó el mínimo derecho"));
+    next_list.push_back( b->next_instruction() );
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "si se llegó hasta aquí, es porque el ciclo finalizó naturalmente"));
+    b->append_inst(new quad(quad::IFLEQ, l, r, new opd(b->next_instruction() + 2,true),
+        "dado que se suma por ciclo, verificar que no se alcanzó el máximo derecho"));
+    next_list.push_back( b->next_instruction() );
+    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "si se llegó hasta aquí, es porque el ciclo finalizó naturalmente"));
+    // ciclo
     blck->gen_tac(b);
-    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(next_instr, true)));
-    */
+    // si ocurre un continue en el ciclo
+    b->backpatch(blck->continue_list, start_instr);
+    // si ocurre un break en el ciclo
+    next_list.splice(next_list.end(), blck->break_list);
+
+    b->append_inst(new quad(quad::ADD, os, new opd(1), 0, "tanto para enteros como para caracteres sumar uno hasta llegars"));
+    // comenzar de nuevo
+    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(start_instr, true), "volver a comenzar el for acotado"));
 }
 
 void AST_break::gen_tac(block *b){

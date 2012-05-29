@@ -86,11 +86,23 @@ string quad::to_string(){
             return _ + opds[0]->to_string() + " := " + opds[1]->to_string();
         case GOTO:
             return _ + "goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IFEQ:
+            return _ + "if " + opds[0]->to_string() + " == " + opds[1]->to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IFNEQ:
+            return _ + "if " + opds[0]->to_string() + " != " + opds[1]->to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IFL:
             return _ + "if " + opds[0]->to_string() + " < " + opds[1]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IFLEQ:
             return _ + "if " + opds[0]->to_string() + " <= " + opds[1]->to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IFG:
+            return _ + "if " + opds[0]->to_string() + " > " + opds[1]->to_string()
+                    + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
+        case IFGEQ:
+            return _ + "if " + opds[0]->to_string() + " >= " + opds[1]->to_string()
                     + " goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IF:
             return _ + "if " + opds[0]->to_string()
