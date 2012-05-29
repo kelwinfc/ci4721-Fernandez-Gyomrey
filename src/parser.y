@@ -1645,9 +1645,13 @@ int main (int argc,char **argv)
     }
     
     fprintf(stdout, "-------------------------------------------------------\n\n");
-
-    block graph;
-    gen_graph(*b,graph);
+    
+    b->gen_graph();
+    delete_unreachable_code();
+    
+    cout << "Escribiendo bloques básico en bla.blocks"
+         << " y grafo de flujo en bla.png\n\n";
+    dump_in_file("bla");
     
     fprintf(stdout, "-------------------------------------------------------\n\n");
     

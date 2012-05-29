@@ -4,6 +4,10 @@
 #include <list>
 #include <cstdio>
 #include <vector>
+#include <cstdlib>
+#include <cstring>
+#include <map>
+#include <fstream>
 #include "inst.h"
 
 using namespace std;
@@ -31,6 +35,11 @@ class block{
         
         int next_instruction();
         void backpatch(list<int>& l, int instr);
+        
+        unsigned int max_label();
+        void gen_graph();
 };
+
+void dump_in_file(string filename);
 
 #endif

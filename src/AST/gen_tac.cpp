@@ -1,5 +1,8 @@
+#include <queue>
+
 map<string,int> func_to_prologue;
 map<string,int> func_to_epilogue;
+extern unsigned int first_instruction;
 
 void AST_statement::gen_tac(block *b){
     // Unused
@@ -469,8 +472,10 @@ void AST_variable_declaration::gen_tac(block *b){
     if ( value->type == BOOLEAN){
 
         b->backpatch( value->truelist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(true), 0, "declaración con asignación del valor booleano obtenido (true) al lvalue"));
-
+        b->append_inst(new quad(quad::CP, l, new opd(true), 0,
+                                "declaración con asignación del valor booleano "
+                                "obtenido (true) al lvalue"));
+        
         next_list.push_back( b->next_instruction() );
         b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto después de declarar y asignar el valor booleano"));
 
@@ -511,16 +516,35 @@ void AST_program::gen_tac(block *b){
 
     AST_declaration* m = 0;
     uint nsize = declarations.size();
+    
+    queue<AST_declaration*> global_variables;
+    
     for ( uint i = 0; i != nsize; i++){
+        
+        // El main se genera de ultimo
         if (   typeid(*declarations[i]) == typeid(AST_function)
             && ((AST_function*)declarations[i])->func->getName().compare("main") 
                     == 0)
         {
-
             m = declarations[i];
-        } else {
+        }
+        // La inicialización de variables se deja para antes del main
+        else if ( typeid(*declarations[i]) != typeid(AST_function) ){
+            global_variables.push(declarations[i]);
+        }
+        // Las demas funciones se generan de una vez
+        else {
             declarations[i]->gen_tac(b);
         }
+    }
+    
+    first_instruction = b->next_instruction();
+    
+    while( !global_variables.empty() ){
+        AST_declaration* d = global_variables.front();
+        global_variables.pop();
+        
+        d->gen_tac(b);
     }
     m->gen_tac(b);
 }
