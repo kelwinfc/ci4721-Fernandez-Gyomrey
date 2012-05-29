@@ -421,7 +421,17 @@ void AST_block::gen_tac(block *b){
 
 void AST_parameters_list::gen_tac(block* b){
     for (vector< AST_expression* >::iterator it = elem.begin(); it != elem.end(); ++ it) {
-        b->append_inst(new quad(quad::PARAM, (*it)->gen_tac(b), 0, 0, "argumento de función"));
+        opd *v = (*it)->gen_tac(b);
+        if (0 == v) {
+            b->backpatch((*it)->truelist, b->next_instruction() );
+            b->append_inst(new quad(quad::PARAM, new opd(true), 0, 0, "argumento de función booleano (true)"));
+            b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+
+            b->backpatch( (*it)->falselist, b->next_instruction() );
+            b->append_inst(new quad(quad::PARAM, new opd(false), 0, 0, "argumento de función booleano (false)"));
+        } else {
+            b->append_inst(new quad(quad::PARAM, v, 0, 0, "argumento de función no booleano"));
+        }
     }
 }
 
