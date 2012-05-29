@@ -1387,12 +1387,11 @@ expression :
                                yyerrok;
                              }
     | lvalue                 {
-                                $$ = 
-                                      ((AST_lval*)$1)->constant_folding();
-                                
+                                $$ = ((AST_lval*)$1)->constant_folding();
                                 if ( $$ != $1 ){
                                     delete $1;
                                 }
+                                $$ = new AST_rlval((AST_lval*)$$);
                              }
     |   TK_IDENT '(' parameters_instance ')'
                              { $$ = new AST_function_call( (tokenId*) $1,

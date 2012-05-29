@@ -351,6 +351,21 @@ class AST_struct_access : public AST_lval {
         virtual void print(int indentation);
 };
 
+class AST_rlval : public AST_lval {
+    AST_lval* value;
+
+    public:
+        AST_rlval( AST_lval* lvalue);
+
+        virtual AST_expression* constant_folding();
+
+        virtual void fill_and_check(symbol_table* st, bool lval = false);
+
+        virtual opd *gen_tac(block* b);
+
+        virtual void print(int indentation);
+};
+
 class AST_parameters_list : public AST_node {
 
     public:
