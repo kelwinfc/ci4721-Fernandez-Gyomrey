@@ -752,10 +752,11 @@ void AST_bounded_loop::gen_tac(block *b){
     blck->gen_tac(b);
     // si ocurre un continue en el ciclo
     b->backpatch(blck->continue_list, start_instr);
+    b->backpatch(blck->next_list, start_instr);
     // si ocurre un break en el ciclo
     next_list.splice(next_list.end(), blck->break_list);
 
-    b->append_inst(new quad(quad::ADD, os, os, new opd(1), "tanto para enteros como para caracteres sumar uno hasta llegars"));
+    b->append_inst(new quad(quad::ADD, os, os, i, "tanto para enteros como para caracteres sumar uno hasta llegars"));
     // comenzar de nuevo
     b->append_inst(new quad(quad::GOTO, 0, 0, new opd(start_instr, true), "volver a comenzar el for acotado"));
 }
