@@ -402,6 +402,9 @@ void AST_assignment::print(int indentation){
     }
 }
 
+void AST_procedure_call::print(int indentation){
+    funcall->print(indentation);
+}
 
 void AST_return::print(int indentation){
     printf("%3d: ", line);

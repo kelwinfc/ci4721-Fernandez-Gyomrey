@@ -218,6 +218,7 @@ void AST_parameters_list::add_element( AST_expression* e ){
 AST_function_call::AST_function_call(tokenId* tk, AST_parameters_list* p){
     
     is_constant = false;
+    returns_value = true;// en principio se asume que sí. AST_procedure lo quitará de hacer falta
     
     line = tk->line;
     column = tk->column;
@@ -390,6 +391,14 @@ AST_assignment::AST_assignment(AST_lval* l, AST_expression* e){
     column = l->column;
     
     expr = e;
+    has_return = NO;
+}
+
+AST_procedure_call::AST_procedure_call(tokenId* tk, AST_parameters_list* p){
+    funcall = new AST_function_call(tk, p);
+    funcall->returns_value = false;
+    line = funcall->line;
+    column = funcall->column;
     has_return = NO;
 }
 

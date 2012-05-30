@@ -151,6 +151,7 @@ string quad::to_string(){
         case READ:   return _ + "READ   " + r;
         case MAP:    return _ + "MAP    " + r;
         case FILL:   return _ + "FILL   " + r;
+        case EXEC:   return _ + "EXEC   " + r;
 
         default:
             break;

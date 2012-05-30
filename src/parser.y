@@ -1229,7 +1229,7 @@ statement :
               yyerrok;
             }
     |   TK_IDENT '(' parameters_instance ')'
-                             { $$ = new AST_function_call( (tokenId*) $1,
+                             { $$ = new AST_procedure_call( (tokenId*) $1,
                                                            (AST_parameters_list*) $3
                                                          );
                                delete $2;
