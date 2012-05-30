@@ -400,9 +400,13 @@ opd *AST_conversion::gen_tac(block *b){
 
 opd *AST_function_call::gen_tac(block *b){
     params->gen_tac(b);
-    opd *t = new opd();
-    b->append_inst(new quad(quad::CALL, t, new opd(sym), 0, "llamada de función guardada en el primer argumento"));
-    return t;
+    if (returns_value) {
+        opd *t = new opd();
+        b->append_inst(new quad(quad::CALL, t, new opd(sym), 0, "llamada de función guardada en el primer argumento"));
+        return t;
+    }
+    b->append_inst(new quad(quad::EXEC, new opd(sym), 0, 0, "llamada de función guardada en el primer argumento"));
+    return 0;
 }
 
 void AST_block::gen_tac(block *b){
@@ -568,6 +572,10 @@ void AST_assignment::gen_tac(block *b){
     } else {
         b->append_inst(new quad(quad::CP, l, r, 0, "asignación de un valor de cualquier tipo obtenido al lvalue"));
     }
+}
+
+void AST_procedure_call::gen_tac(block *b){
+    funcall->gen_tac(b);
 }
 
 void AST_return::gen_tac(block *b){

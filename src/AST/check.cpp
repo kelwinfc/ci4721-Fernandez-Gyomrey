@@ -391,6 +391,7 @@ void AST_boolean::fill_and_check(symbol_table* st){
 }
 
 void AST_ident::fill_and_check(symbol_table* st, bool lval){
+            printf("usando tabla %p\n", st);
     sym = st->lookup(value);
     
     /* El simbolo existe en la tabla */
@@ -585,7 +586,6 @@ void AST_block::fill_and_check(symbol_table* st){
         if ( typeid(**it) == typeid(AST_block) ){
             symbol_table* nested_block = st->new_son();
             (*it)->fill_and_check(nested_block);
-            
             delete nested_block;
         } else {
             (*it)->fill_and_check(st);
@@ -901,6 +901,11 @@ void AST_assignment::fill_and_check(symbol_table* st){
                 );
         logger->error(line, column, e);
     }
+}
+
+void AST_procedure_call::fill_and_check(symbol_table* st){
+    funcall->fill_and_check(st);
+    has_return = funcall->has_return;
 }
 
 void AST_return::fill_and_check(symbol_table* st){

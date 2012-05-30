@@ -3,9 +3,11 @@
 symbol_table::symbol_table(){
     accumulated_offset = 0;
     parent = 0;
+    printf("creando tabla %p\n", this);
 }
 
 symbol_table::symbol_table(symbol_table* p){
+    printf("creando tabla %p\n", this);
     parent = p;
     
     if ( p == 0 || p->parent == 0 ){
@@ -25,7 +27,7 @@ symbol* symbol_table::lookup(string name, int* level){
     }
     
     if (0 != parent){
-        symbol* s = (*parent).lookup(name, level);
+        symbol* s = parent->lookup(name, level);
         
         if ( level){
             *level = *level + 1;

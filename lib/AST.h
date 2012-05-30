@@ -375,12 +375,14 @@ class AST_parameters_list : public AST_node {
 class AST_function_call : public AST_expression {
 
     public:
-        
+
         RETURN has_return;
-        
+
         string name;
 
         symbol* sym;
+
+        bool returns_value;
 
         AST_parameters_list* params;
 
@@ -524,6 +526,21 @@ class AST_assignment : public AST_statement {
         AST_expression* expr;
         
         AST_assignment(AST_lval* l, AST_expression* e);
+
+        virtual void print(int indentation);
+        
+        virtual void fill_and_check(symbol_table* st);
+        
+        virtual void gen_tac(block* b);
+};
+
+class AST_procedure_call : public AST_statement {
+
+    public:
+
+        AST_function_call* funcall;
+
+        AST_procedure_call(tokenId* tk, AST_parameters_list* p);
 
         virtual void print(int indentation);
         
