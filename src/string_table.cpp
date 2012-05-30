@@ -28,7 +28,7 @@ void string_table::dump() {
 
     fprintf(stdout, " STRINGS:\n");
     for (vector<string>::iterator it = table.begin(); it != table.end(); ++ it) {
-        fprintf(stdout, "| %s\n", to_string(*it).c_str());
+        fprintf(stdout, "- \"%s\"\n", to_string(*it).c_str());
     }
     fprintf(stdout, "------------------------------------------------------\n\n");
 }

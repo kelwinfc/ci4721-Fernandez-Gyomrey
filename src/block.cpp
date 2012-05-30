@@ -248,12 +248,6 @@ void dump_blocks_definition(string filename){
     ofstream fout;
     
     fout.open((filename+".blocks").c_str());
-    fout << "+-----------------------+\n"
-         << "|                       |\n"
-         << "| Definición de Bloques |\n"
-         << "|                       |\n"
-         << "+-----------------------+\n"
-         << endl;
     
     for (uint index = 0 ; index != list_of_blocks.size(); index++)
     {
@@ -269,7 +263,7 @@ void dump_blocks_definition(string filename){
             inst* current_inst = *it;
             fout << "| " << current_inst->to_string() << endl;
         }
-        fout << "+--------------------------\n";
+        fout << "|\n";
         
         // Salida obligatoria
         if ( list_of_blocks[index]->mandatory_exit ){

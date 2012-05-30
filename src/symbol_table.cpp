@@ -3,11 +3,9 @@
 symbol_table::symbol_table(){
     accumulated_offset = 0;
     parent = 0;
-    printf("creando tabla %p\n", this);
 }
 
 symbol_table::symbol_table(symbol_table* p){
-    printf("creando tabla %p\n", this);
     parent = p;
     
     if ( p == 0 || p->parent == 0 ){
