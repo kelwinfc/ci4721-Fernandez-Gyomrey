@@ -38,7 +38,7 @@ class inst{
     public:
         
         unsigned int label;
-        virtual string to_string();
+        virtual string to_string(bool with_comment = true);
         
         virtual bool is_jump();
         virtual bool mandatory_jump();
@@ -61,7 +61,7 @@ class quad : public inst{
     public:
         quad(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0, string comment = "");
 
-        string to_string();
+        string to_string(bool with_comment = true);
         
         unsigned get_goal_label();
         

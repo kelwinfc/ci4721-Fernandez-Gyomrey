@@ -261,7 +261,7 @@ void dump_blocks_definition(string filename){
             list_of_blocks[index]->instructions.linst->begin();
         for ( ; it != list_of_blocks[index]->instructions.linst->end(); ++it ){
             inst* current_inst = *it;
-            fout << "| " << current_inst->to_string() << endl;
+            fout << "| " << current_inst->to_string(false) << endl;
         }
         fout << "|\n";
         

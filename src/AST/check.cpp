@@ -391,7 +391,6 @@ void AST_boolean::fill_and_check(symbol_table* st){
 }
 
 void AST_ident::fill_and_check(symbol_table* st, bool lval){
-            printf("usando tabla %p\n", st);
     sym = st->lookup(value);
     
     /* El simbolo existe en la tabla */

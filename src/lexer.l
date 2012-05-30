@@ -167,7 +167,9 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                             }
 
 "foldr"|"foldl"             { updatecol();
-                              fprintf(stderr,"Warning: Palabra reservada %s aún sin implementarse.\n",
+                              fprintf(stderr,
+                                      "Warning: Palabra reservada %s aún "
+                                      "sin implementarse.\n",
                                       yytext);
                             }
 

@@ -1,0 +1,226 @@
+% file thesis.tex
+% Archivo thesis.tex
+% Documento maestro que incluye todos los paquetes necesarios para el documento
+% principal.
+
+% Documento obtenido por un sinfin de iteraciones de administradores del LDC
+% Estructura actual hecha por:
+% Jairo Lopez <jairo@ldc.usb.ve>
+% Actualizado ligeramente por:
+% Alexander Tough 
+
+\documentclass[oneside,12pt,letterpaper]{article}
+\tolerance=1000  
+\hbadness=10000  
+\raggedbottom
+
+% Para escribir algoritmos
+\usepackage{listings}
+\usepackage{algpseudocode}
+\usepackage{algorithmicx}
+\usepackage{algorithm}
+
+% Paquetes para manejar graficos
+\usepackage{epsf}
+\usepackage[pdftex]{graphicx}
+\usepackage{epsfig}
+% Simbolos matematicos
+\usepackage{latexsym,amssymb}
+% Paquetes para presentar una tesis decente.
+\usepackage{setspace,cite} % Doble espacio para texto, espacio singular para
+                           % los caption y pie de pagina
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes}
+\usepackage{verbatim}
+
+\usepackage{comment}
+
+% Paquetes no utilizados para citas
+%\usepackage{mcite} 
+%\usepackage{draft} 
+
+\usepackage{wrapfig}
+\usepackage{alltt}
+
+% Acentos 
+\usepackage[spanish,activeacute,es-noquoting]{babel}
+
+\usepackage[spanish]{translator}
+\usepackage[utf8]{inputenc}
+\usepackage{color, xcolor, colortbl}
+\usepackage{multirow}
+\usepackage{subfig}
+\usepackage[OT1]{fontenc}
+\usepackage{tocbibind}
+\usepackage{anysize}
+\usepackage{listings} 
+
+% Para poder tener texto asiatico
+%\usepackage{CJK}
+
+% Opciones para los glosarios
+\usepackage[style=altlist,toc,numberline,acronym]{glossaries}
+\usepackage{url}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{fancyhdr} % Necesario para los encabezados
+\usepackage{fancyvrb}
+\usepackage{makeidx} % En caso de necesitar indices.
+\makeindex  % Necesitado para los indices
+
+% Definiciones para definicions, teoremas y lemas
+\theoremstyle{definition} \newtheorem{definicion}{Definici\'{o}n}
+\theoremstyle{plain} \newtheorem{teorema}{Teorema}
+\theoremstyle{plain} \newtheorem{lema}{Lema}
+
+% Para la creacion de los pdfs
+\usepackage{hyperref}
+
+% Para resolver el lio del Unicode para la informacion de los PDFs
+% En pdftitle coloca el nombre de su proyecto de grado/pasantia.
+% En pdfauthor coloca su nombre.
+\hypersetup{
+    pdftitle = {Lenguajes de Programaci'on III},
+    pdfauthor={Kelwin Fernández, Andras Gyomrey},
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black,
+    backref,
+    pdftex
+}
+
+\definecolor{brown}{rgb}{0.7,0.2,0}
+\definecolor{darkgreen}{rgb}{0,0.6,0.1}
+\definecolor{darkgrey}{rgb}{0.4,0.4,0.4}
+\definecolor{lightgrey}{rgb}{0.95,0.95,0.95}
+
+\usepackage{listings}
+\lstnewenvironment{code}{\lstset{basicstyle=\small}}{}
+
+\lstset{
+   frame=single,
+   framerule=1pt,
+   showstringspaces=false,
+   basicstyle=\footnotesize\ttfamily,
+   keywordstyle=\textbf,
+   backgroundcolor=\color{lightgrey}
+}
+
+% Pone los nombres y las opciones para mostrar los codigos fuentes
+\lstset{language=C, breaklines=true, frame=single, showstringspaces=false,
+        showtabs=false, numbers=left, keywordstyle=\color{black},
+        basicstyle=\footnotesize, captionpos=b }
+\renewcommand{\lstlistingname}{C\'{o}digo fuente}
+\renewcommand{\lstlistlistingname}{\'{I}ndice de c\'{o}digos fuentes}
+
+\newcommand{\todo}{ TODO: }
+
+% Dimensiones de la pagina
+\setlength{\headheight}{15pt}
+\marginsize{3cm}{2cm}{2cm}{2cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%      end of preamble and start of document     %%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+
+\title{Documento Autogenerado de Estado de Compilaci'on}
+
+\author{BLA Compiler}
+
+\maketitle
+
+\pagebreak
+
+\section{Descripci'on de Tipos}
+\begin{verbatim}
+ TYPES:
+  * _undefined [size 0][alignment 1]
+  * _invalid [size 0][alignment 1]
+  * none [size 0][alignment 1]
+  * int [size 4][alignment 4]
+  * float [size 4][alignment 4]
+  * char [size 1][alignment 1]
+  * boolean [size 1][alignment 1]
+  * string [size 4][alignment 4]
+\end{verbatim}
+
+\section{Constantes String}
+\begin{verbatim}
+- "hola"
+\end{verbatim}
+
+\section{'Arbol Sint'actico Abstracto}
+
+\begin{verbatim}
+  5: Declaration: c (int) [offset 0] initialized with
+  5:     Constant int: 30
+  6: Declaration: d (int) [offset 4] initialized with
+  6:     Constant int: 30
+ 12: Declaration of Function fibRec -> int
+ 12:     (
+ 12:     int(n)
+ 12:     )
+ 13:     {
+ 13:         If
+                 (
+ 13:             == [boolean]
+ 13:                 Identifier: n [int:12:20]
+ 13:                 Constant int: 0
+                 )
+ 14:             {
+ 14:                 Return [int]
+ 14:                     Constant int: 0
+ 14:             }
+ 15:         Else If
+                 (
+ 15:             == [boolean]
+ 15:                 Identifier: n [int:12:20]
+ 15:                 Constant int: 1
+                 )
+ 16:             {
+ 16:                 Return [int]
+ 16:                     Constant int: 1
+ 16:             }
+ 18:         Return [int]
+ 18:             + [int]
+ 18:                 fibRec [int:12:9]
+                     (
+ 18:                     - [int]
+ 18:                         Identifier: n [int:12:20]
+ 18:                         Constant int: 1
+                     )
+ 18:                 fibRec [int:12:9]
+                     (
+ 18:                     - [int]
+ 18:                         Identifier: n [int:12:20]
+ 18:                         Constant int: 2
+                     )
+ 18:     }
+ 21: Declaration: b (int) [offset 8] initialized with
+ 21:     Constant int: 42
+ 22: Declaration: e (int) [offset 12] initialized with
+ 22:     Constant int: 42
+ 48: Declaration: a (int) [offset 16] initialized with
+ 48:     Constant int: 42
+ 50: Declaration of Function main -> none
+ 50:     (
+ 50:     )
+ 51:     {
+ 51:         Declaration: a (int) [offset 0] unitialized
+ 52:         Read a [int:51:9]
+ 53:         Declaration: fR (int) [offset 4] initialized with
+ 53:             fibRec [int:12:9]
+                 (
+ 53:                 Identifier: a [int:51:9]
+                 )
+ 55:         Declaration: salida (string) [offset 8] initialized with
+ 55:             Constant string: hola
+ 55:     }
+\end{verbatim}
+
+\end{document}

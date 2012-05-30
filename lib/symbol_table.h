@@ -42,7 +42,6 @@ class symbol_table {
                     logger->warning(sym->getLine(), sym->getColumn(), e);
                 }
             }
-            printf("eliminando tabla %p\n", this);
         }
 
         symbol_table(symbol_table* p);

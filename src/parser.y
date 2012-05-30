@@ -129,6 +129,14 @@ type_def:
         TK_IDENT
           {
               $$ = types.index_of( ((tokenId*)$1)->ident );
+              if ( $$ == UNDEFINED ){
+                  char e[llog::ERR_LEN];
+                  snprintf(e, llog::ERR_LEN,
+                        "Tipo %s no definido previamente.",
+                        ((tokenId*)$1)->ident.c_str());
+                  logger->error($1->line, $1->column, e);
+              }
+              
               delete $1;
           }
       | '[' expression ']' type_def
@@ -139,9 +147,9 @@ type_def:
                  )
               {
                   char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
+                  snprintf(e, llog::ERR_LEN,
                         "Indice de arreglo debe evaluar una constante entera.");
-                    logger->error($2->line, $2->column, e);
+                  logger->error($2->line, $2->column, e);
               } else {
                   up = ((AST_int*)$2)->value;
               }
@@ -1643,6 +1651,9 @@ int main (int argc,char **argv)
         p->gen_tac(b);
         //useless_jumps(*b);
         b->dump();
+    } else {
+        logger->failure("");
+        exit(1);
     }
     
     fprintf(stdout, "-------------------------------------------------------\n\n");

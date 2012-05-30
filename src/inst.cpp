@@ -55,7 +55,7 @@ string opd::to_string() {
     return ":UKNOWN_TYPE";
 }
 
-string inst::to_string(){
+string inst::to_string(bool with_comment){
     return "";
 }
 
@@ -71,11 +71,11 @@ quad::quad(OP op, opd *arg0, opd *arg1, opd *arg2, string comment){
     this->comment = comment;
 }
 
-string quad::to_string(){
+string quad::to_string(bool with_comment){
 
     std::stringstream out;
     out << label;
-    string r = "", _ = comment + "L" + out.str() + ": ";
+    string r = "", _ = (with_comment ? comment : "" ) + "L" + out.str() + ": ";
     
     opd *opds[] = {arg0, arg1, arg2};
     
