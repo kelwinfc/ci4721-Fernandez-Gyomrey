@@ -1,6 +1,6 @@
 #include "optimizer.h"
 #include <iostream>
-#include <queue>
+#include <stack>
 
 using namespace std;
 
@@ -52,11 +52,11 @@ void useless_jumps(block& code){
 
 void delete_unreachable_code(){
     
-    bool* reachable;
-    reachable = (bool*)malloc(list_of_blocks.size()*sizeof(bool));
-    memset(reachable, 0, sizeof reachable);
+    int* reachable;
+    reachable = (int*)malloc(list_of_blocks.size()*sizeof(int));
+    memset(reachable, 0, list_of_blocks.size()*sizeof(int));
     
-    queue<block*> q;
+    stack<block*> s;
     {
         block* first_block = 0;
         
@@ -72,28 +72,25 @@ void delete_unreachable_code(){
             return;
         }
         
-        q.push(first_block);
+        s.push(first_block);
     }
     
-    while ( !q.empty() ){
-        block* next_block = q.front();
-        q.pop();
+    while ( !s.empty() ){
+        block* next_block = s.top();
+        s.pop();
         
         if ( reachable[next_block->index] )
             continue;
         
-        cout << next_block->index << endl;
-        reachable[next_block->index] = true;
+        reachable[next_block->index] = 1;
         
         if ( next_block->mandatory_exit != 0 ){
-            cout << "le sucesor " << next_block->mandatory_exit->index << endl;
-            q.push( next_block->mandatory_exit );
+            s.push( next_block->mandatory_exit );
         }
         
         vector<block*>::iterator it = next_block->sucessors.begin();
         for (; it != next_block->sucessors.end(); ++it ){
-            cout << "le sucesor " << (*it)->index << endl;
-            q.push(*it);
+            s.push(*it);
         }
     }
     

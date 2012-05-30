@@ -2,6 +2,13 @@
    fibonacci desde 0 hasta 10^6
 -}
 
+int c = 30;
+int d = 30;
+{-
+fun int fibi(){
+    return 0;
+}
+-}
 fun int fibRec(int n){
     if ( n == 0 ){
         return 0;
@@ -11,6 +18,9 @@ fun int fibRec(int n){
     return fibRec(n-1)+fibRec(n-2);
 }
 
+int b = 42;
+int e = 42;
+{-
 fun int fibIter(int n){
     if ( n == 0 ){
         return 0;
@@ -34,9 +44,12 @@ fun int fibIter(int n){
     }
     
 }
+-}
+int a = 42;
 
 fun none main(){
-    int a;
+    int a;-- = fibi();
     read a;
     int fR = fibRec(a);
+    --int fI = fibIter(a);
 }

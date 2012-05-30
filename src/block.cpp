@@ -102,15 +102,15 @@ unsigned int block::max_label(){
 }
 
 
-// #define SET_LEADER(a,i) (a[(i)/32] = a[(i)/32] | ( 1 << ((i) % 32 )))
-// #define IS_LEADER(a,i)  (a[(i)/32] & (1 << ((i) % 32)))
+#define SET_LEADER(a,i) (a[(i)/32] = a[(i)/32] | ( 1 << ((i) % 32 )))
+#define IS_LEADER(a,i)  (a[(i)/32] & (1 << ((i) % 32)))
 
 void block::gen_graph(){
     
     // Marcar los lideres de grupo
     int* leaders;
-    leaders = (int*)malloc( (max_label() + 1)*sizeof(int));
-    memset(leaders, 0, sizeof leaders);
+    leaders = (int*)malloc( (max_label()/32 + 1)*sizeof(int));
+    memset(leaders, 0, (max_label()/32 + 1)*sizeof(int) );
     
     vector<inst*>::iterator it = instructions.vinst->begin();
     
@@ -121,23 +121,38 @@ void block::gen_graph(){
         inst* current_inst = (*(instructions.vinst))[index];
         
         if ( was_jump ){
-            leaders[current_inst->label] = 1;
+            SET_LEADER(leaders,current_inst->label);
             was_jump = false;
         }
         
         if ( current_inst->is_jump() ){
-            if ( ((quad*)current_inst)->op == quad::CALL ){
+            if ( ((quad*)current_inst)->op == quad::CALL )
+            {
                 int destino = 
                   func_to_prologue[((quad*)current_inst)->arg1->sym->getName()];
-                leaders[destino] = 1;
+                SET_LEADER(leaders,destino);
                 was_jump = true;
-            } else if (((quad*)current_inst)->arg2 != 0) {
+            }/* else if ( ((quad*)current_inst)->op == quad::EPILOGUE )
+            {
+                int destino = 
+                  func_to_epilogue[((quad*)current_inst)->arg2->sym->getName()];
+                  SET_LEADER(leaders,destino);
+                was_jump = true;
+            }*/ else if (((quad*)current_inst)->arg2 != 0) {
                 int destino = ((quad*)current_inst)->arg2->pint;
-                leaders[destino] = 1;
+                SET_LEADER(leaders,destino);
                 was_jump = true;
             }
         }
     }
+    
+    cout << "lideres:";
+    for (uint i=0; i<instructions.vinst->size(); i++){
+        if ( IS_LEADER(leaders, i) ){
+            cout << " " << i;
+        }
+    }
+    cout << endl;
     
     map<unsigned int, block*> label_to_block;
     
@@ -163,13 +178,13 @@ void block::gen_graph(){
             current_inst = (*(instructions.vinst))[index];
             
         } while( index < instructions.vinst->size() 
-                    && (leaders[current_inst->label] == 0)
+                    && !IS_LEADER(leaders,current_inst->label)
                );
     }
     
     // En este punto ya se puede eliminar el arreglo de lideres. Los lideres son
     // la primera instruccion de cada bloque basico.
-    //free(leaders);
+    free(leaders);
     
     // Conectar los bloques
     for (uint block_index = 0 ; block_index != list_of_blocks.size();
@@ -243,7 +258,7 @@ void dump_blocks_definition(string filename){
     for (uint index = 0 ; index != list_of_blocks.size(); index++)
     {
         // Bloque basico
-        fout << " B" << index << ":\n";
+        fout << " B" << list_of_blocks[index]->index << ":\n";
         
         fout << "+--------------------------\n";
         
@@ -291,11 +306,11 @@ void dump_in_file(string filename){
     fout << "##Command to produce the output: "
          << "\"neato -Tpng bla.gv > bla.png\"\n"
          << "digraph GrafoDeBloquesBasicos {\n"
-         << "    node [shape=circle,width=0.10];";
+         << "    node [shape=circle,width=0.1];";
     for (uint block_index = 0 ; block_index != list_of_blocks.size();
          block_index++)
     {
-        fout << " B" << block_index << ";";
+        fout << " B" << list_of_blocks[block_index]->index << ";";
     }
     fout << endl;
     
@@ -303,7 +318,7 @@ void dump_in_file(string filename){
          block_index++)
     {
         if ( list_of_blocks[block_index]->mandatory_exit ){
-            fout << "B" << block_index
+            fout << "B" << list_of_blocks[block_index]->index
                  << "->B"
                  << list_of_blocks[block_index]->mandatory_exit->index
                  << ";" << endl;
@@ -312,7 +327,7 @@ void dump_in_file(string filename){
         vector<block*>::iterator it =
             list_of_blocks[block_index]->sucessors.begin();
         for ( ; it != list_of_blocks[block_index]->sucessors.end(); ++it ){
-            fout << "B" << block_index
+            fout << "B" << list_of_blocks[block_index]->index
                  << "->B"
                  << (*it)->index
                  << ";" << endl;
@@ -322,7 +337,7 @@ void dump_in_file(string filename){
     fout << endl
          << "overlap=false\n"
          << "label=\"Grafo de Bloques Basicos\"\n"
-         << "fontsize=10;\n"
+         << "fontsize=8;\n"
          << "}\n";
     fout.close();
     
