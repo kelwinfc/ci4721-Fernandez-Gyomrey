@@ -560,6 +560,11 @@ void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
     }
 }
 
+void AST_rlval::fill_and_check(symbol_table* st, bool lval){
+    value->fill_and_check(st, lval);
+    type = value->type;
+}
+
 void AST_conversion::fill_and_check(symbol_table* st){
     expr->fill_and_check(st);
     original_type = expr->type;
