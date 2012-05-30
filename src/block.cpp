@@ -126,20 +126,21 @@ void block::gen_graph(){
         }
         
         if ( current_inst->is_jump() ){
+            
             if ( ((quad*)current_inst)->op == quad::CALL )
             {
                 int destino = 
                   func_to_prologue[((quad*)current_inst)->arg1->sym->getName()];
                 SET_LEADER(leaders,destino);
                 was_jump = true;
-            }/* else if ( ((quad*)current_inst)->op == quad::EPILOGUE )
+            } else if ( ((quad*)current_inst)->op == quad::EPILOGUE )
             {
                 int destino = 
                   func_to_epilogue[((quad*)current_inst)->arg2->sym->getName()];
                   SET_LEADER(leaders,destino);
                 was_jump = true;
-            }*/ else if (((quad*)current_inst)->arg2 != 0) {
-                int destino = ((quad*)current_inst)->arg2->pint;
+            } else if (((quad*)current_inst)->arg2 != 0) {
+                unsigned int destino = ((quad*)current_inst)->arg2->pint;
                 SET_LEADER(leaders,destino);
                 was_jump = true;
             }
@@ -189,7 +190,7 @@ void block::gen_graph(){
     // Conectar los bloques
     for (uint block_index = 0 ; block_index != list_of_blocks.size();
          block_index++)
-    {
+    {        
         block* current_block = list_of_blocks[block_index];
         
         /* Definicion de salida obligatoria
