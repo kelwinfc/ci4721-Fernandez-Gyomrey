@@ -44,13 +44,13 @@ opd::opd(float s){
 string opd::to_string() {
     std::stringstream out; 
     switch (type) {
-        case O_SYM:   return sym->getName() + ":S";
-        case O_TEMP:  out << temp; return out.str() + ":T";
-        case O_INT:   out << pint; return out.str() + ":I";
-        case O_CHAR:  return string(1, pchar) + ":C";
-        case O_BOOL:  return (pbool ? "true:B" : "false:B");
-        case O_FLOAT: out << pfloat; return out.str() + ":D";
-        case O_LABEL: out << pint; return "L" + out.str();
+        case O_SYM:   return sym->getName();
+        case O_TEMP:  out << temp; return "T_" + out.str() ;
+        case O_INT:   out << pint; return out.str();
+        case O_CHAR:  return string(1, pchar);
+        case O_BOOL:  return (pbool ? "true" : "false");
+        case O_FLOAT: out << pfloat; return out.str();
+        case O_LABEL: out << pint; return "L_" + out.str();
     }
     return ":UKNOWN_TYPE";
 }
@@ -75,7 +75,7 @@ string quad::to_string(){
 
     std::stringstream out;
     out << label;
-    string r = "", _ = /*comment +*/ "L" + out.str() + ": ";
+    string r = "", _ = comment + "L" + out.str() + ": ";
     
     opd *opds[] = {arg0, arg1, arg2};
     

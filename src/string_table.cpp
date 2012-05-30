@@ -2,6 +2,9 @@
 
 string_table::string_table() {
     offset = 0;
+    push_back("Se trató de utilizar una propiedad no activa de la unión en (");
+    push_back(", ");
+    push_back(")");
 }
 
 int string_table::push_back(string s) {

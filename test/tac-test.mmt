@@ -1,0 +1,104 @@
+
+fun none leapYear() {
+    -- calcular si el año es bisiesto
+    int year;
+    read year;
+    if ((year % 4 == 0) && (year % 100 != 0) || (year % 400 == 0)) {
+        print "El año es bisiesto";
+    } else {
+        print "El año no es bisiesto";
+    };
+}
+
+fun int fibRec(int n){
+    if ( n == 0 ){
+        return 0;
+    } elif ( n == 1 ){
+        return 1;
+    }
+    return fibRec(n - 1) + fibRec(n - 2);
+}
+
+fun boolean boolcheck(boolean x, boolean y) {
+    return ((x ==> y) == (!x || y)) &&
+           ((x <== y) == (x || !y)) &&
+           ((!x && !y) == !(x || y)) &&
+           ((x && !x) ==> true);
+}
+
+fun boolean opcheck(int a, int b) {
+    boolean c = (a < b == !(b <= a)) && 
+                (a > b == !(b >= a)) && 
+                (a < 10 || 10 <= a);
+    return c;
+}
+
+fun int fact(int t) {
+    if (0 == t) {
+        return 1;
+    }
+    return t * fact( t - 1);
+}
+
+enum color {AMARILLO, AZUL, ROJO}
+
+union ip{
+    [4]char bytes;
+    int addr;
+}
+
+type nodo{
+    color vcolor;
+    ip vip;
+    string nombre;
+}
+
+union grafo{
+    [10][10]nodo vnodos;
+    [100]^nodo anodos;
+}
+
+fun none main(){
+    leapYear();
+    print "fib de 30: ", fibRec(30);
+    boolcheck(true, false);
+    opcheck(1, 10);
+    print fact(10) / 10 / 9;
+
+    grafo migrafo;
+    migrafo.vnodos[5][5].vcolor = AMARILLO;
+    migrafo.vnodos[5][5].vip.addr = 2130706433; --localhost
+    migrafo.vnodos[5][6].nombre = "caracas";
+    
+    float raiz5 = -2.23606;
+
+    for vchar in ('a', 'z'){
+        if ('d' == vchar) {
+            continue;
+        }
+        print vchar;
+        if ('m' == vchar) {
+            break;
+        }
+    }
+
+    int x = 1;
+    while (x * x < 100){
+        print x;
+        x = x + 1;
+    }
+    
+    boolean vbool = 1 as boolean;
+    ^boolean addr = @vbool;
+}
+-- && || ==> <== != ==
+-- < <= > >= + - * / %
+-- - !
+-- flotantes, caracteres, enums, booleanos, strings, enteros
+-- lvalue (struct, arreglo, union, referencia, dereferencia, conversión)
+-- funciones (lista de argumentos), procedimientos, return
+-- declaración de funciones, declaración de variables
+-- asignaciones
+-- condicionales, loops, for acotado, break, continue
+-- read, write
+

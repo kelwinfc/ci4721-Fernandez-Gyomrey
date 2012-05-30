@@ -42,20 +42,20 @@ opd *AST_op::gen_tac(block *b){
         case IMP:
             left->gen_tac(b);
             b->backpatch(left->truelist, b->next_instruction() );
-            
+
             right->gen_tac(b);
-            
+
             truelist.splice(truelist.end(),left->falselist);
             truelist.splice(truelist.end(),right->truelist);
             falselist  = right->falselist;
             break;
-            
+
         case CONSEQ:
             right->gen_tac(b);
             b->backpatch(right->truelist, b->next_instruction() );
-            
+
             left->gen_tac(b);
-            
+
             truelist.splice(truelist.end(),right->falselist);
             truelist.splice(truelist.end(),left->truelist);
             falselist  = left->falselist;
@@ -65,24 +65,68 @@ opd *AST_op::gen_tac(block *b){
         case EQ:
             {
                 opd* l = left->gen_tac(b);
+
+                if (BOOLEAN == left->type) {
+                    l = new opd();
+                    // almacenar en un temporal el valor booleano de la rama izquierda
+                    b->backpatch( left->truelist, b->next_instruction() );
+                    b->append_inst(new quad(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama izquierda de igualdad"));
+                    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+
+                    b->backpatch( left->falselist, b->next_instruction() );
+                    b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama izquierda de igualdad"));
+                }
+                
                 opd* r = right->gen_tac(b);
-                
+
+                if (BOOLEAN == right->type) {
+                    r = new opd();
+                    // almacenar en un temporal el valor booleano de la rama derecha
+                    b->backpatch( right->truelist, b->next_instruction() );
+                    b->append_inst(new quad(quad::CP, r, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama derecha de igualdad"));
+                    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+
+                    b->backpatch( right->falselist, b->next_instruction() );
+                    b->append_inst(new quad(quad::CP, r, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama derecha de igualdad"));
+                }
+
                 truelist.push_back( b->next_instruction() );
-                falselist.push_back( b->next_instruction() + 1);
-                
                 b->append_inst(new quad(quad::IFEQ, l, r, 0, "comparación de igualdad (true)"));
+                falselist.push_back( b->next_instruction() );
                 b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de igualdad (false)"));
             }
             break;
         case UNEQ:
             {
                 opd* l = left->gen_tac(b);
+
+                if (BOOLEAN == left->type) {
+                    l = new opd();
+                    // almacenar en un temporal el valor booleano de la rama izquierda
+                    b->backpatch( left->truelist, b->next_instruction() );
+                    b->append_inst(new quad(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama izquierda de desigualdad"));
+                    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+
+                    b->backpatch( left->falselist, b->next_instruction() );
+                    b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama izquierda de desigualdad"));
+                }
+                
                 opd* r = right->gen_tac(b);
+
+                if (BOOLEAN == right->type) {
+                    r = new opd();
+                    // almacenar en un temporal el valor booleano de la rama derecha
+                    b->backpatch( right->truelist, b->next_instruction() );
+                    b->append_inst(new quad(quad::CP, r, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama derecha de desigualdad"));
+                    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+
+                    b->backpatch( right->falselist, b->next_instruction() );
+                    b->append_inst(new quad(quad::CP, r, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama derecha de desigualdad"));
+                }
                 
                 truelist.push_back( b->next_instruction() );
-                falselist.push_back( b->next_instruction() + 1);
-                
                 b->append_inst(new quad(quad::IFNEQ, l, r, 0, "comparación de desigualdad (true)"));
+                falselist.push_back( b->next_instruction() );
                 b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de desigualdad (false)"));
             }
             break;
@@ -368,14 +412,35 @@ opd *AST_struct_access::gen_tac_lval(block *b, int *sta_base){
         din_base = gen_tac_lval_disp(b, din_base, sta_base);
         opd *t1 = new opd(), *t2 = new opd((int)sym->index);
         b->append_inst(new quad(quad::CP, t1, din_base, new opd(ud->width - 4), "cargando identificador de tipo usado en el union"));
-        b->append_inst(new quad(quad::IFEQ, t1, t2, new opd(b->next_instruction() + 1, 1), "en caso estar actualizado el tipo usado, se mantiene"));
-        // TODO write "Se trató de utilizar el tipo X pero el activo era el Y en (L, C)" ERR y modificar el next_instruction
+        // TODO esto apunta a una instrucción que no existe.
+        // se asume que justo después de calcular la posición del campo del struct está la siguiente instrucción que se debe ejecutar.
+        b->append_inst(new quad(quad::IFEQ, new opd(0), t2, new opd(b->next_instruction() + 7, 1),
+            "permitir la asignación por primera vez a una unión"));
+        b->append_inst(new quad(quad::IFEQ, t1, t2, new opd(b->next_instruction() + 7, 1),
+            "validar que en caso estar actualizado el tipo usado, se mantiene"));
+        b->append_inst(new quad(quad::WRITE, new opd(0), 0, 0, "dirección relativa del string en la tabla \"Se trató de utilizar una propiedad no activa de la unión en (\""));
+        b->append_inst(new quad(quad::WRITE, new opd(value->line), 0, 0, "número de línea del error"));
+        b->append_inst(new quad(quad::WRITE, new opd(62), 0, 0, "dirección relativa del string en la tabla \", \""));
+        b->append_inst(new quad(quad::WRITE, new opd(value->column), 0, 0, "número de columna del error"));
+        b->append_inst(new quad(quad::WRITE, new opd(65), 0, 0, "dirección relativa del string en la tabla \")\""));
         b->append_inst(new quad(quad::CP, t2, din_base, new opd(ud->width - 4),
             "guardando nuevo identificador de tipo usado en el union"));
     }
     *sta_base += sym->offset;
     return din_base;
 }
+
+opd *AST_rlval::gen_tac(block *b) {
+    opd *l = value->gen_tac(b);
+    if ( value->type == BOOLEAN ){
+        truelist.push_back( b->next_instruction() );
+        b->append_inst(new quad(quad::IF, l, 0, 0, "identificador de tipo booleano (true)"));
+        falselist.push_back( b->next_instruction() );
+        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "identificador de tipo booleano (false)"));
+    }
+    return l;
+}
+
 
 opd *AST_conversion::gen_tac(block *b){
     opd *v = expr->gen_tac(b);
@@ -568,7 +633,7 @@ void AST_assignment::gen_tac(block *b){
         b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto después de asignar el valor booleano"));
 
         b->backpatch( expr->falselist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido al lvalue"));
+        b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido (false) al lvalue"));
     } else {
         b->append_inst(new quad(quad::CP, l, r, 0, "asignación de un valor de cualquier tipo obtenido al lvalue"));
     }
@@ -579,10 +644,19 @@ void AST_procedure_call::gen_tac(block *b){
 }
 
 void AST_return::gen_tac(block *b){
-    //TODO verificar si es booleano
     opd* r = 0;
     if ( expr ){
         r = expr->gen_tac(b);
+        if (BOOLEAN == expr->type) {
+            r = new opd();
+            b->backpatch( expr->truelist, b->next_instruction() );
+            b->append_inst(new quad(quad::CP, r, new opd(true), 0, "returno del valor booleano obtenido (true)"));
+
+            b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+
+            b->backpatch( expr->falselist, b->next_instruction() );
+            b->append_inst(new quad(quad::CP, r, new opd(false), 0, "returno de valor booleano obtenido (false)"));
+        }
     }
     
     return_list.push_back(b->next_instruction());
@@ -710,7 +784,6 @@ void AST_print::gen_tac(block *b){
             b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "impreso bool true a salida estándar"));
             b->append_inst(new quad(quad::WRITE, new opd(false), 0, 0, "imprimir bool false a salida estándar"));
         } else {
-            printf("pointer (%d): \n", (*it)->type);
             b->append_inst(new quad(quad::WRITE, (*it)->gen_tac(b), 0, 0, "imprimir a salida estándar"));
         }
     }
