@@ -27,7 +27,6 @@ map<string, int> constants;
 llog* logger;
 type_table types;
 vector<uint> offset;
-vector<uint> max_offset;
 string_table strings;
 
 int num_loops = 0;
@@ -115,7 +114,6 @@ AST_discrete_arg_list* discrete_list; // lista global para los parametros
 input:
         declaration       { 
                             offset.push_back(0);
-                            max_offset.push_back(0);
                             
                             if ( $1 )
                                 p->add_declaration((AST_declaration*)$1);

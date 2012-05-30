@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <iostream>
 #include "utils.h"
-#include "symbol.h"
 #include "llog.h"
 
 using namespace std;

@@ -34,7 +34,7 @@ union_type::union_type(string n, symbol_table* st){
     // entero de 4 bytes para indicar posición en uso actualmente
     width += 4;
 }
-
+// TODO no deberían recibirse tokens aquí.
 enum_type::enum_type( tokenId* tk, set<string>* v)
 {
     width = 4;
