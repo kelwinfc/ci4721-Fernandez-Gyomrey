@@ -8,6 +8,14 @@ void read_main_args(int argc, char **argv, FILE *in, main_args& args){
     args.ast = false;
     args.tac_with_comments = false;
     args.in = in;
+    if (1 == argc) {
+        printf("Opciones para %s [-a | -s] [-c] [-t] archivo:\n"
+               " -a imprimir en archivo bla.output\n"
+               " -s imprimir en archivo bla.* separados\n"
+               " -c imprimir el tac con comentarios\n"
+               " -t imprimir el ast\n", argv[0]);
+        exit(1);
+    }
     for (int i = 1; i < argc; ++i) {
         if (i + 1 == argc) {
             args.in = fopen(argv[i], "r");
@@ -26,7 +34,7 @@ void read_main_args(int argc, char **argv, FILE *in, main_args& args){
         } else if (!strcmp("-t", argv[i])) {
             args.ast = true;
         } else {
-            printf("Opciones para %s:\n"
+            printf("Opciones para %s [-a | -s] [-c] [-t] archivo:\n"
                    " -a imprimir en archivo bla.output\n"
                    " -s imprimir en archivo bla.* separados\n"
                    " -c imprimir el tac con comentarios\n"
