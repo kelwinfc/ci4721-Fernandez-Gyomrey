@@ -1,40 +1,3 @@
-%{
-
-#include <math.h>
-#include <stdio.h>
-#include <set>
-#include "lib/AST.h"
-#include "lib/symbol.h"
-#include "lib/symbol_table.h"
-#include "lib/llog.h"
-#include "lib/type_table.h"
-#include "lib/block.h"
-#include "lib/inst.h"
-#include "lib/optimizer.h"
-#include "lib/string_table.h"
-
-using namespace std;
-
-#define DEBUG(L,V) printf((string(L) + " data   : %s (%d, %d) (%d)\n").c_str(), typeid(*V).name(), (*V).line, (*V).column, (*V).uid); printf((string(L) + " return : %s(%d) (%d)\n").c_str(), (*V).has_return == YES ? "YES" : ((*V).has_return == NO ? "NO" : ((*V).has_return == MAYBE ? "MAYBE" : "")), (*V).has_return, (*V).uid);
-
-int yylex (void);
-void yyerror (char const *);
-
-extern FILE *yyin;
-
-AST_program* p;
-map<string, int> constants;
-llog* logger;
-type_table types;
-vector<uint> offset;
-string_table strings;
-
-int num_loops = 0;
-
-AST_discrete_arg_list* discrete_list; // lista global para los parametros
-                                      // formales de una funcion memorizable
-
-%}
 
 %union{
     AST_node* nd;
@@ -486,7 +449,7 @@ variable_declaration :
     | type_def TK_IDENT error expression ';'
             { char e[llog::ERR_LEN];
               snprintf(e, llog::ERR_LEN,
-                      "Falta simbolo = entre identificador e inicializacion.\n",
+                      "Falta simbolo = entre identificador '%s' e inicializacion.\n",
                        ((tokenId*)$2)->ident.c_str()
                       );
               logger->error($2->line, $2->column, e);
@@ -528,7 +491,7 @@ variable_declaration :
     | type_def TK_IDENT error ';'
             { char e[llog::ERR_LEN];
               snprintf(e, llog::ERR_LEN,
-                       "Declaración de variable debe finalizar con ';'.",
+                       "Declaración de variable '%s' debe finalizar con ';'.",
                        ((tokenId*)$2)->ident.c_str()
                       );
               logger->error($2->line, $2->column, e);
@@ -1609,68 +1572,4 @@ void yyerror (char const *s)
     logger->error(0, 0, s);
 }
 
-int main (int argc,char **argv)
-{
-    logger = new llog();
-    p = new AST_program();
-    block *b = new block(true);
-
-    if (argc == 1){
-        yyparse();
-    } else if (argc == 2) {
-        yyin = fopen(argv[1], "r");
-        if (!yyin) {
-            printf("Archivo '%s' no existe\n", argv[1]);
-            exit(1);
-        }
-        do {
-            yyparse();
-        } while (!feof(yyin));
-    }
-    
-    symbol_table* st = new symbol_table();
-    
-    p->fill_and_check(st);
-    
-    delete st;
-    
-    if ( logger->exists_registered_error() ){
-        logger->dump();
-    }
-    
-    types.dump();
-    strings.dump();
-    
-    p->print(0);
-
-    fprintf(stdout, "-------------------------------------------------------\n\n");
-    
-    if ( !logger->exists_registered_error() ){
-        p->gen_tac(b);
-        //useless_jumps(*b);
-        b->dump();
-    } else {
-        logger->failure("");
-        exit(1);
-    }
-    
-    fprintf(stdout, "-------------------------------------------------------\n\n");
-    
-    b->gen_graph();
-    delete_unreachable_code();
-    
-    cout << "Escribiendo bloques básico en bla.blocks"
-         << " y grafo de flujo en bla.png\n\n";
-    dump_in_file("bla");
-    
-    fprintf(stdout, "-------------------------------------------------------\n\n");
-    
-    if ( logger->exists_registered_error() ){
-        logger->failure("context");
-        return 0;
-    }
-
-    logger->success();
-
-    return 0;
-}
+#include "lex.yy.c"

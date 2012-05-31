@@ -24,11 +24,11 @@ class block{
         bool w_vector;
         seq_inst instructions;
         
-        block(bool with_vector=false);
+        block(bool with_vector = false);
         void append_inst(inst* i, bool gen_label = true);
         inst* last_instruction();
         
-        void dump();
+        void dump(bool with_comments = false);
         
         block* mandatory_exit;
         vector<block*> sucessors;

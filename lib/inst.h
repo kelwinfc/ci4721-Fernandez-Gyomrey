@@ -61,7 +61,7 @@ class quad : public inst{
     public:
         quad(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0, string comment = "");
 
-        string to_string(bool with_comment = true);
+        string to_string(bool with_comment = false);
         
         unsigned get_goal_label();
         

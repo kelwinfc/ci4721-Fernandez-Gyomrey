@@ -1,9 +1,8 @@
-LEX    = flex
-BISON  = bison
-BFLAGS = --defines=y.tab.h --output=y.tab.c
 
 GCC=g++
-GCC_FLAGS= -Ilib -Wall -O3 -ggdb
+GCC_DEBUG=-ggdb
+GCC_FLAGS=-Ilib -Wall -O3 $(GCC_DEBUG)
+GCC_MAIN_FLAGS=-Ilib -O3 $(GCC_DEBUG)
 
 FILES=token\
       AST\
@@ -16,7 +15,8 @@ FILES=token\
       block\
       inst\
       optimizer\
-      string_table
+      string_table\
+      main
 
 DEP_AST=token utils symbol symbol_table llog string_table
 DEP_token=utils llog
@@ -25,22 +25,22 @@ DEP_type_descriptor=utils symbol symbol_table
 DEP_type_table=utils symbol symbol_table type_descriptor
 DEP_block=inst
 DEP_optimizer=inst block
+DEP_main=AST symbol symbol_table llog type_table block inst optimizer string_table
 
 all: bla
 
-bla: lex.yy.c y.tab.c $(FILES:%=bin/%.o)
-	g++ -ggdb $^ -o $@
+bla: $(FILES:%=bin/%.o)
+	$(GCC) $(GCC_DEBUG) $^ -o $@
 
-y.tab.c: src/parser.y $(FILES:%=bin/%.o)
-	bison -v -dy $<
-
-lex.yy.c: src/lexer.l $(FILES:%=bin/%.o) $(FILES:%=lib/%.h)
-	flex $< 
+#main tiene flags distintos
+bin/main.o: src/main.cpp lib/main.h
+	$(GCC) $(GCC_MAIN_FLAGS) -c src/main.cpp -o bin/main.o
 
 #General rule for compiling
 bin/%.o: src/%.cpp lib/%.h
 	$(GCC) $(GCC_FLAGS) -c $< -o $@
 
+bin/main.o: $(DEP_main:%=src/%.cpp) $(DEP_main:%=lib/%.h) lex.yy.c y.tab.c
 bin/AST.o: $(DEP_AST:%=src/%.cpp) $(DEP_AST:%=lib/%.h)
 bin/token.o: $(DEP_token:%=src/%.cpp) $(DEP_token:%=lib/%.h)
 bin/utils.o: $(DEP_utils:%=src/%.cpp) $(DEP_utils:%=lib/%.h)
@@ -53,6 +53,12 @@ bin/block.o: $(DEP_block:%=src/%.cpp) $(DEP_block:%=lib/%.h)
 bin/inst.o: $(DEP_inst:%=src/%.cpp) $(DEP_inst:%=lib/%.h)
 bin/optimizer.o: $(DEP_optimizer:%=src/%.cpp) $(DEP_optimizer:%=lib/%.h)
 bin/string_table.o: $(DEP_string_table:%=src/%.cpp) $(DEP_string_table:%=lib/%.h)
+
+y.tab.c: src/parser.y
+	bison -v -dy $<
+
+lex.yy.c: src/lexer.l
+	flex $< 
 
 doc:
 	markdown2pdf doc/especificacion_primera_entrega.mdwn -o doc/especificacion_primera_entrega.pdf
