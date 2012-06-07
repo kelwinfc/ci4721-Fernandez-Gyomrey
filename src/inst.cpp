@@ -85,6 +85,10 @@ string quad::to_string(bool with_comment){
     switch (op ){
         case CP:
             return _ + opds[0]->to_string() + " := " + opds[1]->to_string();
+        case REF:
+            return _ + opds[0]->to_string() + " := &" + opds[1]->to_string();
+        case DEREF:
+            return _ + opds[0]->to_string() + " := *" + opds[1]->to_string();
         case GOTO:
             return _ + "goto " + ( opds[2] ? opds[2]->to_string() : "unknown");
         case IFEQ:

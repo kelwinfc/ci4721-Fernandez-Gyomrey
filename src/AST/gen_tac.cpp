@@ -309,13 +309,11 @@ opd *AST_lval::gen_tac_lval(block *b, int *sta_base){
 
 opd *AST_lval::gen_tac_lval_disp(block *b, opd *din_base, int *sta_base){
     opd *t;
-    if (0 != *sta_base && O_TEMP != din_base->type) {
-        t = new opd();
-    } else {
-        t = din_base;// nuevo resultado de las operaciones
-    }
     if (0 != *sta_base) {
+        t = new opd();
         b->append_inst(new quad(quad::ADD, t, din_base, new opd(*sta_base), "sumar base estática a base dinámica (no se pudo retrasar más la suma)"));
+    } else {
+        t = din_base;
     }
     return t;
 }
@@ -332,24 +330,17 @@ opd *AST_ident::gen_tac_lval(block* b, int *sta_base){
 }
 
 opd *AST_dereference::gen_tac_lval(block *b, int *sta_base){
-    opd *t, *din_base = value->gen_tac_lval(b, sta_base);
-    din_base = gen_tac_lval_disp(b, din_base, sta_base);
-    if (O_TEMP != din_base->type) {
-        t = new opd();
-    } else {
-        t = din_base;
-    }
-    b->append_inst(new quad(quad::LD, t, din_base, 0, "dereferenciar un lvalue"));
-    *sta_base = 0;
+    opd *t = value->gen_tac_lval(b, sta_base), *d = new opd();
+    t = gen_tac_lval_disp(b, t, sta_base);
+    b->append_inst(new quad(quad::DEREF, d, t, 0, "dereferenciar un lvalue"));
     return t;
 }
 
-/**
- * AST_address no es más que un contenedor para especificar que no se debe
- * dereferenciar el apuntador devuelto por el AST_lval
- */
 opd *AST_address::gen_tac_lval(block *b, int *sta_base){
-    return value->gen_tac_lval(b, sta_base);
+    opd *t = value->gen_tac_lval(b, sta_base), *r = new opd();
+    t = gen_tac_lval_disp(b, t, sta_base);
+    b->append_inst(new quad(quad::REF, r, t, 0, "referenciar un lvalue"));
+    return r;
 }
 
 /**
