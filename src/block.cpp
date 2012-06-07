@@ -20,8 +20,13 @@ block::block(bool with_vector){
     }
 }
 
-void block::append_inst(inst* i, bool gen_label) {
+void block::append_inst(quad::OP op, opd *arg0, opd *arg1, opd *arg2, string comment, bool gen_label) {
     
+    append_inst(new quad(op, arg0, arg1, arg2), gen_label);
+}
+
+void block::append_inst(inst *i, bool gen_label) {
+
     int ninst = next_instruction();
     if ( w_vector ){
         instructions.vinst->push_back(i);

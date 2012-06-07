@@ -70,11 +70,11 @@ opd *AST_op::gen_tac(block *b){
                     l = new opd();
                     // almacenar en un temporal el valor booleano de la rama izquierda
                     b->backpatch( left->truelist, b->next_instruction() );
-                    b->append_inst(new quad(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama izquierda de igualdad"));
-                    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+                    b->append_inst(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama izquierda de igualdad");
+                    b->append_inst(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
 
                     b->backpatch( left->falselist, b->next_instruction() );
-                    b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama izquierda de igualdad"));
+                    b->append_inst(quad::CP, l, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama izquierda de igualdad");
                 }
                 
                 opd* r = right->gen_tac(b);
@@ -83,17 +83,17 @@ opd *AST_op::gen_tac(block *b){
                     r = new opd();
                     // almacenar en un temporal el valor booleano de la rama derecha
                     b->backpatch( right->truelist, b->next_instruction() );
-                    b->append_inst(new quad(quad::CP, r, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama derecha de igualdad"));
-                    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+                    b->append_inst(quad::CP, r, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama derecha de igualdad");
+                    b->append_inst(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
 
                     b->backpatch( right->falselist, b->next_instruction() );
-                    b->append_inst(new quad(quad::CP, r, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama derecha de igualdad"));
+                    b->append_inst(quad::CP, r, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama derecha de igualdad");
                 }
 
                 truelist.push_back( b->next_instruction() );
-                b->append_inst(new quad(quad::IFEQ, l, r, 0, "comparación de igualdad (true)"));
+                b->append_inst(quad::IFEQ, l, r, 0, "comparación de igualdad (true)");
                 falselist.push_back( b->next_instruction() );
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de igualdad (false)"));
+                b->append_inst(quad::GOTO, 0, 0, 0, "comparación de igualdad (false)");
             }
             break;
         case UNEQ:
@@ -104,11 +104,11 @@ opd *AST_op::gen_tac(block *b){
                     l = new opd();
                     // almacenar en un temporal el valor booleano de la rama izquierda
                     b->backpatch( left->truelist, b->next_instruction() );
-                    b->append_inst(new quad(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama izquierda de desigualdad"));
-                    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+                    b->append_inst(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama izquierda de desigualdad");
+                    b->append_inst(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
 
                     b->backpatch( left->falselist, b->next_instruction() );
-                    b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama izquierda de desigualdad"));
+                    b->append_inst(quad::CP, l, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama izquierda de desigualdad");
                 }
                 
                 opd* r = right->gen_tac(b);
@@ -117,17 +117,17 @@ opd *AST_op::gen_tac(block *b){
                     r = new opd();
                     // almacenar en un temporal el valor booleano de la rama derecha
                     b->backpatch( right->truelist, b->next_instruction() );
-                    b->append_inst(new quad(quad::CP, r, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama derecha de desigualdad"));
-                    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+                    b->append_inst(quad::CP, r, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama derecha de desigualdad");
+                    b->append_inst(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
 
                     b->backpatch( right->falselist, b->next_instruction() );
-                    b->append_inst(new quad(quad::CP, r, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama derecha de desigualdad"));
+                    b->append_inst(quad::CP, r, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama derecha de desigualdad");
                 }
                 
                 truelist.push_back( b->next_instruction() );
-                b->append_inst(new quad(quad::IFNEQ, l, r, 0, "comparación de desigualdad (true)"));
+                b->append_inst(quad::IFNEQ, l, r, 0, "comparación de desigualdad (true)");
                 falselist.push_back( b->next_instruction() );
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de desigualdad (false)"));
+                b->append_inst(quad::GOTO, 0, 0, 0, "comparación de desigualdad (false)");
             }
             break;
         
@@ -140,8 +140,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFL, l, r, 0, "comparación de menor que (true)"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de menor que (false)"));
+                b->append_inst(quad::IFL, l, r, 0, "comparación de menor que (true)");
+                b->append_inst(quad::GOTO, 0, 0, 0, "comparación de menor que (false)");
             }
             break;
         case LESS_EQ:
@@ -152,8 +152,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFLEQ, l, r, 0, "comparación de menor o igual (true)"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de menor o igual (false)"));
+                b->append_inst(quad::IFLEQ, l, r, 0, "comparación de menor o igual (true)");
+                b->append_inst(quad::GOTO, 0, 0, 0, "comparación de menor o igual (false)");
             }
             break;
         case GREAT:
@@ -164,8 +164,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFG, l, r, 0, "comparación de mayor (true)"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de mayor (false)"));
+                b->append_inst(quad::IFG, l, r, 0, "comparación de mayor (true)");
+                b->append_inst(quad::GOTO, 0, 0, 0, "comparación de mayor (false)");
             }
             break;
         case GREAT_EQ:
@@ -176,8 +176,8 @@ opd *AST_op::gen_tac(block *b){
                 truelist.push_back( b->next_instruction() );
                 falselist.push_back( b->next_instruction() + 1);
                 
-                b->append_inst(new quad(quad::IFGEQ, l, r, 0, "comparación de mayor o igual (true)"));
-                b->append_inst(new quad(quad::GOTO, 0, 0, 0, "comparación de mayor o igual (false)"));
+                b->append_inst(quad::IFGEQ, l, r, 0, "comparación de mayor o igual (true)");
+                b->append_inst(quad::GOTO, 0, 0, 0, "comparación de mayor o igual (false)");
             }
             break;
         case PLUS:
@@ -186,7 +186,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::ADD, d, l, r, "operación binaria de suma"));
+                b->append_inst(quad::ADD, d, l, r, "operación binaria de suma");
                 
                 return d;
             }
@@ -197,7 +197,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::SUB, d, l, r, "operación binaria de resta"));
+                b->append_inst(quad::SUB, d, l, r, "operación binaria de resta");
                 
                 return d;
             }
@@ -208,7 +208,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::MUL, d, l, r, "operación binaria de producto"));
+                b->append_inst(quad::MUL, d, l, r, "operación binaria de producto");
                 
                 return d;
             }
@@ -219,7 +219,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::DIV, d, l, r, "operación binaria de división"));
+                b->append_inst(quad::DIV, d, l, r, "operación binaria de división");
                 
                 return d;
             }
@@ -230,7 +230,7 @@ opd *AST_op::gen_tac(block *b){
                 opd* r = right->gen_tac(b);
                 
                 opd* d = new opd();
-                b->append_inst(new quad(quad::MOD, d, l, r, "operación binaria de módulo"));
+                b->append_inst(quad::MOD, d, l, r, "operación binaria de módulo");
                 
                 return d;
             }
@@ -252,7 +252,7 @@ opd *AST_un_op::gen_tac(block *b){
         default:
             {
                 opd* d = new opd();
-                b->append_inst(new quad(quad::UMINUS, d, e, 0, "operación binaria de inverso"));
+                b->append_inst(quad::UMINUS, d, e, 0, "operación binaria de inverso");
                 
                 return d;
             }
@@ -275,7 +275,7 @@ opd *AST_char::gen_tac(block *b){
 
 opd *AST_string::gen_tac(block *b){
     opd *t = new opd();
-    b->append_inst(new quad(quad::CP, t, new opd(offset), 0, string("dirección relativa del string en la tabla \"") + strings.to_string(value) + "\""));
+    b->append_inst(quad::CP, t, new opd(offset), 0, string("dirección relativa del string en la tabla \"") + strings.to_string(value) + "\"");
     return t;
 }
 
@@ -291,7 +291,7 @@ opd *AST_boolean::gen_tac(block *b){
         falselist.clear();
         falselist.push_back(b->next_instruction());
     }
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de booleano"));
+    b->append_inst(quad::GOTO, 0, 0, 0, "salto condicional de booleano");
     return 0;
 }
 
@@ -311,7 +311,7 @@ opd *AST_lval::gen_tac_lval_disp(block *b, opd *din_base, int *sta_base){
     opd *t;
     if (0 != *sta_base) {
         t = new opd();
-        b->append_inst(new quad(quad::ADD, t, din_base, new opd(*sta_base), "sumar base estática a base dinámica (no se pudo retrasar más la suma)"));
+        b->append_inst(quad::ADD, t, din_base, new opd(*sta_base), "sumar base estática a base dinámica (no se pudo retrasar más la suma)");
     } else {
         t = din_base;
     }
@@ -332,14 +332,14 @@ opd *AST_ident::gen_tac_lval(block* b, int *sta_base){
 opd *AST_dereference::gen_tac_lval(block *b, int *sta_base){
     opd *t = value->gen_tac_lval(b, sta_base), *d = new opd();
     t = gen_tac_lval_disp(b, t, sta_base);
-    b->append_inst(new quad(quad::DEREF, d, t, 0, "dereferenciar un lvalue"));
+    b->append_inst(quad::DEREF, d, t, 0, "dereferenciar un lvalue");
     return t;
 }
 
 opd *AST_address::gen_tac_lval(block *b, int *sta_base){
     opd *t = value->gen_tac_lval(b, sta_base), *r = new opd();
     t = gen_tac_lval_disp(b, t, sta_base);
-    b->append_inst(new quad(quad::REF, r, t, 0, "referenciar un lvalue"));
+    b->append_inst(quad::REF, r, t, 0, "referenciar un lvalue");
     return r;
 }
 
@@ -356,10 +356,10 @@ opd *AST_array_access::gen_tac_lval(block *b, int *sta_base){
     *sta_base -= arr_base * ad->width;
 
     // multiplicar la suma de índices por el ancho de lo que alberga el arreglo
-    b->append_inst(new quad(quad::MUL, *ind_addr, *ind_addr, new opd(ad->width), "multiplicar el aplanamiento de índices por el ancho del tipo"));
+    b->append_inst(quad::MUL, *ind_addr, *ind_addr, new opd(ad->width), "multiplicar el aplanamiento de índices por el ancho del tipo");
 
     // sumar la posición del arreglo (din_base) con el índice dinámico (ind_base)
-    b->append_inst(new quad(quad::ADD, *ind_addr, din_base, *ind_addr, "sumar la base del arreglo con el desplazamiento hasta la posición solicitada"));
+    b->append_inst(quad::ADD, *ind_addr, din_base, *ind_addr, "sumar la base del arreglo con el desplazamiento hasta la posición solicitada");
 
     din_base = *ind_addr;
     delete ind_addr;
@@ -375,19 +375,19 @@ opd *AST_array_access::gen_tac_arr(block *b, int *sta_base, opd **ind_addr, int 
         *ind_addr = index->gen_tac(b);
         if (O_TEMP != (*ind_addr)->type) {
             opd *t = new opd();
-            b->append_inst(new quad(quad::CP, t, *ind_addr, 0, "el índice más izquierdo de un arreglo es entero, se copia a temporal para poder operar sobre él"));
+            b->append_inst(quad::CP, t, *ind_addr, 0, "el índice más izquierdo de un arreglo es entero, se copia a temporal para poder operar sobre él");
             *ind_addr = t;
         }
     } else {
         // (i1 x n2) + i2 >>= i1 (parte de la suma)
-        b->append_inst(new quad(quad::ADD, *ind_addr, *ind_addr, index->gen_tac(b), "parte dinámica del acceso a arreglo. sumar al acumulador el índice dinámico"));
+        b->append_inst(quad::ADD, *ind_addr, *ind_addr, index->gen_tac(b), "parte dinámica del acceso a arreglo. sumar al acumulador el índice dinámico");
     }
 
     if (typeid(*types.types[ type ]) == typeid(array_descriptor)){
         array_descriptor* ad = (array_descriptor*)types.types[ type ];
 
         // (i1 x n2) + i2 (parte del producto)
-        b->append_inst(new quad(quad::MUL, *ind_addr, *ind_addr, new opd(ad->num_elements), "como aún nos encontramos en un arreglo, multiplicar el índice dinámico por el tamaño del siguiente índice a la derecha"));
+        b->append_inst(quad::MUL, *ind_addr, *ind_addr, new opd(ad->num_elements), "como aún nos encontramos en un arreglo, multiplicar el índice dinámico por el tamaño del siguiente índice a la derecha");
 
         // (l1 x n2) + l2
         *arr_base = *arr_base * ad->num_elements + ad->lower_index;
@@ -402,20 +402,20 @@ opd *AST_struct_access::gen_tac_lval(block *b, int *sta_base){
         union_type *ud = (union_type*)types.types[ sym->getType() ];
         din_base = gen_tac_lval_disp(b, din_base, sta_base);
         opd *t1 = new opd(), *t2 = new opd((int)sym->index);
-        b->append_inst(new quad(quad::CP, t1, din_base, new opd(ud->width - 4), "cargando identificador de tipo usado en el union"));
+        b->append_inst(quad::CP, t1, din_base, new opd(ud->width - 4), "cargando identificador de tipo usado en el union");
         // TODO esto apunta a una instrucción que no existe.
         // se asume que justo después de calcular la posición del campo del struct está la siguiente instrucción que se debe ejecutar.
-        b->append_inst(new quad(quad::IFEQ, new opd(0), t2, new opd(b->next_instruction() + 7, 1),
-            "permitir la asignación por primera vez a una unión"));
-        b->append_inst(new quad(quad::IFEQ, t1, t2, new opd(b->next_instruction() + 7, 1),
-            "validar que en caso estar actualizado el tipo usado, se mantiene"));
-        b->append_inst(new quad(quad::WRITE, new opd(0), 0, 0, "dirección relativa del string en la tabla \"Se trató de utilizar una propiedad no activa de la unión en (\""));
-        b->append_inst(new quad(quad::WRITE, new opd(value->line), 0, 0, "número de línea del error"));
-        b->append_inst(new quad(quad::WRITE, new opd(62), 0, 0, "dirección relativa del string en la tabla \", \""));
-        b->append_inst(new quad(quad::WRITE, new opd(value->column), 0, 0, "número de columna del error"));
-        b->append_inst(new quad(quad::WRITE, new opd(65), 0, 0, "dirección relativa del string en la tabla \")\""));
-        b->append_inst(new quad(quad::CP, t2, din_base, new opd(ud->width - 4),
-            "guardando nuevo identificador de tipo usado en el union"));
+        b->append_inst(quad::IFEQ, new opd(0), t2, new opd(b->next_instruction() + 7, 1),
+            "permitir la asignación por primera vez a una unión");
+        b->append_inst(quad::IFEQ, t1, t2, new opd(b->next_instruction() + 7, 1),
+            "validar que en caso estar actualizado el tipo usado, se mantiene");
+        b->append_inst(quad::WRITE, new opd(0), 0, 0, "dirección relativa del string en la tabla \"Se trató de utilizar una propiedad no activa de la unión en (\"");
+        b->append_inst(quad::WRITE, new opd(value->line), 0, 0, "número de línea del error");
+        b->append_inst(quad::WRITE, new opd(62), 0, 0, "dirección relativa del string en la tabla \", \"");
+        b->append_inst(quad::WRITE, new opd(value->column), 0, 0, "número de columna del error");
+        b->append_inst(quad::WRITE, new opd(65), 0, 0, "dirección relativa del string en la tabla \")\"");
+        b->append_inst(quad::CP, t2, din_base, new opd(ud->width - 4),
+            "guardando nuevo identificador de tipo usado en el union");
     }
     *sta_base += sym->offset;
     return din_base;
@@ -425,9 +425,9 @@ opd *AST_rlval::gen_tac(block *b) {
     opd *l = value->gen_tac(b);
     if ( value->type == BOOLEAN ){
         truelist.push_back( b->next_instruction() );
-        b->append_inst(new quad(quad::IF, l, 0, 0, "identificador de tipo booleano (true)"));
+        b->append_inst(quad::IF, l, 0, 0, "identificador de tipo booleano (true)");
         falselist.push_back( b->next_instruction() );
-        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "identificador de tipo booleano (false)"));
+        b->append_inst(quad::GOTO, 0, 0, 0, "identificador de tipo booleano (false)");
     }
     return l;
 }
@@ -439,18 +439,18 @@ opd *AST_conversion::gen_tac(block *b){
         v = new opd();
     } else if (O_TEMP != v->type) {
         opd *t = new opd();
-        b->append_inst(new quad(quad::CP, t, v, 0, "la conversión de tipos requiere a juro un temporal"));
+        b->append_inst(quad::CP, t, v, 0, "la conversión de tipos requiere a juro un temporal");
         v = t;
     }
     if (BOOLEAN == expr->type) {
         b->backpatch(expr->truelist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, v, new opd(true), 0, "asignación de valor booleano (true) obtenido al lvalue"));
-        b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+        b->append_inst(quad::CP, v, new opd(true), 0, "asignación de valor booleano (true) obtenido al lvalue");
+        b->append_inst(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
 
         b->backpatch( expr->falselist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, v, new opd(false), 0, "asignación de valor booleano (false) obtenido al lvalue"));
+        b->append_inst(quad::CP, v, new opd(false), 0, "asignación de valor booleano (false) obtenido al lvalue");
     }
-    b->append_inst(new quad(quad::CONV, v, v, 0, string("conversión de tipo ") + PRINT_TYPE(original_type) + " a " + PRINT_TYPE(type)));
+    b->append_inst(quad::CONV, v, v, 0, string("conversión de tipo ") + PRINT_TYPE(original_type) + " a " + PRINT_TYPE(type));
     return v;
 }
 
@@ -458,10 +458,10 @@ opd *AST_function_call::gen_tac(block *b){
     params->gen_tac(b);
     if (returns_value) {
         opd *t = new opd();
-        b->append_inst(new quad(quad::CALL, t, new opd(sym), 0, "llamada de función guardada en el primer argumento"));
+        b->append_inst(quad::CALL, t, new opd(sym), 0, "llamada de función guardada en el primer argumento");
         return t;
     }
-    b->append_inst(new quad(quad::EXEC, new opd(sym), 0, 0, "llamada de función guardada en el primer argumento"));
+    b->append_inst(quad::EXEC, new opd(sym), 0, 0, "llamada de función guardada en el primer argumento");
     return 0;
 }
 
@@ -491,25 +491,25 @@ void AST_parameters_list::gen_tac(block* b){
         opd *v = (*it)->gen_tac(b), *t = new opd();
         if ((*it)->type == BOOLEAN) {
             b->backpatch((*it)->truelist, b->next_instruction() );
-            b->append_inst(new quad(quad::CP, t, new opd(true), 0,
-                                    "argumento de función booleano (true)"));
-            b->append_inst(new quad(quad::GOTO, 0, 0,
+            b->append_inst(quad::CP, t, new opd(true), 0,
+                                    "argumento de función booleano (true)");
+            b->append_inst(quad::GOTO, 0, 0,
                             new opd(b->next_instruction() + 2, 1),
-                                "salto después de asignar el valor booleano"));
+                                "salto después de asignar el valor booleano");
 
             b->backpatch( (*it)->falselist, b->next_instruction() );
-            b->append_inst(new quad(quad::CP, t, new opd(false), 0,
-                                    "argumento de función booleano (false)"));
+            b->append_inst(quad::CP, t, new opd(false), 0,
+                                    "argumento de función booleano (false)");
         } else {
-            b->append_inst(new quad(quad::CP, t, v, 0,
-                                    "argumento de función no booleano"));
+            b->append_inst(quad::CP, t, v, 0,
+                                    "argumento de función no booleano");
         }
         params.push_back(t);
     }
     for (vector< opd* >::iterator it = params.begin();
          it != params.end(); ++ it)
     {
-        b->append_inst(new quad(quad::PARAM, *it, 0, 0,"argumento de función"));
+        b->append_inst(quad::PARAM, *it, 0, 0,"argumento de función");
     }
 }
 
@@ -521,9 +521,9 @@ void AST_declaration::gen_tac(block *b){
 void AST_variable_declaration::gen_tac(block *b){
     next_list.clear();
     if (0 == value) {
-        b->append_inst(new quad(quad::INIT, new opd(sym),
+        b->append_inst(quad::INIT, new opd(sym),
             new opd(types.types[ sym->getType() ]->width), new opd(0),
-            "inicialización en cero"));
+            "inicialización en cero");
         return;
     }
     opd* l = new opd(sym);
@@ -532,17 +532,17 @@ void AST_variable_declaration::gen_tac(block *b){
     if ( value->type == BOOLEAN){
 
         b->backpatch( value->truelist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(true), 0,
+        b->append_inst(quad::CP, l, new opd(true), 0,
                                 "declaración con asignación del valor booleano "
-                                "obtenido (true) al lvalue"));
+                                "obtenido (true) al lvalue");
         
         next_list.push_back( b->next_instruction() );
-        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto después de declarar y asignar el valor booleano"));
+        b->append_inst(quad::GOTO, 0, 0, 0, "salto después de declarar y asignar el valor booleano");
 
         b->backpatch( value->falselist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(false), 0, "declaración con asignación de valor booleano obtenido al lvalue"));
+        b->append_inst(quad::CP, l, new opd(false), 0, "declaración con asignación de valor booleano obtenido al lvalue");
     } else {
-        b->append_inst(new quad(quad::CP, l, r, 0, "declaración con asignación de un valor de cualquier tipo obtenido al lvalue"));
+        b->append_inst(quad::CP, l, r, 0, "declaración con asignación de un valor de cualquier tipo obtenido al lvalue");
     }
 }
 
@@ -557,8 +557,8 @@ void AST_discrete_arg_list::gen_tac(block *b){
 void AST_function::gen_tac(block *b){
     
     func_to_prologue[func->getName()] = b->next_instruction();
-    b->append_inst(new quad(quad::PROLOGUE,  0, 0, new opd(func),
-                            "prologo de funcion " + func->getName() )
+    b->append_inst(quad::PROLOGUE,  0, 0, new opd(func),
+                            "prologo de funcion " + func->getName()
                   );
     
     instructions->gen_tac(b);
@@ -567,8 +567,8 @@ void AST_function::gen_tac(block *b){
     b->backpatch( instructions->return_list, b->next_instruction() );
     
     func_to_epilogue[func->getName()] = b->next_instruction();
-    b->append_inst(new quad(quad::EPILOGUE,  0, 0, new opd(func),
-                            "epilogo de funcion " + func->getName() )
+    b->append_inst(quad::EPILOGUE,  0, 0, new opd(func),
+                            "epilogo de funcion " + func->getName()
                   );
 }
 
@@ -618,15 +618,15 @@ void AST_assignment::gen_tac(block *b){
     if ( expr->type == BOOLEAN){
 
         b->backpatch( expr->truelist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) al lvalue"));
+        b->append_inst(quad::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) al lvalue");
 
         next_list.push_back( b->next_instruction() );
-        b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto después de asignar el valor booleano"));
+        b->append_inst(quad::GOTO, 0, 0, 0, "salto después de asignar el valor booleano");
 
         b->backpatch( expr->falselist, b->next_instruction() );
-        b->append_inst(new quad(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido (false) al lvalue"));
+        b->append_inst(quad::CP, l, new opd(false), 0, "asignación de valor booleano obtenido (false) al lvalue");
     } else {
-        b->append_inst(new quad(quad::CP, l, r, 0, "asignación de un valor de cualquier tipo obtenido al lvalue"));
+        b->append_inst(quad::CP, l, r, 0, "asignación de un valor de cualquier tipo obtenido al lvalue");
     }
 }
 
@@ -641,17 +641,17 @@ void AST_return::gen_tac(block *b){
         if (BOOLEAN == expr->type) {
             r = new opd();
             b->backpatch( expr->truelist, b->next_instruction() );
-            b->append_inst(new quad(quad::CP, r, new opd(true), 0, "returno del valor booleano obtenido (true)"));
+            b->append_inst(quad::CP, r, new opd(true), 0, "returno del valor booleano obtenido (true)");
 
-            b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano"));
+            b->append_inst(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
 
             b->backpatch( expr->falselist, b->next_instruction() );
-            b->append_inst(new quad(quad::CP, r, new opd(false), 0, "returno de valor booleano obtenido (false)"));
+            b->append_inst(quad::CP, r, new opd(false), 0, "returno de valor booleano obtenido (false)");
         }
     }
     
     return_list.push_back(b->next_instruction());
-    b->append_inst(new quad(quad::RETURN, r, 0, 0, "retorno de funcion"));
+    b->append_inst(quad::RETURN, r, 0, 0, "retorno de funcion");
 }
 
 void AST_conditional::gen_tac(block *b){
@@ -673,7 +673,7 @@ void AST_conditional::gen_tac(block *b){
             // generar un goto proveniente de la ejecucion de la rama anterior
             // agregar el goto a la nextlist de este condicional
             next_list.push_back( b->next_instruction() );
-            b->append_inst(new quad(quad::GOTO, 0, 0, 0, "salto condicional de else_if"));
+            b->append_inst(quad::GOTO, 0, 0, 0, "salto condicional de else_if");
             
             // marcar los saltos de la condicion negativa del if a la siguiente
             // instruccion donde se alojara la verificacion del codigo de esta
@@ -712,7 +712,7 @@ void AST_loop::gen_tac(block *b){
     // evaluacion de la condicion
     b->backpatch(blck->continue_list, start_instr);
     
-    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(start_instr, true), "salto condicional de un loop"));
+    b->append_inst(quad::GOTO, 0, 0, new opd(start_instr, true), "salto condicional de un loop");
     
     next_list = expr->falselist;
     next_list.splice(next_list.end(), blck->break_list);
@@ -725,20 +725,20 @@ void AST_bounded_loop::gen_tac(block *b){
     opd* r = right_bound->gen_tac(b);
     opd* i = new opd(), *os = new opd(sym);
     // prólogo
-    b->append_inst(new quad(quad::CP, i, new opd(-1), 0, "se asume que se va a restar en cada ciclo"));
-    b->append_inst(new quad(quad::IFGEQ, l, r, new opd(b->next_instruction() + 2,true), "en este caso, efectivamente, se resta en cada ciclo"));
-    b->append_inst(new quad(quad::CP, i, new opd(1), 0, "si se alcanzó esta instrucción, se va a sumar en cada ciclo"));
+    b->append_inst(quad::CP, i, new opd(-1), 0, "se asume que se va a restar en cada ciclo");
+    b->append_inst(quad::IFGEQ, l, r, new opd(b->next_instruction() + 2,true), "en este caso, efectivamente, se resta en cada ciclo");
+    b->append_inst(quad::CP, i, new opd(1), 0, "si se alcanzó esta instrucción, se va a sumar en cada ciclo");
     int start_instr = b->next_instruction();
     // comienzo del ciclo
-    b->append_inst(new quad(quad::IFEQ, i, new opd(1), new opd(b->next_instruction() + 3,true), "verificar que se suma por ciclo"));
-    b->append_inst(new quad(quad::IFGEQ, l, r, new opd(b->next_instruction() + 4,true),
-        "dado que se resta por ciclo, verificar que no se alcanzó el mínimo derecho"));
+    b->append_inst(quad::IFEQ, i, new opd(1), new opd(b->next_instruction() + 3,true), "verificar que se suma por ciclo");
+    b->append_inst(quad::IFGEQ, l, r, new opd(b->next_instruction() + 4,true),
+        "dado que se resta por ciclo, verificar que no se alcanzó el mínimo derecho");
     next_list.push_back( b->next_instruction() );
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "si se llegó hasta aquí, es porque el ciclo finalizó naturalmente"));
-    b->append_inst(new quad(quad::IFLEQ, l, r, new opd(b->next_instruction() + 2,true),
-        "dado que se suma por ciclo, verificar que no se alcanzó el máximo derecho"));
+    b->append_inst(quad::GOTO, 0, 0, 0, "si se llegó hasta aquí, es porque el ciclo finalizó naturalmente");
+    b->append_inst(quad::IFLEQ, l, r, new opd(b->next_instruction() + 2,true),
+        "dado que se suma por ciclo, verificar que no se alcanzó el máximo derecho");
     next_list.push_back( b->next_instruction() );
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "si se llegó hasta aquí, es porque el ciclo finalizó naturalmente"));
+    b->append_inst(quad::GOTO, 0, 0, 0, "si se llegó hasta aquí, es porque el ciclo finalizó naturalmente");
     // ciclo
     blck->gen_tac(b);
     // si ocurre un continue en el ciclo
@@ -747,23 +747,23 @@ void AST_bounded_loop::gen_tac(block *b){
     // si ocurre un break en el ciclo
     next_list.splice(next_list.end(), blck->break_list);
 
-    b->append_inst(new quad(quad::ADD, os, os, i, "tanto para enteros como para caracteres sumar uno hasta llegars"));
+    b->append_inst(quad::ADD, os, os, i, "tanto para enteros como para caracteres sumar uno hasta llegars");
     // comenzar de nuevo
-    b->append_inst(new quad(quad::GOTO, 0, 0, new opd(start_instr, true), "volver a comenzar el for acotado"));
+    b->append_inst(quad::GOTO, 0, 0, new opd(start_instr, true), "volver a comenzar el for acotado");
 }
 
 void AST_break::gen_tac(block *b){
     break_list.push_back(b->next_instruction());
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "break"));
+    b->append_inst(quad::GOTO, 0, 0, 0, "break");
 }
 
 void AST_continue::gen_tac(block *b){
     continue_list.push_back(b->next_instruction());
-    b->append_inst(new quad(quad::GOTO, 0, 0, 0, "continue"));
+    b->append_inst(quad::GOTO, 0, 0, 0, "continue");
 }
 
 void AST_read::gen_tac(block *b){
-    b->append_inst(new quad(quad::READ, new opd(sym), 0, 0, "leer de entrada estándar"));
+    b->append_inst(quad::READ, new opd(sym), 0, 0, "leer de entrada estándar");
 }
 
 void AST_print::gen_tac(block *b){
@@ -772,21 +772,21 @@ void AST_print::gen_tac(block *b){
             (*it)->gen_tac(b);
             b->backpatch( (*it)->truelist, b->next_instruction() );
             b->backpatch( (*it)->falselist, b->next_instruction() + 2 );
-            b->append_inst(new quad(quad::WRITE, new opd(true), 0, 0, "imprimir bool true a salida estándar"));
-            b->append_inst(new quad(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "impreso bool true a salida estándar"));
-            b->append_inst(new quad(quad::WRITE, new opd(false), 0, 0, "imprimir bool false a salida estándar"));
+            b->append_inst(quad::WRITE, new opd(true), 0, 0, "imprimir bool true a salida estándar");
+            b->append_inst(quad::GOTO, 0, 0, new opd(b->next_instruction() + 2, 1), "impreso bool true a salida estándar");
+            b->append_inst(quad::WRITE, new opd(false), 0, 0, "imprimir bool false a salida estándar");
         } else {
-            b->append_inst(new quad(quad::WRITE, (*it)->gen_tac(b), 0, 0, "imprimir a salida estándar"));
+            b->append_inst(quad::WRITE, (*it)->gen_tac(b), 0, 0, "imprimir a salida estándar");
         }
     }
 }
 
 void AST_fill::gen_tac(block *b){
     opd *t = expr->gen_tac(b);
-    b->append_inst(new quad(quad::FILL, new opd(sym), t, 0, "aplicar fill"));
+    b->append_inst(quad::FILL, new opd(sym), t, 0, "aplicar fill");
 }
 
 void AST_map::gen_tac(block *b){
     opd *t1 = src->gen_tac(b), *t2 = dst->gen_tac(b);
-    b->append_inst(new quad(quad::MAP, new opd(sym), t1, t2, "aplicar map"));
+    b->append_inst(quad::MAP, new opd(sym), t1, t2, "aplicar map");
 }
