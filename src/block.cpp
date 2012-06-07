@@ -130,17 +130,17 @@ void block::gen_graph(){
             if ( ((quad*)current_inst)->op == quad::CALL )
             {
                 int destino = 
-                  func_to_prologue[((quad*)current_inst)->arg1->sym->getName()];
+                  func_to_prologue[((quad*)current_inst)->arg1->data.sym->getName()];
                 SET_LEADER(leaders,destino);
                 was_jump = true;
             } else if ( ((quad*)current_inst)->op == quad::EPILOGUE )
             {
                 int destino = 
-                  func_to_epilogue[((quad*)current_inst)->arg2->sym->getName()];
+                  func_to_epilogue[((quad*)current_inst)->arg2->data.sym->getName()];
                   SET_LEADER(leaders,destino);
                 was_jump = true;
             } else if (((quad*)current_inst)->arg2 != 0) {
-                unsigned int destino = ((quad*)current_inst)->arg2->pint;
+                unsigned int destino = ((quad*)current_inst)->arg2->data.pint;
                 SET_LEADER(leaders,destino);
                 was_jump = true;
             }
@@ -213,19 +213,19 @@ void block::gen_graph(){
         
         if ( last_inst->is_jump() && ((quad*)last_inst)->op == quad::GOTO ){
             current_block->mandatory_exit = 
-                label_to_block[ ((quad*)last_inst)->arg2->pint ];
+                label_to_block[ ((quad*)last_inst)->arg2->data.pint ];
         }
         
         if ( ((quad*)last_inst)->op == quad::RETURN ){
             current_block->mandatory_exit = 
-                label_to_block[((quad*)last_inst)->arg2->pint];
+                label_to_block[((quad*)last_inst)->arg2->data.pint];
         }
         
         // Marcar las salidas opcionales
         if ( last_inst->is_jump() && !last_inst->mandatory_jump() )
         {
             if ( ((quad*)last_inst)->op == quad::CALL ){
-                string func = ((quad*)last_inst)->arg1->sym->getName();
+                string func = ((quad*)last_inst)->arg1->data.sym->getName();
                 
                 // Agregar salto desde el llamador al prologo del llamado
                 current_block->sucessors.push_back(
@@ -238,7 +238,7 @@ void block::gen_graph(){
                     current_block->mandatory_exit);
             } else if ( ((quad*)last_inst)->arg2 != 0 ){
                 current_block->sucessors.push_back(
-                            label_to_block[((quad*)last_inst)->arg2->pint] );
+                            label_to_block[((quad*)last_inst)->arg2->data.pint] );
             }
         }
     }

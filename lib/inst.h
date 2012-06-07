@@ -16,12 +16,13 @@
 #include "symbol.h"
 
 struct opd{
-    symbol *sym;
-    int temp;
-    int pint;
-    char pchar;
-    bool pbool;
-    float pfloat;
+    union {
+        symbol *sym;
+        int pint;
+        char pchar;
+        bool pbool;
+        float pfloat;
+    } data;
     char type;
     
     opd(symbol *s);

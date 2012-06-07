@@ -5,19 +5,19 @@
 using namespace std;
 
 opd::opd(symbol *s){
-    sym = s;
+    data.sym = s;
     type = O_SYM;
 }
 
 opd::opd(){
     static int t = 0;
-    temp = ++ t;
+    data.pint = ++ t;
     type = O_TEMP;
 }
 
 opd::opd(int s, int label){
     
-    pint = s;
+    data.pint = s;
     
     if ( label ){
         type = O_LABEL;
@@ -27,30 +27,30 @@ opd::opd(int s, int label){
 }
 
 opd::opd(char c){
-    pchar = c;
+    data.pchar = c;
     type = O_CHAR;
 }
 
 opd::opd(bool s){
-    pbool = s;
+    data.pbool = s;
     type = O_BOOL;
 }
 
 opd::opd(float s){
-    pfloat = s;
+    data.pfloat = s;
     type = O_FLOAT;
 }
 
 string opd::to_string() {
     std::stringstream out; 
     switch (type) {
-        case O_SYM:   return sym->getName();
-        case O_TEMP:  out << temp; return "T_" + out.str() ;
-        case O_INT:   out << pint; return out.str();
-        case O_CHAR:  return string(1, pchar);
-        case O_BOOL:  return (pbool ? "true" : "false");
-        case O_FLOAT: out << pfloat; return out.str();
-        case O_LABEL: out << pint; return "L_" + out.str();
+        case O_SYM:   return data.sym->getName();
+        case O_TEMP:  out << data.pint; return "T_" + out.str() ;
+        case O_INT:   out << data.pint; return out.str();
+        case O_CHAR:  return string(1, data.pchar);
+        case O_BOOL:  return (data.pbool ? "true" : "false");
+        case O_FLOAT: out << data.pfloat; return out.str();
+        case O_LABEL: out << data.pint; return "L_" + out.str();
     }
     return ":UKNOWN_TYPE";
 }
@@ -123,9 +123,9 @@ string quad::to_string(bool with_comment){
         case UMINUS:
             return _ + opds[0]->to_string() + " := -" + opds[1]->to_string();
         case PROLOGUE:
-            return _ + "prologue " + opds[2]->sym->getName();
+            return _ + "prologue " + opds[2]->data.sym->getName();
         case EPILOGUE:
-            return _ + "epilogue " + opds[2]->sym->getName();
+            return _ + "epilogue " + opds[2]->data.sym->getName();
         case RETURN:
             return _ + "return " + opds[0]->to_string()
                      + " " + (opds[2] ? opds[2]->to_string() : "unkown");
@@ -166,7 +166,7 @@ string quad::to_string(bool with_comment){
 unsigned int quad::get_goal_label(){
     assert (op == GOTO);
     if (0 != arg2) {
-        return arg2->pint;
+        return arg2->data.pint;
     } else {
         return -1;
     }
