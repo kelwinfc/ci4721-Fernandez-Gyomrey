@@ -90,7 +90,8 @@ int main (int argc,char **argv)
     delete st;
     
     if ( logger->exists_registered_error() ){
-        logger->dump();
+        logger->dump(cerr);
+        cerr << "-------------------------------------------------------" << endl << endl;
     }
     
     if (args.to_separate_archives) {
@@ -120,8 +121,8 @@ int main (int argc,char **argv)
         }
         b->dump(args.tac_with_comments);
     } else {
-        logger->failure("");
-        exit(1);
+        cerr << "Epic fail!" << endl;
+        abort();
     }
 
     if (!args.to_separate_archives) {
@@ -141,12 +142,12 @@ int main (int argc,char **argv)
     }
 
     if ( logger->exists_registered_error() ){
-        logger->failure("context");
+        cerr << "Epic fail! (context)" << endl;
         return 0;
     }
 
     redirect_stdout();
-    logger->success();
+    cout << "Like a boss!" << endl;
 
     return 0;
 }

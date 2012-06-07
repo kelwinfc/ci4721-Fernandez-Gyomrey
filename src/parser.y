@@ -91,11 +91,8 @@ type_def:
           {
               $$ = types.index_of( ((tokenId*)$1)->ident );
               if ( $$ == UNDEFINED ){
-                  char e[llog::ERR_LEN];
-                  snprintf(e, llog::ERR_LEN,
-                        "Tipo %s no definido previamente.",
-                        ((tokenId*)$1)->ident.c_str());
-                  logger->error($1->line, $1->column, e);
+                  logger->buf << "Tipo " << ((tokenId*)$1)->ident << " no definido previamente.";
+                  logger->error($1->line, $1->column);
               }
               
               delete $1;
@@ -107,10 +104,8 @@ type_def:
               if ( typeid(*$2) != typeid(AST_int)
                  )
               {
-                  char e[llog::ERR_LEN];
-                  snprintf(e, llog::ERR_LEN,
-                        "Indice de arreglo debe evaluar una constante entera.");
-                  logger->error($2->line, $2->column, e);
+                  logger->buf << "Indice de arreglo debe evaluar una constante entera.";
+                  logger->error($2->line, $2->column);
               } else {
                   up = ((AST_int*)$2)->value;
               }
@@ -136,20 +131,16 @@ type_def:
                    || typeid(*$4) != typeid(AST_int)
                  )
               {
-                  char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "Indice de arreglo debe evaluar una constante entera.");
-                    logger->error($2->line, $2->column, e);
+                  logger->buf << "Indice de arreglo debe evaluar una constante entera.";
+                  logger->error($2->line, $2->column);
               } else {
                   low = ((AST_int*)$2)->value;
                   up = ((AST_int*)$4)->value;
               }
               
               if ( low > up ){
-                  char e[llog::ERR_LEN];
-                  snprintf(e, llog::ERR_LEN,
-                           "El rango de indices debe ser creciente.");
-                  logger->error($2->line, $2->column, e);
+                  logger->buf << "El rango de indices debe ser creciente.";
+                  logger->error($2->line, $2->column);
               }
               
               array_descriptor* at;
@@ -168,10 +159,8 @@ type_def:
           }
       | '[' error ']' type_def
           {
-              char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "Expresion de indices invalida.");
-                    logger->error($1->line, $1->column, e);
+              logger->buf << "Expresion de indices invalida.";
+              logger->error($1->line, $1->column);
               
               array_descriptor* at;
               at = new array_descriptor( types.types[$4],
@@ -202,10 +191,8 @@ type_def:
           }
       | error TK_IDENT
           {
-              char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "Tipo invalido.");
-                    logger->error($2->line, $2->column, e);
+              logger->buf << "Tipo invalido.";
+              logger->error($2->line, $2->column);
 
               yyclearin;
               $$ = INVALID;
@@ -221,11 +208,9 @@ declaration:
     |   TK_FUNCTION type_def TK_IDENT '(' arg_list ')' block
             {
               if ( !types.is_base( $2 ) ){
-                  char e[llog::ERR_LEN];
-                  snprintf(e, llog::ERR_LEN,
-                           "Funcion '%s' con tipo de retorno no primitivo.",
-                           ((tokenId*)$3)->ident.c_str());
-                  logger->error($3->line, $3->column, e);
+                  logger->buf << "Funcion '" << ((tokenId*)$3)->ident <<
+                                "' con tipo de retorno no primitivo.";
+                  logger->error($3->line, $3->column);
               }
               $$ = new AST_function( $2,
                                      (tokenId*)$3,
@@ -242,17 +227,13 @@ declaration:
             }
     |   type_def TK_IDENT '(' arg_list ')' block
             {
-              char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "La declaración de funciones debe ser precedida por 'fun'");
-                    logger->error($2->line, $2->column, e);
+              logger->buf << "La declaración de funciones debe ser precedida por 'fun'.";
+              logger->error($2->line, $2->column);
 
               if ( !types.is_base( $1 ) ){
-                  char e[llog::ERR_LEN];
-                  snprintf(e, llog::ERR_LEN,
-                           "Funcion '%s' con tipo de retorno no primitivo.",
-                           ((tokenId*)$2)->ident.c_str());
-                  logger->error($2->line, $2->column, e);
+                  logger->buf << "Funcion '" << ((tokenId*)$2)->ident
+                              << "' con tipo de retorno no primitivo.";
+                  logger->error($2->line, $2->column);
               }
               $$ = new AST_function( $1,
                                      (tokenId*)$2,
@@ -275,10 +256,8 @@ declaration:
             }
     |   TK_NONE TK_IDENT '(' arg_list ')' block
             { 
-              char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "La declaración de funciones debe ser precedida por 'fun'");
-                    logger->error($2->line, $2->column, e);
+              logger->buf << "La declaración de funciones debe ser precedida por 'fun'.";
+              logger->error($2->line, $2->column);
               $$ = new AST_function( 0,
                                      (tokenId*)$2,
                                      (AST_arg_list*)$4,
@@ -291,11 +270,9 @@ declaration:
     |   TK_ALIAS type_def TK_IDENT ';'
             {
                 if ( types.has_type( ((tokenId*)$3)->ident ) ){
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Tipo '%s' ya fue definido previamente.",
-                             ((tokenId*)$3)->ident.c_str());
-                    logger->error($3->line, $3->column, e);
+                    logger->buf << "Tipo '" << ((tokenId*)$3)->ident
+                                << "' ya fue definido previamente.";
+                    logger->error($3->line, $3->column);
                 } else {
                     types.add_alias( types.types[$2]->name,
                                      ((tokenId*)$3)->ident
@@ -310,10 +287,8 @@ declaration:
             }
     |   TK_ALIAS error ';'
             {
-                char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Declaracion de alias invalida.");
-                    logger->error($1->line, $1->column, e);
+                logger->buf << "Declaracion de alias invalida.";
+                logger->error($1->line, $1->column);
 
                 delete $1;
                 delete $3;
@@ -325,11 +300,9 @@ declaration:
     |   TK_NEW_TYPE TK_IDENT '{' struct_fields '}'
             {
                 if ( types.has_type( ((tokenId*)$2)->ident ) ){
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Tipo '%s' con identificador repetido.",
-                             ((tokenId*)$2)->ident.c_str());
-                    logger->error($1->line, $1->column, e);
+                    logger->buf << "Tipo '" << ((tokenId*)$2)->ident
+                                << "' ya fue definido previamente.";
+                    logger->error($1->line, $1->column);
 
                     delete $2;
                     delete $4;
@@ -347,11 +320,9 @@ declaration:
     |   TK_UNION TK_IDENT '{' struct_fields '}'
             {
                 if ( types.has_type( ((tokenId*)$2)->ident ) ){
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Tipo '%s' con identificador repetido.",
-                             ((tokenId*)$2)->ident.c_str());
-                    logger->error($1->line, $1->column, e);
+                    logger->buf << "Tipo '" << ((tokenId*)$2)->ident
+                                << "' ya fue definido previamente.";
+                    logger->error($1->line, $1->column);
 
                     delete $2;
                     delete $4;
@@ -368,9 +339,8 @@ declaration:
             }
     | TK_ENUM TK_IDENT '{' error '}'
           {
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Error en declaración de valores de enum");
-            logger->error($3->line, $3->column, e);
+            logger->buf << "Error en declaración de valores de enum.";
+            logger->error($3->line, $3->column);
             delete $1;
             delete $2;
             delete $3;
@@ -382,11 +352,9 @@ declaration:
     | TK_ENUM TK_IDENT '{' enum_values '}'
         {
             if ( types.has_type( ((tokenId*)$2)->ident ) ){
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Tipo '%s' con identificador repetido.",
-                         ((tokenId*)$2)->ident.c_str());
-                logger->error($1->line, $1->column, e);
+                logger->buf << "Tipo '" << ((tokenId*)$2)->ident
+                            << "' ya fue definido previamente.";
+                logger->error($1->line, $1->column);
 
                 delete $2;
                 delete $4;
@@ -421,12 +389,9 @@ variable_declaration :
             }
     | TK_CONST type_def TK_IDENT '=' error ';' 
             { 
-              char e[llog::ERR_LEN];
-              snprintf(e, llog::ERR_LEN,
-                       "Inicializacion de variable '%s' invalida.\n",
-                       ((tokenId*)$3)->ident.c_str()
-                      );
-              logger->error($3->line, $3->column, e);
+              logger->buf << "Inicializacion de variable '" << ((tokenId*)$3)->ident
+                          << "' invalida.";
+              logger->error($3->line, $3->column);
               
               $$ = new AST_variable_declaration( $2, (tokenId*)$3,
                                                  0
@@ -447,12 +412,10 @@ variable_declaration :
               delete $5;
             }
     | type_def TK_IDENT error expression ';'
-            { char e[llog::ERR_LEN];
-              snprintf(e, llog::ERR_LEN,
-                      "Falta simbolo = entre identificador '%s' e inicializacion.\n",
-                       ((tokenId*)$2)->ident.c_str()
-                      );
-              logger->error($2->line, $2->column, e);
+            {
+              logger->buf << "Falta simbolo = entre identificador '" << ((tokenId*)$2)->ident
+                          << "' e inicializacion.";
+              logger->error($2->line, $2->column);
               
               $$ = new AST_variable_declaration( $1,
                                                  (tokenId*)$2,
@@ -464,12 +427,10 @@ variable_declaration :
               yyerrok;
             }
     | type_def TK_IDENT '=' error ';' 
-            { char e[llog::ERR_LEN];
-              snprintf(e, llog::ERR_LEN,
-                       "Inicializacion de variable '%s' invalida.\n",
-                       ((tokenId*)$2)->ident.c_str()
-                      );
-              logger->error($2->line, $2->column, e);
+            {
+              logger->buf << "Inicializacion de variable '" << ((tokenId*)$2)->ident
+                          << "' invalida.";
+              logger->error($2->line, $2->column);
               
               $$ = new AST_variable_declaration( $1, (tokenId*)$2,
                                                  0
@@ -489,12 +450,10 @@ variable_declaration :
 
             }
     | type_def TK_IDENT error ';'
-            { char e[llog::ERR_LEN];
-              snprintf(e, llog::ERR_LEN,
-                       "Declaración de variable '%s' debe finalizar con ';'.",
-                       ((tokenId*)$2)->ident.c_str()
-                      );
-              logger->error($2->line, $2->column, e);
+            {
+              logger->buf << "Declaración de variable '" << ((tokenId*)$2)->ident
+                          << "' debe finalizar con ';'.";
+              logger->error($2->line, $2->column);
 
               $$ = new AST_variable_declaration( $1,
                                                  (tokenId*)$2,
@@ -515,10 +474,8 @@ struct_fields :     {
                         symbol* s = 0;
                         if ( $2 == UNDEFINED )
                         {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Tipo no definido previamente.");
-                            logger->error($3->line, $3->column, e);
+                            logger->buf << "Tipo no definido previamente.";
+                            logger->error($3->line, $3->column);
 
                             delete $4;
 
@@ -529,12 +486,9 @@ struct_fields :     {
                             $1->insert( s );
                         } else if ( $1->lookup(((tokenId*)$3)->ident) ){
                             
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Campo '%s' en definicion de tipo duplicado.",
-                                     ((tokenId*)$3)->ident.c_str()
-                                    );
-                            logger->error($3->line, $3->column, e);
+                            logger->buf << "Campo '" << ((tokenId*)$3)->ident
+                                        << "' en definicion de tipo duplicado.";
+                            logger->error($3->line, $3->column);
                         } else {
                             s = new symbol( ((tokenId*)$3)->ident, false,
                                                $2,
@@ -552,12 +506,9 @@ struct_fields :     {
                     }
              | struct_fields error ';'
                     {
-                        char e[llog::ERR_LEN];
-                        snprintf(e, llog::ERR_LEN,
-                           "Campo %d en definicion de tipo compuesto invalido.",
-                            (int)$1->table.size()+1);
-
-                        logger->error($3->line, $3->column, e);
+                        logger->buf << "Campo '" << $1->table.size()+1
+                                    << "' en definicion de tipo compuesto invalido.";
+                        logger->error($3->line, $3->column);
 
                         delete $3;
                         $$ = $1;
@@ -578,16 +529,11 @@ enum_values:
             
             tokenConstant* tk = (tokenConstant*)$1;
             enum_type* et = (enum_type*)types.types[tk->type];
-            
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN,
-                         "Constante '%s' definida "
-                         "previamente para el tipo '%s' %d:%d",
-                         tk->ident.c_str(),
-                         et->name.c_str(),
-                         et->line, et->column);
-            
-            logger->error($1->line, $1->column, e);
+
+            logger->buf << "Constante '" << tk->ident
+                        << "' definida previamente para el tipo '"
+                        << et->name << ' ' << et->line << ':' << et->column << '.';
+            logger->error($1->line, $1->column);
             delete $1;
         }
     | enum_values ',' TK_IDENT
@@ -595,12 +541,9 @@ enum_values:
             $$ = $1;
             
             if ( $1->find(((tokenId*)$3)->ident) != $1->end() ){
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                             "Constante '%s' definida en el tipo enum actual",
-                             ((tokenId*)$3)->ident.c_str());
-                
-                logger->error($3->line, $3->column, e);
+                logger->buf << "Constante '" << ((tokenId*)$3)->ident
+                            << "' definida en el tipo enum actual.";
+                logger->error($3->line, $3->column);
             } else {
                 $1->insert(((tokenId*)$3)->ident);
             }
@@ -615,15 +558,10 @@ enum_values:
             tokenConstant* tk = (tokenConstant*)$3;
             enum_type* et = (enum_type*)types.types[tk->type];
             
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN,
-                         "Constante '%s' definida "
-                         "previamente para el tipo '%s' %d:%d",
-                         tk->ident.c_str(),
-                         et->name.c_str(),
-                         et->line, et->column);
-            
-            logger->error($3->line, $3->column, e);
+            logger->buf << "Constante '" << tk->ident
+                        << "' definida previamente para el tipo '"
+                        << et->name << ' ' << et->line << ':' << et->column << '.';
+            logger->error($3->line, $3->column);
             
             delete $2;
             delete $3;
@@ -676,12 +614,9 @@ non_empty_arg_list :
             }
     |   non_empty_arg_list ',' error
             {
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Error en parametro %d de definicion de funcion.\n",
-                           (int)((AST_arg_list*)$1)->args.size()+1
-                          );
-                logger->error($2->line, $2->column, e);
+                logger->buf << "Error en parametro " << ((AST_arg_list*)$1)->args.size()+1
+                            << " de definicion de funcion.";
+                logger->error($2->line, $2->column);
                 
                 delete $2;
                 $$ = $1;
@@ -712,29 +647,20 @@ discrete_type:
                         discrete_list->add_argument( type, (tokenId*)$3,
                                                      0, 1, true );
                     } else if ( type == INT ){
-                        char e[llog::ERR_LEN];
-                        snprintf(e, llog::ERR_LEN,
-                                 "Se deben establecer los limites de tipo"
-                                 "int.");
-                        logger->error($1->line, $1->column, e);
+                        logger->buf << "Se deben establecer los limites de tipo int.";
+                        logger->error($1->line, $1->column);
                         delete $2;
                         delete $3;
                     } else {
-                        char e[llog::ERR_LEN];
-                        snprintf(e, llog::ERR_LEN,
-                                 "Tipo en funcion memorizable debe ser "
-                                 "primitivo discreto.");
-                        logger->error($1->line, $1->column, e);
+                        logger->buf << "Tipo en funcion memorizable debe ser primitivo discreto.";
+                        logger->error($1->line, $1->column);
                         delete $2;
                         delete $3;
                     }
                     
                 } else {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Tipo en funcion memorizable debe ser "
-                             "primitivo discreto.");
-                    logger->error($1->line, $1->column, e);
+                    logger->buf << "Tipo en funcion memorizable debe ser primitivo discreto.";
+                    logger->error($1->line, $1->column);
                     delete $2;
                     delete $3;
                     
@@ -756,29 +682,20 @@ discrete_type:
                         discrete_list->add_argument( type, (tokenId*)$2,
                                                      0, 1, false );
                     } else if ( type == INT ){
-                        char e[llog::ERR_LEN];
-                        snprintf(e, llog::ERR_LEN,
-                                 "Se deben establecer los limites de tipo"
-                                 "int.");
-                        logger->error($1->line, $1->column, e);
+                        logger->buf << "Se deben establecer los limites de tipo int.";
+                        logger->error($1->line, $1->column);
                         delete $1;
                         delete $2;
                     } else {
-                        char e[llog::ERR_LEN];
-                        snprintf(e, llog::ERR_LEN,
-                                 "Tipo en funcion memorizable debe ser "
-                                 "primitivo discreto.");
-                        logger->error($1->line, $1->column, e);
+                        logger->buf << "Tipo en funcion memorizable debe ser primitivo discreto.";
+                        logger->error($1->line, $1->column);
                         delete $1;
                         delete $2;
                     }
                     
                 } else {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Tipo en funcion memorizable debe ser "
-                             "primitivo discreto.");
-                    logger->error($1->line, $1->column, e);
+                    logger->buf << "Tipo en funcion memorizable debe ser primitivo discreto.";
+                    logger->error($1->line, $1->column);
                     delete $1;
                     delete $2;
                 }
@@ -797,21 +714,15 @@ discrete_type:
                             //TODO verificar si esta escapado
                             lower = ((AST_char*)$6)->value[1];
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite inferior debe evaluar constante "
-                                     "char.");
-                            logger->error($6->line, $6->column, e);
+                            logger->buf << "Limite inferior debe evaluar constante char.";
+                            logger->error($6->line, $6->column);
                         }
                         if ( typeid(*$8) == typeid(AST_char) ){
                             //TODO verificar si esta escapado
                             upper = ((AST_char*)$8)->value[1];
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite superior debe evaluar constante "
-                                     "char.");
-                            logger->error($8->line, $8->column, e);
+                            logger->buf << "Limite superior debe evaluar constante char.";
+                            logger->error($8->line, $8->column);
                         }
                         
                         discrete_list->add_argument( type, (tokenId*)$3,
@@ -825,21 +736,15 @@ discrete_type:
                             //TODO verificar si esta escapado
                             lower = ((AST_char*)$6)->value[1] ? 1 : 0;
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite inferior debe evaluar constante "
-                                     "boolean.");
-                            logger->error($6->line, $6->column, e);
+                            logger->buf << "Limite inferior debe evaluar constante boolean.";
+                            logger->error($6->line, $6->column);
                         }
                         if ( typeid(*$8) == typeid(AST_boolean) ){
                             //TODO verificar si esta escapado
                             upper = ((AST_char*)$8)->value[1] ? 1 : 0;
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite superior debe evaluar constante "
-                                     "boolean.");
-                            logger->error($8->line, $8->column, e);
+                            logger->buf << "Limite inferior debe evaluar constante boolean.";
+                            logger->error($8->line, $8->column);
                         }
                         
                         discrete_list->add_argument( type, (tokenId*)$3,
@@ -854,42 +759,30 @@ discrete_type:
                             //TODO verificar si esta escapado
                             lower = ((AST_char*)$6)->value[1] ? 1 : 0;
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite inferior debe evaluar constante "
-                                     "int.");
-                            logger->error($6->line, $6->column, e);
+                            logger->buf << "Limite inferior debe evaluar constante int.";
+                            logger->error($6->line, $6->column);
                         }
                         if ( typeid(*$8) == typeid(AST_int) ){
                             //TODO verificar si esta escapado
                             upper = ((AST_char*)$8)->value[1] ? 1 : 0;
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite superior debe evaluar constante "
-                                     "int.");
-                            logger->error($8->line, $8->column, e);
+                            logger->buf << "Limite superior debe evaluar constante int.";
+                            logger->error($8->line, $8->column);
                         }
                         
                         discrete_list->add_argument( type, (tokenId*)$3,
                                                      lower, upper, true );
                         
                     } else {
-                        char e[llog::ERR_LEN];
-                        snprintf(e, llog::ERR_LEN,
-                                 "Tipo en funcion memorizable debe ser "
-                                 "primitivo discreto.");
-                        logger->error($1->line, $1->column, e);
+                        logger->buf << "Tipo en funcion memorizable debe ser primitivo discreto.";
+                        logger->error($1->line, $1->column);
                         delete $2;
                         delete $3;
                     }
                     
                 } else {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Tipo en funcion memorizable debe ser "
-                             "primitivo discreto.");
-                    logger->error($1->line, $1->column, e);
+                    logger->buf << "Tipo en funcion memorizable debe ser primitivo discreto.";
+                    logger->error($1->line, $1->column);
                     delete $2;
                     delete $3;
                     
@@ -917,21 +810,15 @@ discrete_type:
                             //TODO verificar si esta escapado
                             lower = ((AST_char*)$5)->value[1];
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite inferior debe evaluar constante "
-                                     "char.");
-                            logger->error($5->line, $5->column, e);
+                            logger->buf << "Limite inferior debe evaluar constante char.";
+                            logger->error($5->line, $5->column);
                         }
                         if ( typeid(*$7) == typeid(AST_char) ){
                             //TODO verificar si esta escapado
                             upper = ((AST_char*)$7)->value[1];
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite superior debe evaluar constante "
-                                     "char.");
-                            logger->error($7->line, $7->column, e);
+                            logger->buf << "Limite superior debe evaluar constante char.";
+                            logger->error($7->line, $7->column);
                         }
                         
                         discrete_list->add_argument( type, (tokenId*)$2,
@@ -945,21 +832,15 @@ discrete_type:
                             //TODO verificar si esta escapado
                             lower = ((AST_char*)$5)->value[1] ? 1 : 0;
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite inferior debe evaluar constante "
-                                     "boolean.");
-                            logger->error($5->line, $5->column, e);
+                            logger->buf << "Limite inferior debe evaluar constante boolean.";
+                            logger->error($5->line, $5->column);
                         }
                         if ( typeid(*$7) == typeid(AST_boolean) ){
                             //TODO verificar si esta escapado
                             upper = ((AST_char*)$7)->value[1] ? 1 : 0;
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite superior debe evaluar constante "
-                                     "boolean.");
-                            logger->error($7->line, $7->column, e);
+                            logger->buf << "Limite superior debe evaluar constante boolean.";
+                            logger->error($7->line, $7->column);
                         }
                         
                         discrete_list->add_argument( type, (tokenId*)$2,
@@ -974,42 +855,30 @@ discrete_type:
                             //TODO verificar si esta escapado
                             lower = ((AST_char*)$5)->value[1] ? 1 : 0;
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite inferior debe evaluar constante "
-                                     "int.");
-                            logger->error($5->line, $5->column, e);
+                            logger->buf << "Limite inferior debe evaluar constante int.";
+                            logger->error($5->line, $5->column);
                         }
                         if ( typeid(*$7) == typeid(AST_int) ){
                             //TODO verificar si esta escapado
                             upper = ((AST_char*)$7)->value[1] ? 1 : 0;
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                     "Limite superior debe evaluar constante "
-                                     "int.");
-                            logger->error($7->line, $7->column, e);
+                            logger->buf << "Limite superior debe evaluar constante int.";
+                            logger->error($7->line, $7->column);
                         }
                         
                         discrete_list->add_argument( type, (tokenId*)$2,
                                                      lower, upper, true );
                         
                     } else {
-                        char e[llog::ERR_LEN];
-                        snprintf(e, llog::ERR_LEN,
-                                 "Tipo en funcion memorizable debe ser "
-                                 "primitivo discreto.");
-                        logger->error($1->line, $1->column, e);
+                        logger->buf << "Tipo en funcion memorizable debe ser primitivo discreto.";
+                        logger->error($1->line, $1->column);
                         delete $1;
                         delete $2;
                     }
                     
                 } else {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Tipo en funcion memorizable debe ser "
-                             "primitivo discreto.");
-                    logger->error($1->line, $1->column, e);
+                    logger->buf << "Tipo en funcion memorizable debe ser primitivo discreto.";
+                    logger->error($1->line, $1->column);
                     delete $1;
                     delete $2;
                     
@@ -1082,10 +951,8 @@ statement :
     |   lvalue '=' error ';'
             { 
                 $$ = new AST_assignment((AST_lval*)$1, 0);
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Expresión inválida en la asignación.");
-                logger->error($2->line, $2->column, e);
+                logger->buf << "Expresión inválida en la asignación.";
+                logger->error($2->line, $2->column);
                 delete $2;
                 delete $4;
 
@@ -1106,10 +973,9 @@ statement :
               delete $4;
             }
     |   TK_IF '(' error ')' block else_statements 
-            {   char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Expresión inválida en la expresión de condición.");
-                logger->error($2->line, $2->column, e);
+            {
+                logger->buf << "Expresión inválida en la expresión de condición.";
+                logger->error($2->line, $2->column);
                 $$ = new AST_conditional( $1,
                                         (AST_expression*) 0,
                                         (AST_block*) $5,
@@ -1130,10 +996,9 @@ statement :
               delete $4;
             }
     |   TK_WHILE '(' error ')' {num_loops++; } block
-            { char e[llog::ERR_LEN];
-              snprintf(e, llog::ERR_LEN,
-                       "Expresión inválida en la expresión de condición.");
-              logger->error($2->line, $2->column, e);
+            {
+              logger->buf << "Expresión inválida en la expresión de condición.";
+              logger->error($2->line, $2->column);
               $$ = new AST_loop( (token*)$1,
                                  (AST_expression*)0,
                                  (AST_block*)$6
@@ -1159,10 +1024,8 @@ statement :
     |   TK_FOR TK_IDENT TK_IN '(' error ')' { num_loops++; } block
             { 
               $$ = new AST_assignment((AST_lval*)$1, 0);
-              char e[llog::ERR_LEN];
-              snprintf(e, llog::ERR_LEN,
-                       "Expresión inválida en límites del for.");
-              logger->error($4->line, $4->column, e);
+              logger->buf << "Expresión inválida en límites del for.";
+              logger->error($4->line, $4->column);
               $$ = new AST_bounded_loop( (token*)$1,
                                          (tokenId*)$2,
                                          (AST_expression*)0,
@@ -1190,9 +1053,8 @@ statement :
     |   TK_RETURN error ';'
             { 
               $$ = new AST_assignment((AST_lval*)$1, 0);
-              char e[llog::ERR_LEN];
-              snprintf(e, llog::ERR_LEN, "Return esperando ';'");
-              logger->error($1->line, $1->column, e);
+              logger->buf << "Return esperando ';'";
+              logger->error($1->line, $1->column);
               $$ = new AST_return($1, 0);
               delete $3;
               yyerrok;
@@ -1210,10 +1072,8 @@ statement :
                                 delete $3;
                             }
     | TK_READ TK_IDENT error ';'  {
-                                char e[llog::ERR_LEN];
-                                snprintf(e, llog::ERR_LEN,
-                                         "Lista de lectura debe ser terminada ';'");
-                                logger->error($1->line, $1->column, e);
+                                logger->buf << "Lista de lectura debe ser terminada ';'";
+                                logger->error($1->line, $1->column);
                                 $$ = 0;
                                 delete $1;
                                 delete $4;
@@ -1225,11 +1085,8 @@ statement :
                                     delete $3;
                                 }
     | TK_PRINT lista_ident error ';'  {
-            
-                                    char e[llog::ERR_LEN];
-                                    snprintf(e, llog::ERR_LEN,
-                                             "Lista de impresión debe ser terminada ';'");
-                                    logger->error($1->line, $1->column, e);
+                                    logger->buf << "Lista de impresión debe ser terminada ';'";
+                                    logger->error($1->line, $1->column);
             
                                     $$ = 0;
                                     delete $1;
@@ -1268,11 +1125,8 @@ statement :
             if ( num_loops > 0 ){
                 $$ = new AST_break($1);
             } else {
-                
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Sentencia break fuera del alcance de un ciclo.");
-                logger->error($1->line, $1->column, e);
+                logger->buf << "Sentencia break fuera del alcance de un ciclo.";
+                logger->error($1->line, $1->column);
                 
                 delete $1;
                 $$ = 0;
@@ -1284,11 +1138,8 @@ statement :
             if ( num_loops > 0 ){
                 $$ = new AST_continue($1);
             } else {
-                
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Sentencia continue fuera del alcance de un ciclo.");
-                logger->error($1->line, $1->column, e);
+                logger->buf << "Sentencia continue fuera del alcance de un ciclo.";
+                logger->error($1->line, $1->column);
                 
                 delete $1;
                 $$ = 0;
@@ -1298,10 +1149,8 @@ statement :
         {
             $$ = 0;
             
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN,
-                     "Error en instruccion.");
-            logger->error($2->line, $2->column, e);
+            logger->buf << "Error en instruccion.";
+            logger->error($2->line, $2->column);
             
             delete $2;
             yyerrok;
@@ -1372,16 +1221,12 @@ expression :
     |    expression TK_AS type_def 
         {
             if ( TK_AS == 0 ){
-                char e[llog::ERR_LEN];
-                  snprintf(e, llog::ERR_LEN,
-                           "Conversión a tipo no definido previamente.\n");
-                  logger->error($2->line, $2->column, e);
+                logger->buf << "Conversión a tipo no definido previamente.";
+                logger->error($2->line, $2->column);
             } else if ( !types.is_base( $3 ) ){
-                char e[llog::ERR_LEN];
-                  snprintf(e, llog::ERR_LEN,
-                           "Conversión a tipo no primitivo '%s'.\n",
-                           types.types[$3]->name.c_str());
-                  logger->error($2->line, $2->column, e);
+                logger->buf << "Conversión a tipo no primitivo '"
+                            << types.types[$3]->name << "'.";
+                logger->error($2->line, $2->column);
             }
             $$ = new AST_conversion( $3,
                                      (AST_expression*) $1
@@ -1490,10 +1335,8 @@ lvalue :
              }
      | lvalue '[' error ']'
           {
-              char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                        "Expresión de índices invalida.");
-                    logger->error($2->line, $2->column, e);
+              logger->buf << "Expresión de índices invalida.";
+              logger->error($2->line, $2->column);
 
               $$ = new AST_array_access( (AST_lval*)$1, 0);
               delete $2;
@@ -1557,9 +1400,8 @@ parameters_instance_non_empty:
           ((AST_parameters_list*)$1)->add_element((AST_expression*)0);
           $$ = $1;
 
-          char e[llog::ERR_LEN];
-          snprintf(e, llog::ERR_LEN, "Expresión de parámetro inválida");
-          logger->error($2->line, $2->column, e);
+          logger->buf << "Expresión de índices invalida.";
+          logger->error($2->line, $2->column);
 
           delete $2;
           yyerrok;
@@ -1569,7 +1411,8 @@ parameters_instance_non_empty:
 
 void yyerror (char const *s)
 {
-    logger->error(0, 0, s);
+    logger->buf << s;
+    logger->error(0, 0);
 }
 
 #include "lex.yy.c"

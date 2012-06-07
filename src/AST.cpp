@@ -49,7 +49,7 @@ AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
     } else if ( o->ident.compare(">=") == 0 ){
         oper_type = GREAT_EQ;
     } else {
-        logger->critical("Error de implementación en identificación de operador de expresión binaria");
+        throw "Error de implementación en identificación de operador de expresión binaria";
     }
     
     line_op = o->line;
@@ -70,7 +70,7 @@ AST_un_op::AST_un_op(tokenId* o, AST_expression* e){
     } else if ( o->ident.compare("-") == 0 ){
         oper_type = NEG;
     } else {
-        logger->critical("Error de implementación en identificación de operador de expresión unaria");
+        throw "Error de implementación en identificación de operador de expresión unaria";
     }
     
     line = o->line;
@@ -282,10 +282,8 @@ void AST_block::add_statement(AST_statement* s){
                  || ( statements.size() == 1 )
                )
             {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN, 
-                             "Codigo inalcanzable");
-                    logger->warning(s->line, s->column, e);
+                logger->buf << "Codigo inalcanzable";
+                logger->warning(s->line, s->column);
             }
             s->has_return = YES;
         } else if (    statements.back()->has_return == MAYBE 
@@ -363,19 +361,11 @@ AST_function::AST_function(TYPE t, tokenId* id, AST_arg_list* args,
     if ( func->getType() != NONE ){
         if ( code->has_return == NO ){
             // Reportar error de tipo de argumento
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, 
-                     "Función %s sin retorno",
-                     id->ident.c_str()
-                    );
-            logger->error(line, column, e);
+            logger->buf << "Función '" << id->ident << "' sin retorno.";
+            logger->error(line, column);
         } else if ( code->has_return == MAYBE ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, 
-                     "Función %s posiblemente sin retorno",
-                     id->ident.c_str()
-                    );
-            logger->warning(line, column, e);
+            logger->buf << "Función '" << id->ident << "' posiblemente sin retorno.";
+            logger->warning(line, column);
         }
     }
     has_return = NO;

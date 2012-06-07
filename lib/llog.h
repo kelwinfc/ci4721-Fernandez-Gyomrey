@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <iostream>
 #include <sstream>
 #include <stdlib.h>
 
@@ -18,23 +19,17 @@ class llog{
 
     public:
 
-        static const size_t ERR_LEN = 1000;
+        stringstream buf;
 
         llog();
 
-        void warning(int l, int c, const char* e=0);
+        void warning(int l, int c);
         
-        void error(int l, int c, const char* e=0);
-
-        void critical(const char* m);
-        
-        void failure(const char* c);
-        
-        void success();
+        void error(int l, int c);
 
         bool exists_registered_error();
 
-        void dump();
+        void dump(ostream &errd);
 };
 
 #endif

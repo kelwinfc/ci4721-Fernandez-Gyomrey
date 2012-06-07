@@ -35,11 +35,8 @@ class symbol_table {
             for (it = table.begin(); it != table.end(); ++it){
                 symbol* sym = it->second;
                 if ( sym->unused && !sym->is_function ){
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Identificador sin utilizar '%s'.",
-                             sym->getName().c_str());
-                    logger->warning(sym->getLine(), sym->getColumn(), e);
+                    logger->buf << "Identificador sin utilizar '" << sym->getName() << "'.";
+                    logger->warning(sym->getLine(), sym->getColumn());
                 }
             }
         }

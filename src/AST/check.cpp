@@ -84,13 +84,10 @@ void AST_op::fill_and_check(symbol_table* st){
                 type = INT;
                 
                 if ( valido->type != INT ){
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Operando '%s' de tipo %s, esperado int.",
-                             nombre_valido,
-                             types.types[valido->type]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Operando '" << nombre_valido
+                                << "' de tipo '" << types.types[valido->type]->name
+                                << "', esperando int.";
+                    logger->error(line, column);
                 }
                 break;
                 
@@ -106,13 +103,10 @@ void AST_op::fill_and_check(symbol_table* st){
                 {
                     type = valido->type;
                 } else {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Operando '%s' de tipo %s, esperado float o int.",
-                             nombre_valido,
-                             types.types[valido->type]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Operando '" << nombre_valido
+                                << "' de tipo '" << types.types[valido->type]->name
+                                << "', esperando float o int.";
+                    logger->error(line, column);
                 }
                 break;
             
@@ -125,13 +119,10 @@ void AST_op::fill_and_check(symbol_table* st){
                 if ( valido->type == BOOLEAN ){
                     type = BOOLEAN;
                 } else {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Operando %s de tipo %s, esperado boolean.",
-                             nombre_valido,
-                             types.types[valido->type]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Operando '" << nombre_valido
+                                << "' de tipo '" << types.types[valido->type]->name
+                                << "', esperando boolean.";
+                    logger->error(line, column);
                 }
                 break;
             
@@ -154,14 +145,10 @@ void AST_op::fill_and_check(symbol_table* st){
                      && valido->type != CHAR
                    )
                 {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Operando %s de tipo %s, esperado int, float "
-                             "o char.",
-                             nombre_valido,
-                             types.types[valido->type]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Operando '" << nombre_valido
+                                << "' de tipo '" << types.types[valido->type]->name
+                                << "', esperando float o int.";
+                    logger->error(line, column);
                 }
                 break;
         }
@@ -176,16 +163,14 @@ void AST_op::fill_and_check(symbol_table* st){
         case MOD:
             type = INT;
             
-            char e[llog::ERR_LEN];
-            
             if ( left->type != INT ){
-                snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado int.",
-                         types.types[left->type]->name.c_str());
-                logger->error(line, column, e);
+                logger->buf << "Operando izquierdo de tipo '" << types.types[left->type]->name
+                            << "', esperando int.";
+                logger->error(line, column);
             } else if ( right->type != INT ) {
-                snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado int.",
-                         types.types[right->type]->name.c_str());
-                logger->error(line, column, e);
+                logger->buf << "Operando derecho de tipo '" << types.types[right->type]->name
+                            << "', esperando int.";
+                logger->error(line, column);
             }
             
             break;
@@ -202,25 +187,19 @@ void AST_op::fill_and_check(symbol_table* st){
                     type = left->type;
                 } else {
                     // Error de ambos argumentos con tipos invalidos
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Operandos de tipo %s, esperado float o int.",
-                            types.types[left->type]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Operando izquierdo de tipo '" << types.types[left->type]->name
+                                << "', esperando float o int.";
+                    logger->error(line, column);
                     
                     type = INVALID;
                 }
                 
             } else {
                 // Argumento derecho con tipo invalido
-                char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Operandos de tipos incompatibles %s y %s.",
-                            types.types[left->type]->name.c_str(),
-                            types.types[right->type]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                logger->buf << "Operandos de tipos incompatibles '"
+                            << types.types[left->type]->name << "' y '"
+                            << types.types[right->type]->name << "'";
+                logger->error(line, column);
                 type = INVALID;
             }
             break;
@@ -236,24 +215,17 @@ void AST_op::fill_and_check(symbol_table* st){
                 type = BOOLEAN;
                 if ( left->type != BOOLEAN )
                 {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Operandos de tipo %s, esperado boolean.",
-                             types.types[left->type]->name.c_str()
-                            );
-                    logger->error(line, column, e);
-                    
+                    logger->buf << "Operandos de tipo '" << types.types[left->type]->name
+                                << "', esperando boolean.";
+                    logger->error(line, column);
                 }
                 
             } else {
                 // Error de ambos argumentos con tipos invalidos
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Operandos de tipos %s y %s, esperados boolean.",
-                         types.types[left->type]->name.c_str(),
-                         types.types[right->type]->name.c_str()
-                        );
-                logger->error(line, column, e);
+                logger->buf << "Operandos de tipos '"
+                            << types.types[left->type]->name << "' y '"
+                            << types.types[right->type]->name << "' esperados boolean.";
+                logger->error(line, column);
             }
             
             break;
@@ -266,13 +238,10 @@ void AST_op::fill_and_check(symbol_table* st){
             if ( left->type != right->type )
             {
                 // Error de ambos argumentos con tipos invalidos
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Operandos de tipos incompatibles %s y %s.",
-                         types.types[left->type]->name.c_str(),
-                         types.types[right->type]->name.c_str()
-                        );
-                logger->error(line, column, e);
+                logger->buf << "Operandos de tipos imcompratibles '"
+                            << types.types[left->type]->name << "' y '"
+                            << types.types[right->type]->name << "'";
+                logger->error(line, column);
             }
             
             break;
@@ -293,23 +262,18 @@ void AST_op::fill_and_check(symbol_table* st){
                    )
                 {
                     // Error de ambos argumentos con tipos invalidos
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                         "Operandos de tipo %s, esperado float, int o char.",
-                         types.types[left->type]->name.c_str()
-                        );
-                    logger->error(line, column, e);
+                    logger->buf << "Operandos de tipos '"
+                                << types.types[left->type]->name
+                                << "' esperando float, int o char";
+                    logger->error(line, column);
                 }
                 
             } else {
                 // Error de ambos argumentos con tipos invalidos
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Operandos de tipos incompatibles %s y %s",
-                         types.types[left->type]->name.c_str(),
-                         types.types[right->type]->name.c_str()
-                        );
-                logger->error(line, column, e);
+                logger->buf << "Operandos de tipos imcompratibles '"
+                            << types.types[left->type]->name << "' y '"
+                            << types.types[right->type]->name << "'";
+                logger->error(line, column);
             }
             
             break;
@@ -326,8 +290,8 @@ void AST_un_op::fill_and_check(symbol_table* st){
             type = BOOLEAN;
         } else {
             // Reportar error de argumento booleano y operando menos unario
-            logger->error(line, column,
-                          "Operando de tipo boolean, esperado float o int.");
+            logger->buf << "Operando de tipo boolean, esperado float o int.";
+            logger->error(line, column);
         }
     } else if ( expr->type == INT || expr->type == FLOAT ){
         
@@ -335,18 +299,16 @@ void AST_un_op::fill_and_check(symbol_table* st){
             type = expr->type;
         } else {
             // Reportar error de argumento numero y operando negacion
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado boolean.",
-                expr->type == INT ? "int": "float");
-            logger->error(line, column, e);
+            logger->buf << "Operando de tipo '" << (expr->type == INT ? "int": "float")
+                        << "', esperado boolean.";
+            logger->error(line, column);
         }
     } else {
         // Reportar error de tipo de argumento
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Operando de tipo %s, esperado %s.",
-                 types.types[expr->type]->name.c_str(),
-                 oper_type == NOT ? "boolean": "float o int");
-        logger->error(line, column, e);
+        logger->buf << "Operando de tipo '" << types.types[expr->type]->name
+                    << "', esperado '" << (oper_type == NOT ? "boolean": "float o int")
+                    << "'.";
+        logger->error(line, column);
     }
 }
 
@@ -398,22 +360,19 @@ void AST_ident::fill_and_check(symbol_table* st, bool lval){
         
         /* El simbolo es una function, uso incorrecto como variable */
         if ( sym->is_function ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN,
-                     "Identificador '%s' definido como función en %d:%d "
-                     " (se esperaba variable).", sym->getName().c_str(),
-                     sym->getLine(), sym->getColumn());
-            logger->error(line, column, e);
+            logger->buf << "Identificador '" << sym->getName()
+                        << "' definido como función en "
+                        << sym->getLine() << ':' << sym->getColumn()
+                        << " (se esperaba variable).";
+            logger->error(line, column);
             sym = 0;
         }
         /* Intento de acceso a constante como lvalue */
         else if ( lval && sym->isConst() ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN,
-                     "Intento de acceso a constante %s definida en %d:%d",
-                     sym->getName().c_str(),
-                     sym->getLine(), sym->getColumn());
-            logger->error(line, column, e);
+            logger->buf << "Intento de acceso a constante '"
+                        << sym->getName() << "' definida en "
+                        << sym->getLine() << ':' << sym->getColumn();
+            logger->error(line, column);
             
             type = sym->getType();
         } else {
@@ -426,11 +385,8 @@ void AST_ident::fill_and_check(symbol_table* st, bool lval){
     } else {
         /* El simbolo no existe en la tabla */
         type = INVALID;
-
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN,
-                 "Identificador '%s' no definido previamente.", value.c_str());
-        logger->error(line, column, e);
+        logger->buf << "Identificador '" << value << "' no definido previamente.";
+        logger->error(line, column);
     }
     
 }
@@ -447,13 +403,10 @@ void AST_ident::check_call(symbol_table* st){
              || typeid(*types.types[sym->getType()]) == typeid(union_type)
         )
         {
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN,
-                     "Pasaje por referencia de constante %s definida en %d:%d.",
-                     sym->getName().c_str(),
-                     sym->getLine(), sym->getColumn()
-                    );
-            logger->error(line, column, e);
+            logger->buf << "Pasaje por referencia de constante '"
+                        << sym->getName() << "' definida en "
+                        << sym->getLine() << ':' << sym->getColumn();
+            logger->error(line, column);
         }
     }
 }
@@ -500,10 +453,9 @@ void AST_array_access::fill_and_check(symbol_table* st, bool lval){
     value->fill_and_check(st, lval);
     
     if ( typeid(*(types.types[ value->type ])) != typeid(array_descriptor) ){
-        char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Intento de acceso indexado a tipo %s.",
-                     types.types[value->type]->name.c_str());
-            logger->error(line, column, e);
+        logger->buf << "Intento de acceso indexado a tipo '"
+                    << types.types[value->type]->name << "'.";
+        logger->error(line, column);
         type = INVALID;
     } else {
         type = ((array_descriptor*)types.types[ value->type ])->base;
@@ -525,10 +477,9 @@ void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
          && typeid(*td) != typeid(union_type) 
     )
     {
-        char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Intento de acceso a campo en tipo %s.",
-                     types.types[value->type]->name.c_str());
-            logger->error(line, column, e);
+        logger->buf << "Intento de acceso a campo en tipo '"
+                    << types.types[value->type]->name << "'.";
+        logger->error(line, column);
         type = INVALID;
     } else {
         sym = ((struct_type*)td)->fields->lookup( field );
@@ -537,22 +488,16 @@ void AST_struct_access::fill_and_check(symbol_table* st, bool lval){
             type = sym->getType();
             
             if ( sym->isConst() ){
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Intento de acceso a constante %s definida en %d:%d",
-                         sym->getName().c_str(),
-                         sym->getLine(), sym->getColumn()
-                    );
-                logger->error(line, column, e);
+                logger->buf << "Intento de acceso a constante '"
+                            << sym->getName() << "' definida en "
+                            << sym->getLine() << ':' << sym->getColumn();
+                logger->error(line, column);
             }
             union_access = typeid(*td) == typeid(struct_type);
         } else {
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Tipo %s no posee campo %s",
-                     types.types[value->type]->name.c_str(),
-                     field.c_str()
-                    );
-            logger->error(line, column, e);
+            logger->buf << "Tipo '" << types.types[value->type]->name
+                        << "' no posee campo '" << field << "'.";
+            logger->error(line, column);
             type = INVALID;
         }
         
@@ -568,10 +513,10 @@ void AST_conversion::fill_and_check(symbol_table* st){
     expr->fill_and_check(st);
     original_type = expr->type;
     if (!types.is_base(original_type) || !types.is_base(type) || STRING == original_type || STRING == type) {
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Conversión permitida sólo entre tipos primitivos (%s a %s)",
-                 types.types[original_type]->name.c_str() ,types.types[type]->name.c_str());
-        logger->error(line, column, e);
+        logger->buf << "Conversión permitida sólo entre tipos primitivos ('"
+                    << types.types[original_type]->name << "' a '"
+                    << types.types[type]->name << "'.";
+        logger->error(line, column);
         type = INVALID;
     }
 }
@@ -632,27 +577,25 @@ void AST_function_call::fill_and_check(symbol_table* st){
     
     if ( !sym ){
 
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Función '%s' no definida.", name.c_str());
-        logger->error(line, column, e);
+        logger->buf << "Función '" << name << "' no definida.";
+        logger->error(line, column);
         
         type = UNDEFINED;
     } else if ( !sym->is_function ){
         sym = 0;
 
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Identificador '%s' no es un nombre de función.", name.c_str());
-        logger->error(line, column, e);
+        logger->buf << "Identificador '" << name << "' no es un nombre de función.";
+        logger->error(line, column);
         
         type = UNDEFINED;
     } else {
         symbol_function* f = (symbol_function*)sym;
         
         if ( params->elem.size() != f->params.size() ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Se esperaban %d argumentos para la función '%s', %d recibidos.",
-                (int)f->params.size(), name.c_str(), (int)params->elem.size());
-            logger->error(line, column, e);
+            logger->buf << "Se esperaban " << f->params.size()
+                        << " argumentos para la función '" << name
+                        << "', " << params->elem.size() << " recibidos.";
+            logger->error(line, column);
         } else {
             uint nsize = params->elem.size();
             
@@ -660,13 +603,9 @@ void AST_function_call::fill_and_check(symbol_table* st){
                 if ( params->elem[i]->type != INVALID
                      && params->elem[i]->type != f->params[i] )
                 {
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Argumento %d de '%s' de tipo inválido %s.",
-                             i, name.c_str(),
-                             types.types[params->elem[i]->type]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Argumento " << i << " de '" << name << "' de tipo inválido '"
+                                << types.types[params->elem[i]->type]->name << "'.";
+                    logger->error(line, column);
                 }
             }
         }
@@ -682,10 +621,9 @@ void AST_declaration::fill_and_check(symbol_table* st){
 void AST_variable_declaration::fill_and_check(symbol_table* st){
 
     if (types.has_type(sym->getName())) {
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Identificador '%s' ya existe como tipo '%s'.",
-            sym->getName().c_str(), types.get_type(sym->getName())->name.c_str());
-        logger->error(sym->getLine(), sym->getColumn(), e);
+        logger->buf << "Identificador '" << sym->getName()
+                    << "' ya existe como tipo '" << types.get_type(sym->getName())->name << "'.";
+        logger->error(sym->getLine(), sym->getColumn());
     }
 
     sym->offset    = st->accumulated_offset;
@@ -701,17 +639,15 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
     
     if ( previous ){
         if ( previous->is_function ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Identificador '%s' ya fue definido previamente como función en línea %d, columna %d.",
-                sym->getName().c_str(), previous->getLine(), previous->getColumn());
-            logger->error(sym->getLine(), sym->getColumn(), e);
+            logger->buf << "Identificador '" << sym->getName()
+                        << "' ya fue definido previamente como función en "
+                        << sym->getLine() << ':' << sym->getColumn();
+            logger->error(sym->getLine(), sym->getColumn());
         } else if ( level == 0 ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN,
-                     "Identificador '%s' ya fue definido previamente en "
-                     "línea %d, columna %d.",
-                sym->getName().c_str(), previous->getLine(), previous->getColumn());
-            logger->error(sym->getLine(), sym->getColumn(), e);
+            logger->buf << "Identificador '" << sym->getName()
+                        << "' ya fue definido previamente en "
+                        << sym->getLine() << ':' << sym->getColumn();
+            logger->error(sym->getLine(), sym->getColumn());
         } else {
             st->insert(sym);
         }
@@ -725,14 +661,10 @@ void AST_variable_declaration::fill_and_check(symbol_table* st){
          && sym->getType() != INVALID
        )
     {
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN,
-                 "Inicialización de '%s' con tipo inválido %s, esperado %s.",
-                 sym->getName().c_str(),
-                 types.types[value->type]->name.c_str(),
-                 types.types[sym->getType()]->name.c_str()
-                );
-        logger->error(line, column, e);
+        logger->buf << "Inicialización de '" << sym->getName()
+                    << "' con tipo inválido '" << types.types[value->type]->name
+                    << "', esperado '" << types.types[sym->getType()]->name << "'.";
+        logger->error(line, column);
     }
 }
 
@@ -746,9 +678,8 @@ void AST_arg_list::fill_and_check(symbol_table* st){
             if ( level != 0 ){
                 st->insert( (*it) );
             } else {
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN, "Argumento '%s' con identificador repetido.", (*it)->getName().c_str());
-                logger->error(line, column, e);
+                logger->buf << "Argumento '" << (*it)->getName() << "' con identificador repetido.";
+                logger->error(line, column);
 
                 break;
             }
@@ -773,11 +704,8 @@ void AST_discrete_arg_list::fill_and_check(symbol_table* st){
                 st->insert( (*it) );
                 prev = *it;
             } else {
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Argumento '%s' con identificador repetido.",
-                         (*it)->getName().c_str());
-                logger->error(line, column, e);
+                logger->buf << "Argumento '" << (*it)->getName() << "' con identificador repetido.";
+                logger->error(line, column);
 
                 verify_types = false;
                 break;
@@ -790,10 +718,8 @@ void AST_discrete_arg_list::fill_and_check(symbol_table* st){
         if ( verify_types ){
             pair<int,int> b = *it_boundaries;
             if ( b.first > b.second ){
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN, "Argumento '%s' con rango vacio.",
-                         (*it)->getName().c_str());
-                logger->error(line, column, e);
+                logger->buf << "Argumento '" << (*it)->getName() << "' con rango vacio.";
+                logger->error(line, column);
             }
         }
         
@@ -829,10 +755,10 @@ void AST_program::fill_and_check(symbol_table* st){
             symbol_function* sf = (symbol_function*)st->lookup( f->func->getName() );
             
             if ( sf ){
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN, "Función '%s' con nombre repetido (primera declaración en %d:%d).",
-                    f->func->getName().c_str(), sf->getLine(), sf->getColumn());
-                logger->error(f->func->getLine(), f->func->getColumn(), e);
+                logger->buf << "Función '" << f->func->getName()
+                            << "' con nombre repetido (primera declaración en "
+                            << sf->getLine() << ':' << sf->getColumn() << ").";
+                logger->error(f->func->getLine(), f->func->getColumn());
             } else {
                 st->insert( f->func );
             }
@@ -844,17 +770,14 @@ void AST_program::fill_and_check(symbol_table* st){
         symbol_function* sf = (symbol_function*)st->lookup( "main" );
         
         if ( !sf ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Falta declaración de función main.");
-            logger->error(yylineno+1, 0, e);
+            logger->buf << "Falta declaración de función main.";
+            logger->error(yylineno+1, 0);
         } else if ( sf->getType() != NONE ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "main debe tener tipo de retorno none.");
-            logger->error(sf->getLine(), sf->getColumn(), e);
+            logger->buf << "main debe tener tipo de retorno none.";
+            logger->error(sf->getLine(), sf->getColumn());
         } else if ( sf->params.size() ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "main no debe recibir argumentos.");
-            logger->error(sf->getLine(), sf->getColumn(), e);
+            logger->buf << "main no debe recibir argumentos.";
+            logger->error(sf->getLine(), sf->getColumn());
         }
     }
     
@@ -872,11 +795,9 @@ void AST_program::fill_and_check(symbol_table* st){
                  && var->value->has_functions()
                )
             {
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN,
-                         "Inicialización de variable %s involucra llamada a función.",
-                         var->sym->getName().c_str());
-                logger->error(var->line, var->column, e);
+                logger->buf << "Inicialización de variable '" << var->sym->getName()
+                            << "' involucra llamada a función.";
+                logger->error(var->line, var->column);
             }
         }
     }
@@ -896,14 +817,10 @@ void AST_assignment::fill_and_check(symbol_table* st){
                 && lvalue->type != UNDEFINED
               )
     {
-        
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN,
-                 "Intento de asignación de tipo %s a variable de tipo %s.",
-                 types.types[expr->type]->name.c_str(),
-                 types.types[lvalue->type]->name.c_str()
-                );
-        logger->error(line, column, e);
+        logger->buf << "Intento de asignación de tipo '"
+                    << types.types[expr->type]->name << "' a variable de tipo '"
+                    << types.types[lvalue->type]->name << "'.";
+        logger->error(line, column);
     }
 }
 
@@ -915,24 +832,19 @@ void AST_procedure_call::fill_and_check(symbol_table* st){
 void AST_return::fill_and_check(symbol_table* st){
     
     if ( expected_return == NONE && expr ){
-        logger->error(line, column, "No se esperaba retorno con valor.");
+        logger->buf << "No se esperaba retorno con valor.";
+        logger->error(line, column);
     } else if ( expected_return != NONE && !expr ){
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN,
-                 "Se esperaba retorno de tipo %s.",
-                 types.types[expected_return]->name.c_str()
-                );
-        logger->error(line, column, e);
+        logger->buf << "Se esperaba retorno de tipo '"
+                    << types.types[expected_return]->name << "'.";
+        logger->error(line, column);
     } else if ( expected_return != NONE && expr ){
         expr->fill_and_check(st);
         if ( expr->type != expected_return ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN,
-                 "Se esperaba retorno de tipo %s, %s obtenido.",
-                 types.types[expected_return]->name.c_str(),
-                 types.types[expr->type]->name.c_str()
-                );
-            logger->error(line, column, e);
+            logger->buf << "Se esperaba retorno de tipo '"
+                        << types.types[expected_return]->name << "', '"
+                        << types.types[expr->type]->name << "' obtenido.";
+            logger->error(line, column);
         }
     }
 }
@@ -943,7 +855,8 @@ void AST_conditional::fill_and_check(symbol_table* st){
         expr->fill_and_check(st);
         
         if ( expr->type != BOOLEAN ){
-            logger->error(expr->line, expr->column, "Se esperaba boolean.");
+            logger->buf << "Se esperaba boolean.";
+            logger->error(expr->line, expr->column);
         }
     }
     
@@ -961,7 +874,8 @@ void AST_loop::fill_and_check(symbol_table* st){
     if (0 != expr) {
         expr->fill_and_check(st);
         if ( expr->type != INVALID && expr->type != BOOLEAN ){
-            logger->error(line, column, "Se esperaba boolean");
+            logger->buf << "Se esperaba boolean.";
+            logger->error(line, column);
         }
     }
     
@@ -984,13 +898,15 @@ void AST_bounded_loop::fill_and_check(symbol_table* st){
     {
         return;
     } else if ( left_bound->type != right_bound->type ){
-        logger->error(line, column, "Ambos límites deben tener el mismo tipo.");
+        logger->buf << "Ambos límites deben tener el mismo tipo.";
+        logger->error(line, column);
     } else if ( left_bound->type != INT
                 && left_bound->type != CHAR
                 && left_bound->type != BOOLEAN
               )
     {
-        logger->error(line, column, "Se esperaba un tipo discreto int, char, boolean.");
+        logger->buf << "Se esperaba un tipo discreto int, char, boolean.";
+        logger->error(line, column);
     }
     
     symbol_table* nested_block = st->new_son();
@@ -1019,22 +935,16 @@ void AST_read::fill_and_check(symbol_table* st){
         
         /* El simbolo es una function, uso incorrecto como variable */
         if ( sym->is_function ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Identificador '%s' definido como función en %d:%d "
-                " (se esperaba variable).", sym->getName().c_str(),
-                sym->getLine(), sym->getColumn());
-            logger->error(line, column, e);
+            logger->buf << "Identificador '" << sym->getName()
+                        << "' definido como función en "
+                        << sym->getLine() << ':' << sym->getColumn() << '.';
+            logger->error(line, column);
             sym = 0;
         }
     } else {
         /* El simbolo no existe en la tabla */
-        
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, 
-                 "Identificador '%s' no definido previamente.",
-                 variable.c_str()
-                );
-        logger->error(line, column, e);
+        logger->buf << "Identificador '" << variable << "' no definido previamente.";
+        logger->error(line, column);
     }
 }
 
@@ -1053,9 +963,8 @@ void AST_fill::fill_and_check(symbol_table* st){
     if ( expr->type != INVALID
          && typeid(*types.types[expr->type]) != typeid(array_descriptor))
     {
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, "Expresion debe evaluar tipo arreglo.");
-        logger->error(line, column, e);
+        logger->buf << "Expresion debe evaluar tipo arreglo.";
+        logger->error(line, column);
         
         return;
     }
@@ -1065,9 +974,8 @@ void AST_fill::fill_and_check(symbol_table* st){
     if ( sym ){
         
         if ( !sym->is_function ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Esperada identificador de funcion.");
-            logger->error(line, column, e);
+            logger->buf << "Esperado identificador de función.";
+            logger->error(line, column);
             sym = 0;
         } else {
             symbol_function* s = (symbol_function*)sym;
@@ -1075,10 +983,8 @@ void AST_fill::fill_and_check(symbol_table* st){
             /* Numero de argumentos invalidos */
             if ( s->params.size() == 0 || s->params.size() > 2 ){
                 
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN, "Funcion con firma invalida.");
-                logger->error(line, column, e);
-                
+                logger->buf << "Funcion con firma invalida.";
+                logger->error(line, column);
             } else {
                 array_descriptor* ad = 
                     (array_descriptor*)types.types[expr->type];
@@ -1086,13 +992,10 @@ void AST_fill::fill_and_check(symbol_table* st){
                 
                 /* Primer argumento debe ser entero para recorrer el arreglo */
                 if ( s->params[0] != INT ){
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Se espera funcion con primer "
-                             "argumento de tipo int, recibido %s",
-                             ad->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Se espera funcion con primer "
+                                   "argumento de tipo int, recibido "
+                                << ad->name << '.';
+                    logger->error(line, column);
                 }
                 
                 /* Si solo tiene un argumento el tipo de retorno de la funcion
@@ -1100,24 +1003,20 @@ void AST_fill::fill_and_check(symbol_table* st){
                  */
                 
                 if ( s->params.size() == 1 && s->getType() != base ){
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Se espera funcion con retorno de tipo %s, %s%s.",
-                             "recibida funcion con retorno ",
-                             types.types[base]->name.c_str(),
-                             types.types[s->getType()]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Se espera funcion con retorno de tipo '"
+                                << types.types[base]->name
+                                << "', recibida funcion con retorno '"
+                                << types.types[s->getType()]->name << "'.";
+                    logger->error(line, column);
                 } 
                 /* Tiene dos argumentos, el tipo de retorno debe ser none y el
                  * segundo debe ser o bien el tipo base del arreglo o un
                  * apuntador al tipo base (pase por referencia)
                  */
                 else if ( s->params.size() == 2 ){
-                    char e[llog::ERR_LEN];
                     if ( s->getType() != NONE ){
-                        snprintf(e, llog::ERR_LEN,
-                                 "Se espera funcion con retorno vacio");
+                        logger->buf << "Se espera funcion con retorno vacío";
+                        logger->error(line, column);
                     } else if ( s->params[1] == base ){
                         return ;
                     } else if ( typeid(* (types.types[s->params[1]]) )
@@ -1129,25 +1028,17 @@ void AST_fill::fill_and_check(symbol_table* st){
                     {
                         return ;
                     } else {
-                        
-                        snprintf(e, llog::ERR_LEN,
-                                "Se esperaba funcion con segundo argumento "
-                                "de tipo %s o apuntador a %s.",
-                                 types.types[base]->name.c_str(),
-                                 types.types[base]->name.c_str()
-                                );
+                        logger->buf << "Se esperaba funcion con segundo "
+                                       "argumento de tipo o apuntador a '"
+                                    << types.types[base]->name << "'.";
+                        logger->error(line, column);
                     }
-                    logger->error(line, column, e);
                 }
             }
         }
     } else {
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, 
-                 "Identificador '%s' no definido previamente.",
-                 function.c_str()
-                );
-        logger->error(line, column, e);
+        logger->buf << "Identificador '" << function << "' no definido previamente.";
+        logger->error(line, column);
     }
     
 }
@@ -1160,22 +1051,16 @@ void AST_map::fill_and_check(symbol_table* st){
     if ( src->type != INVALID && dst->type != INVALID )
     {
         if ( typeid(*types.types[src->type]) != typeid(array_descriptor) ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Expresion debe evaluar tipo arreglo.");
-            logger->error(src->line, src->column, e);
-            
+            logger->buf << "Expresion debe evaluar tipo arreglo.";
+            logger->error(src->line, src->column);
             return;
         } else if (typeid(*types.types[dst->type]) != typeid(array_descriptor)){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Expresion debe evaluar tipo arreglo.");
-            logger->error(dst->line, dst->column, e);
-            
+            logger->buf << "Expresion debe evaluar tipo arreglo.";
+            logger->error(dst->line, dst->column);
             return;
         } else if ( types.types[src->type] != types.types[dst->type] ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Ambos arreglos deben ser del mismo tipo.");
-            logger->error(line, column, e);
-            
+            logger->buf << "Ambos arreglos deben ser del mismo tipo.";
+            logger->error(line, column);
             return;
         }
     }
@@ -1185,9 +1070,8 @@ void AST_map::fill_and_check(symbol_table* st){
     if ( sym ){
         
         if ( !sym->is_function ){
-            char e[llog::ERR_LEN];
-            snprintf(e, llog::ERR_LEN, "Esperada identificador de funcion.");
-            logger->error(line, column, e);
+            logger->buf << "Esperada identificador de funcion.";
+            logger->error(line, column);
             sym = 0;
         } else {
             symbol_function* s = (symbol_function*)sym;
@@ -1196,53 +1080,36 @@ void AST_map::fill_and_check(symbol_table* st){
             TYPE base = ad->base;
             
             if ( s->params.size() == 0 || s->params.size() > 2 ){
-                
-                char e[llog::ERR_LEN];
-                snprintf(e, llog::ERR_LEN, "Funcion con firma invalida.");
-                logger->error(line, column, e);
+                logger->buf << "Funcion con firma invalida.";
+                logger->error(line, column);
                 
             } else if ( s->params.size() == 1 ){
                 if ( s->getType() != base ){
-                    
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Se espera funcion con retorno de tipo %s,"
-                             "recibida funcion con retorno %s",
-                             types.types[base]->name.c_str(),
-                             types.types[s->getType()]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Se espera funcion con retorno de tipo '"
+                                << types.types[base]->name
+                                << "', recibida funcion con retorno '"
+                                << types.types[s->getType()]->name << "'.";
+                    logger->error(line, column);
                     
                 } else if ( s->params[0] != base ){
-                    
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Se espera funcion con primer "
-                             "argumento de tipo %s, recibido %s",
-                             types.types[base]->name.c_str(),
-                             types.types[s->params[0]]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Se espera funcion con primer argumento de tipo '"
+                                << types.types[base]->name
+                                << "', recibido '"
+                                << types.types[s->params[0]]->name << "'.";
+                    logger->error(line, column);
                     
                 }
             } else if ( s->params.size() == 2 ){
                 if ( s->getType() != NONE ){
-                    
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Se espera funcion con retorno vacio.");
-                    logger->error(line, column, e);
+                    logger->buf << "Se espera funcion con retorno vacio.";
+                    logger->error(line, column);
                     
                 } else if ( s->params[0] != base ){
-                    
-                    char e[llog::ERR_LEN];
-                    snprintf(e, llog::ERR_LEN,
-                             "Se espera funcion con primer "
-                             "argumento de tipo %s, recibido %s",
-                             types.types[base]->name.c_str(),
-                             types.types[s->params[0]]->name.c_str()
-                            );
-                    logger->error(line, column, e);
+                    logger->buf << "Se espera funcion con primer argumento de tipo '"
+                                << types.types[base]->name
+                                << "', recibido '"
+                                << types.types[s->params[0]]->name << "'.";
+                    logger->error(line, column);
                     
                 } else {
                     if ( types.is_base(base) ){
@@ -1253,22 +1120,16 @@ void AST_map::fill_and_check(symbol_table* st){
                                (pointer_descriptor*)(types.types[s->params[1]]);
                             
                             if ( pd->base != base ){
-                                char e[llog::ERR_LEN];
-                                snprintf(e, llog::ERR_LEN,
-                                     "Se espera referencia a %s,"
-                                     "recibida referencia a %s.",
-                                     types.types[base]->name.c_str(),
-                                     types.types[pd->base]->name.c_str()
-                                    );
-                                logger->error(line, column, e);
+                                logger->buf << "Se espera referencia a '"
+                                            << types.types[base]->name
+                                            << "', recibida referencia a '"
+                                            << types.types[pd->base]->name << "'.";
+                                logger->error(line, column);
                             }
                         } else {
-                            char e[llog::ERR_LEN];
-                            snprintf(e, llog::ERR_LEN,
-                                 "Se espera referencia a %s",
-                                 types.types[base]->name.c_str()
-                                );
-                            logger->error(line, column, e);
+                            logger->buf << "Se espera referencia a '"
+                                        << types.types[base]->name << "'.";
+                            logger->error(line, column);
                         }
                     } else {
                         if ( base != s->params[1] ){
@@ -1279,22 +1140,16 @@ void AST_map::fill_and_check(symbol_table* st){
                                  (pointer_descriptor*)types.types[s->params[1]];
                                 
                                 if ( pd->base != base ){
-                                    char e[llog::ERR_LEN];
-                                    snprintf(e, llog::ERR_LEN,
-                                         "Se espera referencia a %s, "
-                                         "recibida referencia a %s.",
-                                         types.types[base]->name.c_str(),
-                                         types.types[pd->base]->name.c_str()
-                                        );
-                                    logger->error(line, column, e);
+                                    logger->buf << "Se espera referencia a '"
+                                                << types.types[base]->name
+                                                << "', recibida referencia a '"
+                                                << types.types[pd->base]->name << "'.";
+                                    logger->error(line, column);
                                 }
                             } else {
-                                char e[llog::ERR_LEN];
-                                snprintf(e, llog::ERR_LEN,
-                                     "Se espera referencia a %s",
-                                     types.types[base]->name.c_str()
-                                    );
-                                logger->error(line, column, e);
+                                logger->buf << "Se espera referencia a '"
+                                            << types.types[base]->name << "'.";
+                                logger->error(line, column);
                             }
                         }
                     }
@@ -1302,12 +1157,7 @@ void AST_map::fill_and_check(symbol_table* st){
             }
         }
     } else {
-        char e[llog::ERR_LEN];
-        snprintf(e, llog::ERR_LEN, 
-                 "Identificador '%s' no definido previamente.",
-                 function.c_str()
-                );
-        logger->error(line, column, e);
+        logger->buf << "Identificador '" << function << "' no definido previamente.";
+        logger->error(line, column);
     }
-    
 }

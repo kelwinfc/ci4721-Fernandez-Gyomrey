@@ -42,7 +42,7 @@ opd::opd(float s){
 }
 
 string opd::to_string() {
-    std::stringstream out; 
+    stringstream out; 
     switch (type) {
         case O_SYM:   return data.sym->getName();
         case O_TEMP:  out << data.pint; return "T_" + out.str() ;
