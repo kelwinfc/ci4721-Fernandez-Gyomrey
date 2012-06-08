@@ -19,8 +19,6 @@
                       (6 == t ? "BOOLEAN" : \
                       (7 == t ? "STRING" : "UNKNOWN"))))))))
 
-void print_indentation(int k);
-
 int lcm(int a, int b);
 
 #endif

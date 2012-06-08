@@ -2,20 +2,18 @@
 #define _AST
 
 #include <vector>
-#include <cstdlib>
-#include <stdlib.h>
-#include <cstdio>
-#include <cstring>
+#include <sstream>
 #include <list>
+#include <map>
+#include <iostream>
+#include <iomanip>
 #include "token.h"
 #include "symbol.h"
 #include "symbol_table.h"
 #include "type_table.h"
 #include "llog.h"
-#include "utils.h"
 #include "block.h"
 #include "string_table.h"
-#include <map>
 
 using namespace std;
 
@@ -33,9 +31,11 @@ class AST_node{
 
         int column;
 
-        virtual void print(int indentation = 0);
+        virtual void dump(ostream &strm, int indentation = 0);
         
         virtual void fill_and_check(symbol_table* st);
+
+        static void dump_indentation(ostream &strm, int indentation);
 };
 
 class AST_statement : public AST_node{
@@ -49,7 +49,7 @@ class AST_statement : public AST_node{
         list<int> break_list;
         list<int> return_list;
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -67,7 +67,7 @@ class AST_expression : public AST_node{
         list<int> truelist;
         list<int> falselist;
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st, bool lval){
             fill_and_check(st);
@@ -100,7 +100,7 @@ class AST_op : public AST_expression {
         
         string binary_operator();
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -125,7 +125,7 @@ class AST_un_op : public AST_expression {
         
         string unary_operator();
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -144,7 +144,7 @@ class AST_int : public AST_expression{
 
         AST_int(tokenInt* tk);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -161,7 +161,7 @@ class AST_float : public AST_expression{
 
         AST_float(tokenFloat* tk);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -178,7 +178,7 @@ class AST_boolean : public AST_expression{
         
         AST_boolean(tokenBoolean* tk);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -195,7 +195,7 @@ class AST_char : public AST_expression {
 
         AST_char(tokenId* tk);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -216,7 +216,7 @@ class AST_string : public AST_expression {
 
         virtual void append(tokenId* tk);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -235,7 +235,7 @@ class AST_enum_constant : public AST_expression {
         
         AST_enum_constant(tokenConstant* tk);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -261,7 +261,7 @@ class AST_lval : public AST_expression {
 
         static opd *gen_tac_lval_disp(block* b, opd *din_base, int *sta_base);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 };
 
 class AST_ident : public AST_lval {
@@ -282,7 +282,7 @@ class AST_ident : public AST_lval {
 
         virtual opd *gen_tac_lval(block* b, int *sta_base);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 };
 
 class AST_dereference : public AST_lval {
@@ -297,7 +297,7 @@ class AST_dereference : public AST_lval {
 
         virtual opd *gen_tac_lval(block* b, int *sta_base);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 };
 
 class AST_address : public AST_lval {
@@ -312,7 +312,7 @@ class AST_address : public AST_lval {
 
         virtual opd *gen_tac_lval(block* b, int *sta_base);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 };
 
 class AST_array_access : public AST_lval {
@@ -332,7 +332,7 @@ class AST_array_access : public AST_lval {
 
         virtual opd *gen_tac_arr(block* b, int *sta_base, opd **ind_addr, int *arr_base);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 };
 
 class AST_struct_access : public AST_lval {
@@ -350,7 +350,7 @@ class AST_struct_access : public AST_lval {
 
         virtual opd *gen_tac_lval(block* b, int *sta_base);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 };
 
 class AST_rlval : public AST_lval {
@@ -367,7 +367,7 @@ class AST_rlval : public AST_lval {
 
         virtual opd *gen_tac(block* b);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 
 };
 
@@ -381,7 +381,7 @@ class AST_parameters_list : public AST_node {
 
         void add_element(AST_expression* e);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 
         virtual void fill_and_check(symbol_table* st);
         
@@ -406,7 +406,7 @@ class AST_function_call : public AST_expression {
 
         AST_function_call(tokenId* tk, AST_parameters_list* p);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -423,7 +423,7 @@ class AST_declaration : public AST_statement {
 
         string identifier;
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -444,7 +444,7 @@ class AST_variable_declaration : public AST_declaration {
 
         symbol getSym();
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -462,7 +462,7 @@ class AST_block : public AST_statement {
 
         void add_statement(AST_statement* s);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -478,7 +478,7 @@ class AST_arg_list : public AST_node {
 
         void add_argument( TYPE t, tokenId* id, bool constant = false );
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -494,7 +494,7 @@ class AST_discrete_arg_list : public AST_arg_list {
         void add_argument( TYPE t, tokenId* id, int min_value, int max_value,
                            bool constant = false );
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -513,7 +513,7 @@ class AST_function : public AST_declaration {
         AST_function(TYPE t, tokenId* id, AST_arg_list* args,
                      AST_block* code);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -530,7 +530,7 @@ class AST_program : public AST_node {
 
         void add_declaration(AST_declaration* d);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -545,7 +545,7 @@ class AST_assignment : public AST_statement {
         
         AST_assignment(AST_lval* l, AST_expression* e);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -560,7 +560,7 @@ class AST_procedure_call : public AST_statement {
 
         AST_procedure_call(tokenId* tk, AST_parameters_list* p);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -575,7 +575,7 @@ class AST_return : public AST_statement {
 
         AST_return(token* tk, AST_expression* e);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -595,9 +595,9 @@ class AST_conditional : public AST_statement {
         AST_conditional(token* tk, AST_expression* e, AST_block* b,
                         AST_conditional* branches);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
 
-        virtual void print(int indentation, bool first);
+        virtual void dump(ostream &strm, int indentation, bool first);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -614,7 +614,7 @@ class AST_loop : public AST_statement {
 
         AST_loop(token* tk, AST_expression* e, AST_block* b);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -643,7 +643,7 @@ class AST_bounded_loop : public AST_statement {
                          AST_expression* r,
                          AST_block* b);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -656,7 +656,7 @@ class AST_break : public AST_statement {
 
         AST_break(token* t);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -669,7 +669,7 @@ class AST_continue: public AST_statement {
 
         AST_continue(token* t);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -684,7 +684,7 @@ class AST_read : public AST_statement {
         
         AST_read(tokenId* t);
 
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -699,7 +699,7 @@ class AST_print : public AST_statement {
         
         void add_argument(AST_expression* e);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -714,7 +714,7 @@ class AST_fill : public AST_statement {
         
         AST_fill(AST_expression* e, tokenId* f);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -730,7 +730,7 @@ class AST_map : public AST_statement {
         
         AST_map(AST_expression* s, AST_expression* d, tokenId* f);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         
@@ -745,7 +745,7 @@ class AST_conversion : public AST_expression {
         
         AST_conversion(TYPE t, AST_expression* e);
         
-        virtual void print(int indentation);
+        virtual void dump(ostream &strm, int indentation);
         
         virtual void fill_and_check(symbol_table* st);
         

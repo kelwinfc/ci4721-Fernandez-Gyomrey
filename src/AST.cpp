@@ -4,11 +4,10 @@
  */
 
 #include "AST.h"
-#include "AST/print.cpp"
+#include "AST/dump.cpp"
 #include "AST/check.cpp"
 #include "AST/constant_folding.cpp"
 #include "AST/gen_tac.cpp"
-#define DEBUG(L,V) printf((string(L) + " data   : %s (%d, %d)\n").c_str(), typeid(*V).name(), (*V).line, (*V).column); printf((string(L) + " return : %s(%d)\n").c_str(), (*V).has_return == YES ? "YES" : ((*V).has_return == NO ? "NO" : ((*V).has_return == MAYBE ? "MAYBE" : "")), (*V).has_return);
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
     

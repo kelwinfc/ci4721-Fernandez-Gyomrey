@@ -107,7 +107,7 @@ int main (int argc,char **argv)
         if (args.to_separate_archives) {
             redirect_stdout("bla.ast");
         }
-        p->print(0);
+        p->dump(cout, 0);
     }
 
     if (!args.to_separate_archives) {

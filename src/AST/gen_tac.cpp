@@ -6,13 +6,12 @@ extern unsigned int first_instruction;
 
 void AST_statement::gen_tac(block *b){
     // Unused
-    printf("INVALID CALL TO void *AST_statement::gen_tac(block *b)\n");
+    throw "INVALID CALL TO void *AST_statement::gen_tac(block *b)";
 }
 
 opd *AST_expression::gen_tac(block *b){
     // Unused
-    printf("INVALID CALL TO opd AST_expression::gen_tac(block *b)\n");
-    return 0;
+    throw "INVALID CALL TO opd *AST_expression::gen_tac(block *b)";
 }
 
 opd *AST_op::gen_tac(block *b){
@@ -303,8 +302,7 @@ opd *AST_lval::gen_tac(block *b){
 
 opd *AST_lval::gen_tac_lval(block *b, int *sta_base){
     // Unused
-    printf("INVALID CALL TO opd AST_lval::gen_tac_lval(block *b, int *sta_base)\n");
-    return 0;
+    throw "INVALID CALL TO opd AST_lval::gen_tac_lval(block *b, int *sta_base)";
 }
 
 opd *AST_lval::gen_tac_lval_disp(block *b, opd *din_base, int *sta_base){
@@ -515,7 +513,7 @@ void AST_parameters_list::gen_tac(block* b){
 
 void AST_declaration::gen_tac(block *b){
     // Unused
-    printf("INVALID CALL TO void AST_declaration::gen_tac(block *b)\n");
+    throw "INVALID CALL TO void AST_declaration::gen_tac(block *b)";
 }
 
 void AST_variable_declaration::gen_tac(block *b){
@@ -551,7 +549,7 @@ void AST_arg_list::gen_tac(block *b){
 }
 
 void AST_discrete_arg_list::gen_tac(block *b){
-    printf("UNIMPLEMENTED void AST_discrete_arg_list::gen_tac(block *b)\n");
+    throw "UNIMPLEMENTED void AST_discrete_arg_list::gen_tac(block *b)";
 }
 
 void AST_function::gen_tac(block *b){
