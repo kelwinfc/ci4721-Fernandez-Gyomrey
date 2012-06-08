@@ -4,7 +4,7 @@
 #include "symbol_table.h"
 #include "token.h"
 #include "type_table.h"
-#include <stdio.h>
+#include <iostream>
 #include <set>
 
 class type_table;
@@ -20,7 +20,7 @@ class type_descriptor{
 
         type_descriptor(string n, int w = 0, int a = 1);
 
-        virtual void print(FILE* fd);
+        virtual void dump(ostream &strm);
 };
 
 class struct_type : public type_descriptor {
@@ -32,7 +32,7 @@ class struct_type : public type_descriptor {
 
         struct_type(string n, symbol_table* st);
 
-        virtual void print(FILE* fd);
+        virtual void dump(ostream &strm);
 };
 
 class union_type : public struct_type {
@@ -40,7 +40,7 @@ class union_type : public struct_type {
 
         union_type(string n, symbol_table* st);
 
-        virtual void print(FILE* fd);
+        virtual void dump(ostream &strm);
 };
 
 class enum_type : public type_descriptor {
@@ -51,7 +51,7 @@ class enum_type : public type_descriptor {
 
         enum_type( tokenId* tk, set<string>* values );
 
-        virtual void print(FILE* fd);
+        virtual void dump(ostream &strm);
 };
 
 class array_descriptor : public type_descriptor {

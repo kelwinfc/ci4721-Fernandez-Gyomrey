@@ -9,18 +9,18 @@ void read_main_args(int argc, char **argv, FILE *in, main_args& args){
     args.tac_with_comments = false;
     args.in = in;
     if (1 == argc) {
-        printf("Opciones para %s [-a | -s] [-c] [-t] archivo:\n"
-               " -a imprimir en archivo bla.output\n"
-               " -s imprimir en archivo bla.* separados\n"
-               " -c imprimir el tac con comentarios\n"
-               " -t imprimir el ast\n", argv[0]);
-        exit(1);
+        cout << "Opciones para " << argv[0] << " [-a | -s] [-c] [-t] archivo:" << endl
+             << " -a imprimir en archivo bla.output" << endl
+             << " -s imprimir en archivo bla.* separados" << endl
+             << " -c imprimir el tac con comentarios" << endl
+             << " -t imprimir el ast" << endl;
+        exit(0);
     }
     for (int i = 1; i < argc; ++i) {
         if (i + 1 == argc) {
             args.in = fopen(argv[i], "r");
             if (!args.in) {
-                printf("Archivo '%s' no existe\n", argv[i]);
+                cout << "Archivo '" << argv[i] << "' no existe" << endl;
                 exit(1);
             }
         } else if (!strcmp("-a", argv[i])) {
@@ -34,11 +34,11 @@ void read_main_args(int argc, char **argv, FILE *in, main_args& args){
         } else if (!strcmp("-t", argv[i])) {
             args.ast = true;
         } else {
-            printf("Opciones para %s [-a | -s] [-c] [-t] archivo:\n"
-                   " -a imprimir en archivo bla.output\n"
-                   " -s imprimir en archivo bla.* separados\n"
-                   " -c imprimir el tac con comentarios\n"
-                   " -t imprimir el ast\n", argv[0]);
+            cout << "Opciones para " << argv[0] << " [-a | -s] [-c] [-t] archivo:" << endl
+                 << " -a imprimir en archivo bla.output" << endl
+                 << " -s imprimir en archivo bla.* separados" << endl
+                 << " -c imprimir el tac con comentarios" << endl
+                 << " -t imprimir el ast" << endl;
             exit(1);
         }
     }
@@ -97,11 +97,13 @@ int main (int argc,char **argv)
     if (args.to_separate_archives) {
         redirect_stdout("bla.types");
     }
-    types.dump();
+    types.dump(cout);
+    cout << "-------------------------------------------------------" << endl << endl;
     if (args.to_separate_archives) {
         redirect_stdout("bla.strings");
     }
-    strings.dump();
+    strings.dump(cout);
+    cout << "-------------------------------------------------------" << endl << endl;
     
     if (args.ast) {
         if (args.to_separate_archives) {
@@ -111,7 +113,7 @@ int main (int argc,char **argv)
     }
 
     if (!args.to_separate_archives) {
-        fprintf(stdout, "-------------------------------------------------------\n\n");
+        cout << "-------------------------------------------------------" << endl << endl;
     }
     
     if ( !logger->exists_registered_error() ){
@@ -119,14 +121,14 @@ int main (int argc,char **argv)
         if (args.to_separate_archives) {
             redirect_stdout("bla.tac");
         }
-        b->dump(args.tac_with_comments);
+        b->dump(cout, args.tac_with_comments);
     } else {
         cerr << "Epic fail!" << endl;
         abort();
     }
 
     if (!args.to_separate_archives) {
-        fprintf(stdout, "-------------------------------------------------------\n\n");
+        cout << "-------------------------------------------------------" << endl << endl;
     }
 
     b->gen_graph();
@@ -138,7 +140,7 @@ int main (int argc,char **argv)
     dump_in_file("bla");
 
     if (!args.to_separate_archives && !args.to_single_archive) {
-        fprintf(stdout, "-------------------------------------------------------\n\n");
+        cout << "-------------------------------------------------------" << endl << endl;
     }
 
     if ( logger->exists_registered_error() ){

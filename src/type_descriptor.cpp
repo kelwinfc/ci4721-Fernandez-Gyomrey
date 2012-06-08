@@ -85,62 +85,51 @@ pointer_descriptor::pointer_descriptor(TYPE b_index, string base_name){
     alignment = 4;
 }
 
-void type_descriptor::print(FILE* fd){
-    fprintf(fd, "  * %s [size %d][alignment %d]\n",
-            name.c_str(),
-            width,
-            alignment
-           );
+void type_descriptor::dump(ostream &strm){
+    strm << "  * " << name << " [size " << width
+         << "][alignment " << alignment << "]" << endl;
 }
 
-void struct_type::print(FILE* fd){
-    fprintf(fd, "  * struct %s [size %d][alignment %d]\n", name.c_str(),
-            width, alignment);
-    fprintf(fd, "    ---\n");
+void struct_type::dump(ostream &strm){
+    strm << "  * struct " << name << " [size " << width
+         << "][alignment " << alignment << "]" << endl
+         << "    ---" << endl;
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){
-        fprintf(fd, "    |   - %s %s [offset %d]\n", 
-                types.types[(*it).second->getType()]->name.c_str(),
-                (*it).first.c_str(),
-                (*it).second->offset
-               );
+        strm << "    |   - " << types.types[(*it).second->getType()]->name
+             << ' ' << (*it).first << " [offset " << (*it).second->offset << ']' << endl;
     }
     if ( fields->table.begin() == fields->table.end() ){
-        fprintf(fd, "    |\n");
+        strm << "    |" << endl;
     }
-    fprintf(fd, "    ---\n");
+    strm << "    ---" << endl;
 }
 
-void union_type::print(FILE* fd){
-    fprintf(fd, "  * union %s [size %d][alignment %d]\n", name.c_str(), 
-            width, alignment);
-    fprintf(fd, "    ---\n");
+void union_type::dump(ostream &strm){
+    strm << "  * union " << name << " [size " << width
+         << "][alignment " << alignment << "]" << endl
+         << "    ---" << endl;
     map<string, symbol*>::iterator it;
     for (it = fields->table.begin(); it != fields->table.end(); ++it){
-        fprintf(fd, "    |   - %s %s\n", 
-                types.types[(*it).second->getType()]->name.c_str(),
-                (*it).first.c_str()
-               );
+        strm << "    |   - " << types.types[(*it).second->getType()]->name
+             << ' ' << (*it).first << endl;
     }
     if ( fields->table.begin() == fields->table.end() ){
-        fprintf(fd, "    |\n");
+        strm << "    |" << endl;
     }
-    fprintf(fd, "    ---\n");
+    strm << "    ---" << endl;
 }
 
-void enum_type::print(FILE* fd){
-    fprintf(fd, "  * enum %s [size %d][alignment %d]\n", 
-            name.c_str(),
-            width,
-            alignment
-           );
-    fprintf(fd, "    ---\n");
+void enum_type::dump(ostream &strm){
+    strm << "  * enum " << name << " [size " << width
+         << "][alignment " << alignment << "]" << endl
+         << "    ---" << endl;
     set<string>::iterator it;
     for (it = values->begin(); it != values->end(); ++it){
-        fprintf(fd, "    |   - %s\n", (*it).c_str());
+        strm << "    |   - " << (*it).c_str() << endl;
     }
     if ( values->begin() == values->end() ){
-        fprintf(fd, "    |\n");
+        strm << "    |" << endl;
     }
-    fprintf(fd, "    ---\n");
+    strm << "    ---" << endl;
 }

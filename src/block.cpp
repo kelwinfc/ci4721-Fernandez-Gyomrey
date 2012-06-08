@@ -55,16 +55,16 @@ inst* block::last_instruction(){
     }
 }
 
-void block::dump(bool with_comments) {
+void block::dump(ostream &strm, bool with_comments) {
     if ( w_vector ){
         vector<inst*>::iterator it = instructions.vinst->begin();
         for (; it != instructions.vinst->end(); ++ it) {
-            printf("%s\n", ((quad*)(*it))->to_string(with_comments).c_str());
+            strm << ((quad*)(*it))->to_string(with_comments) << endl;
         }
     } else {
         list<inst*>::iterator it = instructions.linst->begin();
         for (; it != instructions.linst->end(); ++ it) {
-            printf("%s\n", ((quad*)(*it))->to_string(with_comments).c_str());
+            strm << ((quad*)(*it))->to_string(with_comments) << endl;
         }
     }
 }

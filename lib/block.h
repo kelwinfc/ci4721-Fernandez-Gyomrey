@@ -29,7 +29,7 @@ class block{
         void append_inst(quad::OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0, string comment = "", bool gen_label = true);
         inst* last_instruction();
         
-        void dump(bool with_comments = false);
+        void dump(ostream &strm, bool with_comments = false);
         
         block* mandatory_exit;
         vector<block*> sucessors;

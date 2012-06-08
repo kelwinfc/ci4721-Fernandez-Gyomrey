@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <iostream>
 #include "type_descriptor.h"
 
 class type_descriptor;
@@ -31,7 +32,7 @@ class type_table{
         
         void add_alias( string a, string b );
 
-        void dump();
+        void dump(ostream &strm);
 };
 
 #endif

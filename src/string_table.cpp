@@ -18,6 +18,7 @@ int string_table::size() {
     return offset;
 }
 
+// TODO escapar caracteres no escapados
 string string_table::to_string(string s) {
     string ss = "";
     for (unsigned int i = 0; i < s.length(); ++ i) {
@@ -27,11 +28,10 @@ string string_table::to_string(string s) {
     return ss;
 }
 
-void string_table::dump() {
+void string_table::dump(ostream &strm) {
 
-    fprintf(stdout, " STRINGS:\n");
+    strm << " STRINGS:" << endl;
     for (vector<string>::iterator it = table.begin(); it != table.end(); ++ it) {
-        fprintf(stdout, "- \"%s\"\n", to_string(*it).c_str());
+        strm << "- \"" << to_string(*it) << "\"" << endl;
     }
-    fprintf(stdout, "------------------------------------------------------\n\n");
 }

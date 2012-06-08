@@ -3,7 +3,7 @@
 
 #include<string>
 #include<vector>
-#include<stdio.h>
+#include<iostream>
 
 using namespace std;
 
@@ -22,7 +22,7 @@ public:
 
     int size();
 
-    void dump();
+    void dump(ostream &strm);
 
     static string to_string(string s);
 };

@@ -167,10 +167,8 @@ ID       [a-zA-Z][a-zA-Z0-9]*
                             }
 
 "foldr"|"foldl"             { updatecol();
-                              fprintf(stderr,
-                                      "Warning: Palabra reservada %s aún "
-                                      "sin implementarse.\n",
-                                      yytext);
+                              logger->buf << "Palabra reservada '" << yytext << "' aún sin implementarse";
+                              logger->warning(yylineno, column);
                             }
 
 "["|"]"|":"|"."                { updatecol();
