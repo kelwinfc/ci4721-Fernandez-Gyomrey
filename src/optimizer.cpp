@@ -4,11 +4,11 @@
 
 using namespace std;
 
-extern vector<block*> list_of_blocks;
+extern vector<Block*> list_of_blocks;
 extern unsigned int first_instruction;
-extern map<unsigned int, block*> label_to_block;
+extern map<unsigned int, Block*> label_to_block;
 
-void next_instruction_jumps(block& code){
+void next_instruction_jumps(Block& code){
     if ( code.w_vector ){
         unsigned int nsize = code.instructions.vinst->size();
         
@@ -41,11 +41,11 @@ void next_instruction_jumps(block& code){
     }
 }
 
-void fall_jumps(block& code){
+void fall_jumps(Block& code){
     
 }
 
-void useless_jumps(block& code){
+void useless_jumps(Block& code){
     next_instruction_jumps(code);
     fall_jumps(code);
 }
@@ -56,11 +56,11 @@ void delete_unreachable_code(){
     reachable = (int*)malloc(list_of_blocks.size()*sizeof(int));
     memset(reachable, 0, list_of_blocks.size()*sizeof(int));
     
-    stack<block*> s;
+    stack<Block*> s;
     {
-        block* first_block = 0;
+        Block* first_block = 0;
         
-        vector<block*>::iterator it = list_of_blocks.begin();
+        vector<Block*>::iterator it = list_of_blocks.begin();
         for( ; it != list_of_blocks.end(); ++it){
             if ( (*((*it)->instructions.linst->begin()))->label == first_instruction ){
                 first_block = *it;
@@ -76,7 +76,7 @@ void delete_unreachable_code(){
     }
     
     while ( !s.empty() ){
-        block* next_block = s.top();
+        Block* next_block = s.top();
         s.pop();
         
         if ( reachable[next_block->index] )
@@ -88,13 +88,13 @@ void delete_unreachable_code(){
             s.push( next_block->mandatory_exit );
         }
         
-        vector<block*>::iterator it = next_block->sucessors.begin();
+        vector<Block*>::iterator it = next_block->sucessors.begin();
         for (; it != next_block->sucessors.end(); ++it ){
             s.push(*it);
         }
     }
     
-    vector<block*> reachable_blocks;
+    vector<Block*> reachable_blocks;
     for (uint i = 0; i<list_of_blocks.size(); i++){
         if ( reachable[ list_of_blocks[i]->index ] ){
             reachable_blocks.push_back(list_of_blocks[i]);

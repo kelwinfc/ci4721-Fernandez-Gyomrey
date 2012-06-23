@@ -6,7 +6,6 @@
 #include <typeinfo>
 #include <vector>
 #include <iostream>
-#include <cstdio>
 #include "llog.h"
 #include "symbol.h"
 

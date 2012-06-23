@@ -4,7 +4,7 @@
 #include "inst.h"
 #include "block.h"
 
-void useless_jumps(block& code);
+void useless_jumps(Block& code);
 
 void delete_unreachable_code();
 

@@ -2,7 +2,6 @@
 #define _INST
 
 #include <sstream>
-#include <cstdio>
 #include <string>
 
 #define O_SYM   0

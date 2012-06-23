@@ -375,7 +375,7 @@ void AST_conversion::dump(ostream &strm, int indentation){
      expr->dump(strm, indentation+1);
 }
 
-void AST_program::dump(ostream &strm, int indentation){
+void AST::dump(ostream &strm, int indentation){
     uint nsize = declarations.size();
     for (uint i=0; i < nsize; i++){
         declarations[i]->dump(strm, 0);

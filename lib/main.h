@@ -9,21 +9,18 @@
 #include "symbol_table.h"
 #include "llog.h"
 #include "type_table.h"
-#include "block.h"
-#include "inst.h"
 #include "optimizer.h"
 #include "string_table.h"
+#include "Tac.h"
 
 using namespace std;
-
-#define DEBUG(L,V) printf((string(L) + " data   : %s (%d, %d) (%d)\n").c_str(), typeid(*V).name(), (*V).line, (*V).column, (*V).uid); printf((string(L) + " return : %s(%d) (%d)\n").c_str(), (*V).has_return == YES ? "YES" : ((*V).has_return == NO ? "NO" : ((*V).has_return == MAYBE ? "MAYBE" : "")), (*V).has_return, (*V).uid);
 
 int yylex (void);
 void yyerror (char const *);
 
 extern FILE *yyin;
 
-AST_program* p;
+AST* p;
 map<string, int> constants;
 llog* logger;
 type_table types;

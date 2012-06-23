@@ -1,8 +1,8 @@
-#include "block.h"
+#include "Block.h"
 #include <iostream>
 
 unsigned int next_label = 0;
-vector<block*> list_of_blocks;
+vector<Block*> list_of_blocks;
 
 extern map<string,int> func_to_prologue;
 extern map<string,int> func_to_epilogue;
@@ -11,7 +11,7 @@ unsigned int first_instruction = 0;
 
 using namespace std;
 
-block::block(bool with_vector){
+Block::Block(bool with_vector){
     w_vector = with_vector;
     if ( with_vector ){
         instructions.vinst = new vector<inst*>();
@@ -20,12 +20,12 @@ block::block(bool with_vector){
     }
 }
 
-void block::append_inst(quad::OP op, opd *arg0, opd *arg1, opd *arg2, string comment, bool gen_label) {
+void Block::append_inst(quad::OP op, opd *arg0, opd *arg1, opd *arg2, string comment, bool gen_label) {
     
     append_inst(new quad(op, arg0, arg1, arg2), gen_label);
 }
 
-void block::append_inst(inst *i, bool gen_label) {
+void Block::append_inst(inst *i, bool gen_label) {
 
     int ninst = next_instruction();
     if ( w_vector ){
@@ -47,7 +47,7 @@ void block::append_inst(inst *i, bool gen_label) {
     }
 }
 
-inst* block::last_instruction(){
+inst* Block::last_instruction(){
     if ( w_vector ){
         return instructions.vinst->back();
     } else {
@@ -55,7 +55,7 @@ inst* block::last_instruction(){
     }
 }
 
-void block::dump(ostream &strm, bool with_comments) {
+void Block::dump(ostream &strm, bool with_comments) {
     if ( w_vector ){
         vector<inst*>::iterator it = instructions.vinst->begin();
         for (; it != instructions.vinst->end(); ++ it) {
@@ -69,20 +69,11 @@ void block::dump(ostream &strm, bool with_comments) {
     }
 }
 
-int block::next_instruction(){
+int Block::next_instruction(){
     return next_label;
 }
 
-//TODO
-void block::backpatch(list<int>& l, int instr){
-    list<int>::iterator it;
-    for (it = l.begin(); it != l.end(); ++it){
-        quad* in = (quad*)(*(instructions.vinst))[*it];
-        in->arg2 = new opd(instr,true);
-    }
-}
-
-unsigned int block::max_label(){
+unsigned int Block::max_label(){
     
     unsigned int maxl = 0;
     
@@ -110,7 +101,7 @@ unsigned int block::max_label(){
 #define SET_LEADER(a,i) (a[(i)/32] = a[(i)/32] | ( 1 << ((i) % 32 )))
 #define IS_LEADER(a,i)  (a[(i)/32] & (1 << ((i) % 32)))
 
-void block::gen_graph(){
+void Block::gen_graph(){
     
     // Marcar los lideres de grupo
     int* leaders;
@@ -160,7 +151,7 @@ void block::gen_graph(){
     }
     cout << endl;
     
-    map<unsigned int, block*> label_to_block;
+    map<unsigned int, Block*> label_to_block;
     
     // Creacion de los bloques basicos
     index = 0;
@@ -168,7 +159,7 @@ void block::gen_graph(){
     while( index < instructions.vinst->size() ){
         
         // Agregar el siguiente bloque basico a la lista global de bloques
-        block* next_block = new block(false);
+        Block* next_block = new Block(false);
         next_block->index = list_of_blocks.size();
         
         list_of_blocks.push_back(next_block);
@@ -196,7 +187,7 @@ void block::gen_graph(){
     for (uint block_index = 0 ; block_index != list_of_blocks.size();
          block_index++)
     {        
-        block* current_block = list_of_blocks[block_index];
+        Block* current_block = list_of_blocks[block_index];
         
         /* Definicion de salida obligatoria
          * Se coloca que la salida obligatoria de una funcion call es la
@@ -281,7 +272,7 @@ void dump_blocks_definition(string filename){
         
         // Salidas opcionales
         if ( list_of_blocks[index]->sucessors.size() != 0 ){
-            vector<block*>::iterator it =
+            vector<Block*>::iterator it =
             list_of_blocks[index]->sucessors.begin();
             fout << "| -->";
             for ( ; it != list_of_blocks[index]->sucessors.end(); ++it ){
@@ -324,7 +315,7 @@ void dump_in_file(string filename){
                  << ";" << endl;
         }
         
-        vector<block*>::iterator it =
+        vector<Block*>::iterator it =
             list_of_blocks[block_index]->sucessors.begin();
         for ( ; it != list_of_blocks[block_index]->sucessors.end(); ++it ){
             fout << "B" << list_of_blocks[block_index]->index

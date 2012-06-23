@@ -7,7 +7,7 @@
 #include "AST/dump.cpp"
 #include "AST/check.cpp"
 #include "AST/constant_folding.cpp"
-#include "AST/gen_tac.cpp"
+#include "AST/to_tac.cpp"
 
 AST_op::AST_op(AST_expression* l, tokenId* o, AST_expression* r){
     
@@ -202,6 +202,7 @@ AST_struct_access::AST_struct_access( AST_lval* lvalue, tokenId* f){
 }
 
 AST_rlval::AST_rlval( AST_lval* lvalue ){
+    is_constant = false;
     value = lvalue;
     line = lvalue->line;
     column = lvalue->column;
@@ -371,11 +372,11 @@ AST_function::AST_function(TYPE t, tokenId* id, AST_arg_list* args,
     
 }
 
-AST_program::AST_program(){
+AST::AST(){
 
 }
 
-void AST_program::add_declaration(AST_declaration* d){
+void AST::add_declaration(AST_declaration* d){
     declarations.push_back(d);
 }
 

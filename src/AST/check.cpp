@@ -744,7 +744,7 @@ void AST_function::fill_and_check(symbol_table* st){
 
 extern int yylineno;
 
-void AST_program::fill_and_check(symbol_table* st){
+void AST::fill_and_check(symbol_table* st){
     
     // Declaracion previa de todas las funciones
     uint nsize = declarations.size();
