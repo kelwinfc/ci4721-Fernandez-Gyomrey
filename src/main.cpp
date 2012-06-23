@@ -42,11 +42,15 @@ int main (int argc,char **argv)
         return 1;
     }
     
-    Tac *tac = main_tac_create(args, ast);
+    Tac* tac = main_tac_create(args, ast);
 
     main_tac_optimize(tac);
 
     main_tac_dump(args, tac);
+
+    Spim* spim = main_spim_create(tac);
+
+    main_spim_dump(spim);
 
     main_redirect_stdout();
     cout << "Like a boss!" << endl;
@@ -154,6 +158,16 @@ void main_tac_dump(main_args args, Tac* tac)
     if (!args.to_separate_archives && !args.to_single_archive) {
         cout << "-------------------------------------------------------" << endl << endl;
     }
+}
+
+Spim* main_spim_create(Tac* tac)
+{
+    return tac->to_spim();
+}
+
+void main_spim_dump(Spim* spim)
+{
+    spim->dump(cout);
 }
 
 void main_redirect_stdout(const char *f)

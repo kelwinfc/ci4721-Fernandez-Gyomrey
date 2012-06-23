@@ -5,7 +5,7 @@ void AST_node::dump(ostream &strm, int indentation){
 
 void AST_node::dump_indentation(ostream &strm, int k){
     for (int i=0; i<k; i++){
-        cout << "    ";
+        strm << "    ";
     }
 }
 

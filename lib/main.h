@@ -12,6 +12,7 @@
 #include "optimizer.h"
 #include "string_table.h"
 #include "Tac.h"
+#include "Spim.h"
 
 using namespace std;
 
@@ -54,3 +55,7 @@ Tac* main_tac_create(main_args args, AST *p);
 void main_tac_optimize(Tac* tac);
 
 void main_tac_dump(main_args args, Tac* tac);
+
+Spim* main_spim_create(Tac *tac);
+
+void main_spim_dump(Spim *spim);

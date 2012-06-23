@@ -6,6 +6,9 @@
 #include "block.h"
 #include "inst.h"
 #include "optimizer.h"
+#include "Spim.h"
+
+using namespace std;
 
 extern unsigned int next_label;
 
@@ -28,6 +31,8 @@ class Tac{
         void optimize();
 
         void dump(ostream &strm, bool with_comments);
+
+        Spim* to_spim();
 };
 
 #endif

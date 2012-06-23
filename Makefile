@@ -17,7 +17,8 @@ FILES=token\
       optimizer\
       string_table\
       main\
-      Tac
+      Tac\
+      Spim
 
 DEP_AST=llog token utils symbol symbol_table string_table Tac
 DEP_token=utils llog
@@ -26,8 +27,8 @@ DEP_type_descriptor=utils symbol symbol_table
 DEP_type_table=utils symbol symbol_table type_descriptor
 DEP_block=inst
 DEP_optimizer=inst block
-DEP_main=AST symbol symbol_table llog type_table optimizer string_table Tac
-DEP_Tac=block inst optimizer
+DEP_main=AST symbol symbol_table llog type_table optimizer string_table Tac Spim
+DEP_Tac=block inst optimizer Spim
 
 all: bla
 
@@ -52,6 +53,7 @@ bin/llog.o: $(DEP_llog:%=src/%.cpp) $(DEP_llog:%=lib/%.h)
 bin/type_descriptor.o: $(DEP_type_descriptor:%=src/%.cpp) $(DEP_type_descriptor:%=lib/%.h)
 bin/type_table.o: $(DEP_type_table:%=src/%.cpp) $(DEP_type_table:%=lib/%.h)
 bin/Tac.o: $(DEP_Tac:%=src/%.cpp) $(DEP_Tac:%=lib/%.h)
+bin/Spim.o: $(DEP_Spim:%=src/%.cpp) $(DEP_Spim:%=lib/%.h)
 bin/block.o: $(DEP_block:%=src/%.cpp) $(DEP_block:%=lib/%.h)
 bin/inst.o: $(DEP_inst:%=src/%.cpp) $(DEP_inst:%=lib/%.h)
 bin/optimizer.o: $(DEP_optimizer:%=src/%.cpp) $(DEP_optimizer:%=lib/%.h)

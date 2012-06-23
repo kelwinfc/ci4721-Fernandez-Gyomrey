@@ -38,6 +38,7 @@ class Block{
         
         unsigned int max_label();
         void gen_graph();
+        void dump_leaders(ostream &strm);
 };
 
 void dump_in_file(string filename);

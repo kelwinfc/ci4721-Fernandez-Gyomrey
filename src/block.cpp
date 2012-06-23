@@ -142,7 +142,11 @@ void Block::gen_graph(){
             }
         }
     }
-    
+
+    /* este es el único lugar en el que se usa cout fuera de main.
+       si es importante conocer los líderes, entonces deberían ser
+       conservados hasta el final para poder ser impresos. de otra
+       forma no se tiene control sobre la impresión de este segmento
     cout << "lideres:";
     for (uint i=0; i<instructions.vinst->size(); i++){
         if ( IS_LEADER(leaders, i) ){
@@ -150,6 +154,7 @@ void Block::gen_graph(){
         }
     }
     cout << endl;
+    */
     
     map<unsigned int, Block*> label_to_block;
     

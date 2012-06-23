@@ -32,3 +32,8 @@ void Tac::optimize(){
 void Tac::dump(ostream &strm, bool with_comments) {
     block->dump(strm, with_comments);
 }
+
+Spim* Tac::to_spim()
+{
+    return new Spim();
+}
