@@ -6,7 +6,7 @@ Tac::Tac(){
 
 
 void Tac::append_quad(quad::OP op, opd *arg0, opd *arg1, opd *arg2, string comment) {
-    block->append_inst(new quad(op, arg0, arg1, arg2), true);
+    block->append_inst(new quad(op, arg0, arg1, arg2, comment), true);
 }
 
 int Tac::next_instruction(){

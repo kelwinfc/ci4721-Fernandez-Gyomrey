@@ -274,7 +274,7 @@ opd *AST_char::to_tac(Tac* t){
 
 opd *AST_string::to_tac(Tac* t){
     opd *o = new opd();
-    t->append_quad(quad::CP, o, new opd(offset), 0, string("dirección relativa del string en la tabla \"") + strings.to_string(value) + "\"");
+    t->append_quad(quad::CP, o, new opd(offset), 0, string("dirección relativa del string en la tabla \"") + string_table::to_string(value) + "\"");
     return o;
 }
 

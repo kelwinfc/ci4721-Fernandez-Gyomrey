@@ -1,12 +1,14 @@
 #include "symbol_table.h"
 
-symbol_table::symbol_table(){
+symbol_table::symbol_table(string_table* s){
     accumulated_offset = 0;
     parent = 0;
+    strings = s;
 }
 
-symbol_table::symbol_table(symbol_table* p){
+symbol_table::symbol_table(symbol_table* p, string_table* s){
     parent = p;
+    strings = s;
     
     if ( p == 0 || p->parent == 0 ){
         accumulated_offset = 0;
@@ -51,7 +53,7 @@ void symbol_table::insert(symbol* s){
 }
 
 symbol_table* symbol_table::new_son(){
-    return new symbol_table(this);
+    return new symbol_table(this, strings);
 }
 
 void symbol_table::accumulate_offset(int width, int alignment){

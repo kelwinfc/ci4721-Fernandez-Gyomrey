@@ -325,7 +325,7 @@ void AST_char::fill_and_check(symbol_table* st){
 }
 
 void AST_string::fill_and_check(symbol_table* st){
-    offset = strings.push_back(value);
+    offset = st->strings->push_back(value);
 }
 
 void AST_enum_constant::fill_and_check(symbol_table* st){

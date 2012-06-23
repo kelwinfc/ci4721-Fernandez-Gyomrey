@@ -8,6 +8,7 @@
 #include <iostream>
 #include "llog.h"
 #include "symbol.h"
+#include "string_table.h"
 
 extern llog* logger;
 
@@ -23,10 +24,12 @@ class symbol_table {
 
     public:
         unsigned int accumulated_offset;
+
+        string_table* strings;
         
         map<string, symbol*> table;
         
-        symbol_table();
+        symbol_table(string_table* s);
         
         ~symbol_table(){
             /* Verificar si hay simbolos sin ser utilizados en el bloque */
@@ -40,7 +43,7 @@ class symbol_table {
             }
         }
 
-        symbol_table(symbol_table* p);
+        symbol_table(symbol_table* p, string_table* s);
         
         symbol_table getParent();
         

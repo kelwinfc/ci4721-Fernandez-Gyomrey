@@ -467,7 +467,8 @@ variable_declaration :
 
 // Campos internos de los struct
 struct_fields :     {
-                        $$ = new symbol_table();
+                        //se supone que no pueden generarse strings en un struct
+                        $$ = new symbol_table(0);
                     }
               | struct_fields type_def TK_IDENT ';'
                     {

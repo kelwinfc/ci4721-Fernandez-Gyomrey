@@ -21,7 +21,7 @@ FILES=token\
 
 DEP_AST=llog token utils symbol symbol_table string_table Tac
 DEP_token=utils llog
-DEP_symbol_table=symbol
+DEP_symbol_table=symbol string_table
 DEP_type_descriptor=utils symbol symbol_table
 DEP_type_table=utils symbol symbol_table type_descriptor
 DEP_block=inst

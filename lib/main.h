@@ -20,12 +20,13 @@ void yyerror (char const *);
 
 extern FILE *yyin;
 
+
+//usado por y.tab.c
 AST* p;
 map<string, int> constants;
 llog* logger;
-type_table types;
+type_table types; 
 vector<uint> offset;
-string_table strings;
 
 int num_loops = 0;
 
@@ -39,3 +40,17 @@ struct main_args{
     bool tac_with_comments;
     FILE *in;
 };
+
+void main_read_args(int argc, char **argv, FILE *in, main_args& args);
+
+void main_redirect_stdout(const char *f = 0);
+
+AST* main_ast_create(main_args args);
+
+string_table* main_ast_check(AST *p);
+
+Tac* main_tac_create(main_args args, AST *p);
+
+void main_tac_optimize(Tac* tac);
+
+void main_tac_dump(main_args args, Tac* tac);

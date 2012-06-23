@@ -2,29 +2,15 @@
 #include "main.h"
 #include "../y.tab.c"
 
-void main_read_args(int argc, char **argv, FILE *in, main_args& args);
-
-void main_redirect_stdout(const char *f = 0);
-
-AST* main_ast_create(main_args args);
-
-void main_ast_check(AST *p);
-
-Tac* main_tac_create(main_args args, AST *p);
-
-void main_tac_optimize(Tac* tac);
-
-void main_tac_dump(main_args args, Tac* tac);
-
 int main (int argc,char **argv)
 {
     main_args args;
     main_read_args(argc, argv, stdin, args);
 
     logger = new llog();
-    AST *p = main_ast_create(args);
+    AST *ast = main_ast_create(args);
     
-    main_ast_check(p);
+    string_table* strings = main_ast_check(ast);
     
     if (args.to_separate_archives) {
         main_redirect_stdout("bla.types");
@@ -34,14 +20,14 @@ int main (int argc,char **argv)
     if (args.to_separate_archives) {
         main_redirect_stdout("bla.strings");
     }
-    strings.dump(cout);
+    strings->dump(cout);
     cout << "-------------------------------------------------------" << endl << endl;
     
     if (args.ast) {
         if (args.to_separate_archives) {
             main_redirect_stdout("bla.ast");
         }
-        p->dump(cout, 0);
+        ast->dump(cout, 0);
 
         if (!args.to_separate_archives) {
             cout << "-------------------------------------------------------" << endl << endl;
@@ -56,7 +42,7 @@ int main (int argc,char **argv)
         return 1;
     }
     
-    Tac *tac = main_tac_create(args, p);
+    Tac *tac = main_tac_create(args, ast);
 
     main_tac_optimize(tac);
 
@@ -125,18 +111,21 @@ AST* main_ast_create(main_args args){
     return p;
 }
 
-void main_ast_check(AST *p){
+string_table* main_ast_check(AST *ast){
 
-    symbol_table* st = new symbol_table();
+    string_table* strings = new string_table();
+    symbol_table* st = new symbol_table(strings);
     
-    p->fill_and_check(st);
+    ast->fill_and_check(st);
     
     delete st;
+
+    return strings;
 }
 
-Tac* main_tac_create(main_args args, AST *p){
+Tac* main_tac_create(main_args args, AST *ast){
 
-    Tac* tac = p->to_tac();
+    Tac* tac = ast->to_tac();
     if (args.to_separate_archives) {
         main_redirect_stdout("bla.tac");
     }
