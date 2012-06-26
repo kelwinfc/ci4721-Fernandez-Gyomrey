@@ -37,7 +37,26 @@ struct opd{
 class inst{
     public:
         
+        enum OP {CP, CALL, PARAM, REF, DEREF, LD, ST, ERR, CONV,
+                 ADD, SUB, MUL, DIV, MOD, UMINUS, EXEC,
+                 GOTO, INIT, WRITE, READ, MAP, FILL,
+                 IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ,
+                 PROLOGUE, EPILOGUE, RETURN};
+        
         unsigned int label;
+        
+        OP op;
+        
+        opd *arg0;
+        opd *arg1;
+        opd *arg2;
+        string comment;
+        
+        inst();
+        inst(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0, string comment = "");
+        
+        unsigned get_goal_label();
+        
         virtual string to_string(bool with_comment = true);
         
         virtual bool is_jump();
@@ -46,27 +65,9 @@ class inst{
 
 class quad : public inst{
     public:
-        enum OP {CP, CALL, PARAM, REF, DEREF, LD, ST, ERR, CONV,
-                 ADD, SUB, MUL, DIV, MOD, UMINUS, EXEC,
-                 GOTO, INIT, WRITE, READ, MAP, FILL,
-                 IF, IFEQ, IFNEQ, IFL, IFLEQ, IFG, IFGEQ,
-                 PROLOGUE, EPILOGUE, RETURN};
-        OP op;
-        
-        opd *arg0;
-        opd *arg1;
-        opd *arg2;
-        string comment;
-        
-    public:
         quad(OP op, opd *arg0, opd *arg1 = 0, opd *arg2 = 0, string comment = "");
 
         string to_string(bool with_comment = false);
-        
-        unsigned get_goal_label();
-        
-        virtual bool is_jump();
-        virtual bool mandatory_jump();
 };
 
 class mi : public inst{

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "utils.h"
+#include <set>
 
 using namespace std;
 
@@ -51,6 +52,12 @@ class symbol{
         int getColumn();
 
         bool isInitialized();
+        
+        // Define en que indices de registro esta disponible el simbolo.
+        // El indice del registro es cuestion de implantacion del compilador,
+        // no tiene que ver con el nombre del registro real en la maquina
+        // destino
+        set<int> availability;
 };
 
 class symbol_function : public symbol {

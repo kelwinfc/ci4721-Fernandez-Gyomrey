@@ -18,7 +18,8 @@ FILES=token\
       string_table\
       main\
       Tac\
-      Spim
+      Spim\
+      codegen
 
 DEP_AST=llog token utils symbol symbol_table string_table Tac
 DEP_token=utils llog
@@ -29,6 +30,7 @@ DEP_block=inst
 DEP_optimizer=inst block
 DEP_main=AST symbol symbol_table llog type_table optimizer string_table Tac Spim
 DEP_Tac=block inst optimizer Spim
+DEP_code_gen = codegen symbol
 
 all: bla
 
@@ -58,6 +60,7 @@ bin/block.o: $(DEP_block:%=src/%.cpp) $(DEP_block:%=lib/%.h)
 bin/inst.o: $(DEP_inst:%=src/%.cpp) $(DEP_inst:%=lib/%.h)
 bin/optimizer.o: $(DEP_optimizer:%=src/%.cpp) $(DEP_optimizer:%=lib/%.h)
 bin/string_table.o: $(DEP_string_table:%=src/%.cpp) $(DEP_string_table:%=lib/%.h)
+bin/codegen.o: $(DEP_codegen:%=src/%.cpp) $(DEP_codegen:%=lib/%.h)
 
 y.tab.c: src/parser.y
 	bison -v -dy $<

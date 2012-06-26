@@ -55,6 +55,23 @@ string opd::to_string() {
     return ":UKNOWN_TYPE";
 }
 
+inst::inst(){
+    arg0 = 0;
+    arg1 = 0;
+    arg2 = 0;
+}
+
+inst::inst(OP op, opd *arg0, opd *arg1, opd *arg2, string comment){
+    this->op = op;
+    this->arg0 = arg0;
+    this->arg1 = arg1;
+    this->arg2 = arg2;
+    if (comment.compare("")) {
+        comment = "# " + comment + "\n";
+    }
+    this->comment = comment;
+}
+
 string inst::to_string(bool with_comment){
     return "";
 }
@@ -167,7 +184,7 @@ string quad::to_string(bool with_comment){
     return r;
 }
 
-unsigned int quad::get_goal_label(){
+unsigned int inst::get_goal_label(){
     assert (op == GOTO);
     if (0 != arg2) {
         return arg2->data.pint;
@@ -177,14 +194,6 @@ unsigned int quad::get_goal_label(){
 }
 
 bool inst::is_jump(){
-    return false;
-}
-
-bool inst::mandatory_jump(){
-    return false;
-}
-
-bool quad::is_jump(){
     switch ( op ){
         case GOTO:
         case IF:
@@ -203,7 +212,7 @@ bool quad::is_jump(){
     }
 }
 
-bool quad::mandatory_jump(){
+bool inst::mandatory_jump(){
     assert(is_jump());
     switch ( op ){
         case GOTO:

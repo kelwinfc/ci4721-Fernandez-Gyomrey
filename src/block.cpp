@@ -1,4 +1,4 @@
-#include "Block.h"
+#include "block.h"
 #include <iostream>
 
 unsigned int next_label = 0;
@@ -20,9 +20,9 @@ Block::Block(bool with_vector){
     }
 }
 
-void Block::append_inst(quad::OP op, opd *arg0, opd *arg1, opd *arg2, string comment, bool gen_label) {
+void Block::append_inst(inst::OP op, opd *arg0, opd *arg1, opd *arg2, string comment, bool gen_label) {
     
-    append_inst(new quad(op, arg0, arg1, arg2), gen_label);
+    append_inst(new inst(op, arg0, arg1, arg2), gen_label);
 }
 
 void Block::append_inst(inst *i, bool gen_label) {
@@ -59,12 +59,12 @@ void Block::dump(ostream &strm, bool with_comments) {
     if ( w_vector ){
         vector<inst*>::iterator it = instructions.vinst->begin();
         for (; it != instructions.vinst->end(); ++ it) {
-            strm << ((quad*)(*it))->to_string(with_comments) << endl;
+            strm << ((inst*)(*it))->to_string(with_comments) << endl;
         }
     } else {
         list<inst*>::iterator it = instructions.linst->begin();
         for (; it != instructions.linst->end(); ++ it) {
-            strm << ((quad*)(*it))->to_string(with_comments) << endl;
+            strm << ((inst*)(*it))->to_string(with_comments) << endl;
         }
     }
 }
@@ -123,20 +123,20 @@ void Block::gen_graph(){
         
         if ( current_inst->is_jump() ){
             
-            if ( ((quad*)current_inst)->op == quad::CALL )
+            if ( ((inst*)current_inst)->op == inst::CALL )
             {
                 int destino = 
-                  func_to_prologue[((quad*)current_inst)->arg1->data.sym->getName()];
+                  func_to_prologue[((inst*)current_inst)->arg1->data.sym->getName()];
                 SET_LEADER(leaders,destino);
                 was_jump = true;
-            } else if ( ((quad*)current_inst)->op == quad::EPILOGUE )
+            } else if ( ((inst*)current_inst)->op == inst::EPILOGUE )
             {
                 int destino = 
-                  func_to_epilogue[((quad*)current_inst)->arg2->data.sym->getName()];
+                  func_to_epilogue[((inst*)current_inst)->arg2->data.sym->getName()];
                   SET_LEADER(leaders,destino);
                 was_jump = true;
-            } else if (((quad*)current_inst)->arg2 != 0) {
-                unsigned int destino = ((quad*)current_inst)->arg2->data.pint;
+            } else if (((inst*)current_inst)->arg2 != 0) {
+                unsigned int destino = ((inst*)current_inst)->arg2->data.pint;
                 SET_LEADER(leaders,destino);
                 was_jump = true;
             }
@@ -212,21 +212,21 @@ void Block::gen_graph(){
         
         inst* last_inst = current_block->last_instruction();
         
-        if ( last_inst->is_jump() && ((quad*)last_inst)->op == quad::GOTO ){
+        if ( last_inst->is_jump() && ((inst*)last_inst)->op == inst::GOTO ){
             current_block->mandatory_exit = 
-                label_to_block[ ((quad*)last_inst)->arg2->data.pint ];
+                label_to_block[ ((inst*)last_inst)->arg2->data.pint ];
         }
         
-        if ( ((quad*)last_inst)->op == quad::RETURN ){
+        if ( ((inst*)last_inst)->op == inst::RETURN ){
             current_block->mandatory_exit = 
-                label_to_block[((quad*)last_inst)->arg2->data.pint];
+                label_to_block[((inst*)last_inst)->arg2->data.pint];
         }
         
         // Marcar las salidas opcionales
         if ( last_inst->is_jump() && !last_inst->mandatory_jump() )
         {
-            if ( ((quad*)last_inst)->op == quad::CALL ){
-                string func = ((quad*)last_inst)->arg1->data.sym->getName();
+            if ( ((inst*)last_inst)->op == inst::CALL ){
+                string func = ((inst*)last_inst)->arg1->data.sym->getName();
                 
                 // Agregar salto desde el llamador al prologo del llamado
                 current_block->sucessors.push_back(
@@ -237,9 +237,9 @@ void Block::gen_graph(){
                 // de la llamada)
                 label_to_block[func_to_epilogue[func]]->sucessors.push_back(
                     current_block->mandatory_exit);
-            } else if ( ((quad*)last_inst)->arg2 != 0 ){
+            } else if ( ((inst*)last_inst)->arg2 != 0 ){
                 current_block->sucessors.push_back(
-                            label_to_block[((quad*)last_inst)->arg2->data.pint] );
+                            label_to_block[((inst*)last_inst)->arg2->data.pint] );
             }
         }
     }
