@@ -35,5 +35,14 @@ void Tac::dump(ostream &strm, bool with_comments) {
 
 Spim* Tac::to_spim()
 {
-    return new Spim();
+    Spim* spim = new Spim(this);
+    
+    vector<Block*>::iterator itb = list_of_blocks.begin();
+    for( ; itb != list_of_blocks.end(); ++itb){
+        list<inst*>::iterator iti = (*itb)->instructions.linst->begin();
+        for( ; iti != (*itb)->instructions.linst->end(); ++iti){
+            spim->append_inst(*iti);
+        }
+    }
+    return spim;
 }

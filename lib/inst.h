@@ -1,5 +1,5 @@
-#ifndef _INST
-#define _INST
+#ifndef INST_H
+#define INST_H
 
 #include <sstream>
 #include <string>

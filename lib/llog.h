@@ -1,5 +1,5 @@
-#ifndef _LLOG
-#define _LLOG
+#ifndef LLOG_H
+#define LLOG_H
 #include <string>
 #include <map>
 #include <vector>

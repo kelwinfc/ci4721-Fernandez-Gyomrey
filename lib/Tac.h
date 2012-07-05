@@ -1,5 +1,5 @@
-#ifndef _Tac
-#define _Tac
+#ifndef TAC_H
+#define TAC_H
 
 #include<list>
 #include<iostream>
@@ -12,7 +12,14 @@ using namespace std;
 
 extern unsigned int next_label;
 
+extern vector<Block*> list_of_blocks;
+
+class Spim;
+
 class Tac{
+
+    private:
+        void* iterate_next(inst** i, void* it = 0);
 
     public:
 

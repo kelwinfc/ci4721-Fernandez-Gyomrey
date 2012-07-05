@@ -1,5 +1,5 @@
-#ifndef __TYPE_TABLE
-#define __TYPE_TABLE
+#ifndef TYPE_TABLE_H
+#define TYPE_TABLE_H
 
 #include <map>
 #include <vector>

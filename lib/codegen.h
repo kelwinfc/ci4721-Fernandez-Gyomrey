@@ -1,5 +1,5 @@
-#ifndef _CODEGEN
-#define _CODEGEN
+#ifndef CODEGEN_H
+#define CODEGEN_H
 
 #include <set>
 #include <vector>
@@ -7,8 +7,6 @@
 #include "inst.h"
 
 using namespace std;
-
-class symbol;
 
 class register_descriptor{
     private:
@@ -18,7 +16,7 @@ class register_descriptor{
         bool reserved;
     
     public:
-        register_descriptor();
+        /*register_descriptor();*/
         
         register_descriptor(int num, string name);
         

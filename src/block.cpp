@@ -2,7 +2,6 @@
 #include <iostream>
 
 unsigned int next_label = 0;
-vector<Block*> list_of_blocks;
 
 extern map<string,int> func_to_prologue;
 extern map<string,int> func_to_epilogue;

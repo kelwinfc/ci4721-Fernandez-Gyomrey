@@ -30,6 +30,7 @@ DEP_block=inst
 DEP_optimizer=inst block
 DEP_main=AST symbol symbol_table llog type_table optimizer string_table Tac Spim
 DEP_Tac=block inst optimizer Spim
+DEP_Spim=Tac inst
 DEP_code_gen = codegen symbol
 
 all: bla

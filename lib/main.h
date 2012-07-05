@@ -1,3 +1,5 @@
+#ifndef MAIN_H
+#define MAIN_H
 
 #include <math.h>
 #include <stdio.h>
@@ -20,6 +22,8 @@ int yylex (void);
 void yyerror (char const *);
 
 extern FILE *yyin;
+
+vector<Block*> list_of_blocks;
 
 
 //usado por y.tab.c
@@ -59,3 +63,5 @@ void main_tac_dump(main_args args, Tac* tac);
 Spim* main_spim_create(Tac *tac);
 
 void main_spim_dump(Spim *spim);
+
+#endif

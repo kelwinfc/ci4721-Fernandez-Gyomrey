@@ -1,5 +1,5 @@
-#ifndef __UTILS
-#define __UTILS
+#ifndef UTILS_H
+#define UTILS_H
 
 #define TYPE int
 #define UNDEFINED 0
