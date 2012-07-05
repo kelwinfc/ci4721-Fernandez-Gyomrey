@@ -1,9 +1,9 @@
 #include "codegen.h"
-/*
+
 register_descriptor::register_descriptor(){
     reg_num = 0;
     reg_name = "";
-}*/
+}
 
 register_descriptor::register_descriptor(int num, string name){
     reg_num  = num;

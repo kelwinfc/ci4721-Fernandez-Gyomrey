@@ -16,7 +16,7 @@ class register_descriptor{
         bool reserved;
     
     public:
-        /*register_descriptor();*/
+        register_descriptor();
         
         register_descriptor(int num, string name);
         
