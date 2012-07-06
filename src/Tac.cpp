@@ -1,5 +1,7 @@
 #include "Tac.h"
 
+extern vector<Block*> list_of_blocks;
+
 Tac::Tac(){
     block = new Block(true);
 }

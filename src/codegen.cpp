@@ -57,21 +57,23 @@ int get_reg(symbol* s){
     
     vector<register_descriptor>::iterator it = register_descriptors.begin();
     
-    // Si ya esta en un registro, aprovecharlo
-    for( ; it != register_descriptors.end(); ++it){
-        if ( it->contains(s) )
-            return index;
-        else if ( it->is_free() ){
-            empty = index;
+    if ( s ){
+        // Si ya esta en un registro, aprovecharlo
+        for( ; it != register_descriptors.end(); ++it){
+            if ( it->contains(s) )
+                return index;
+            else if ( it->is_free() ){
+                empty = index;
+            }
+            index++;
         }
-        index++;
-    }
-    
-    // El simbolo no se encuentra ya en un registro
-    
-    // Hay algun registro vacio, usarlo
-    if ( empty != -1 ){
-        return empty;
+        
+        // El simbolo no se encuentra ya en un registro
+        
+        // Hay algun registro vacio, usarlo
+        if ( empty != -1 ){
+            return empty;
+        }
     }
     
     int cheapest_register = 0;
@@ -90,7 +92,7 @@ int get_reg(symbol* s){
     }
     
     //TODO liberar lo que sea necesario liberar (hacer los ST respectivos)
-    
+    //TODO cargar el simbolo en un registro
     return cheapest_register;
 }
 
