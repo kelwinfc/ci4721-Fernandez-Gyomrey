@@ -167,7 +167,7 @@ Spim* main_spim_create(Tac* tac)
 
 void main_spim_dump(Spim* spim)
 {
-    spim->dump(cout);
+    spim->dump(cout, true);
 }
 
 void main_redirect_stdout(const char *f)

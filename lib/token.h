@@ -1,5 +1,5 @@
-#ifndef __TOKEN
-#define __TOKEN
+#ifndef TOKEN_H
+#define TOKEN_H
 
 #include <cstring>
 #include <cstdlib>

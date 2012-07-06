@@ -1,5 +1,5 @@
-#ifndef _CODEGEN
-#define _CODEGEN
+#ifndef CODEGEN_H
+#define CODEGEN_H
 
 #include <set>
 #include <vector>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class symbol;
+class quad;
 
 class register_descriptor{
     private:
@@ -33,7 +33,7 @@ class register_descriptor{
         void load(symbol* s);
 };
 
-vector<register_descriptor> register_descriptors;
+extern vector<register_descriptor> register_descriptors;
 
 void getReg(quad* i, int* r0, int* r1, int* r2);
 

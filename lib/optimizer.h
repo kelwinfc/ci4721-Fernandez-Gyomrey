@@ -1,5 +1,5 @@
-#ifndef _OPTIMIZER
-#define _OPTIMIZER
+#ifndef OPTIMIZER_H
+#define OPTIMIZER_H
 
 #include "inst.h"
 #include "block.h"

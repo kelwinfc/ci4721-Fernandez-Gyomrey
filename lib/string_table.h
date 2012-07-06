@@ -1,5 +1,5 @@
-#ifndef __STRING_TABLE
-#define __STRING_TABLE
+#ifndef STRING_TABLE_H
+#define STRING_TABLE_H
 
 #include<string>
 #include<vector>

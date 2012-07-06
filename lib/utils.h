@@ -1,5 +1,8 @@
-#ifndef __UTILS
-#define __UTILS
+#ifndef UTILS_H
+#define UTILS_H
+
+#include <iostream>
+#include <cmath>
 
 #define TYPE int
 #define UNDEFINED 0
@@ -20,5 +23,7 @@
                       (7 == t ? "STRING" : "UNKNOWN"))))))))
 
 int lcm(int a, int b);
+
+char* itoa_(int i);
 
 #endif

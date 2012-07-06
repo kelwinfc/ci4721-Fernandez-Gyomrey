@@ -1,6 +1,6 @@
 
 GCC=g++
-#GCC_DEBUG=-ggdb
+GCC_DEBUG=-ggdb
 GCC_FLAGS=-Ilib -Wall -O3 $(GCC_DEBUG)
 GCC_MAIN_FLAGS=-Ilib -O3 $(GCC_DEBUG)
 
@@ -30,6 +30,7 @@ DEP_block=inst
 DEP_optimizer=inst block
 DEP_main=AST symbol symbol_table llog type_table optimizer string_table Tac Spim
 DEP_Tac=block inst optimizer Spim
+DEP_Spim=Tac inst
 DEP_code_gen = codegen symbol
 
 all: bla

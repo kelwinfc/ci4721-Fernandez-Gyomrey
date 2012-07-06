@@ -1,5 +1,5 @@
-#ifndef _BLOCK
-#define _BLOCK
+#ifndef BLOCK_H
+#define BLOCK_H
 
 #include <list>
 #include <vector>
@@ -15,6 +15,10 @@ typedef union{
     list<inst*>   *linst;
     vector<inst*> *vinst;
 } seq_inst;
+
+class Block;
+
+extern vector<Block*> list_of_blocks;
 
 class Block{
     

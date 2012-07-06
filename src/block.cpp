@@ -2,7 +2,6 @@
 #include <iostream>
 
 unsigned int next_label = 0;
-vector<Block*> list_of_blocks;
 
 extern map<string,int> func_to_prologue;
 extern map<string,int> func_to_epilogue;
@@ -18,11 +17,6 @@ Block::Block(bool with_vector){
     } else {
         instructions.linst = new list<inst*>();
     }
-}
-
-void Block::append_inst(inst::OP op, opd *arg0, opd *arg1, opd *arg2, string comment, bool gen_label) {
-    
-    append_inst(new inst(op, arg0, arg1, arg2), gen_label);
 }
 
 void Block::append_inst(inst *i, bool gen_label) {

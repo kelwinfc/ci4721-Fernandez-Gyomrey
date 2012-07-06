@@ -19,7 +19,7 @@ void Tac::backpatch(list<int>& l, int instr){
     list<int>::iterator it;
     for (it = l.begin(); it != l.end(); ++it){
         quad* in = (quad*)(*(block->instructions.vinst))[*it];
-        in->arg2 = new opd(instr,true);
+        in->arg2 = new opd(instr, O_LABEL);
     }
 }
 
@@ -37,5 +37,32 @@ void Tac::dump(ostream &strm, bool with_comments) {
 
 Spim* Tac::to_spim()
 {
-    return new Spim();
+    Spim* spim = new Spim(this);
+    
+    vector<Block*>::iterator itb = list_of_blocks.begin();
+    bool in = false, out = false;
+    for( ; itb != list_of_blocks.end(); ++itb){
+        list<inst*>::iterator iti = (*itb)->instructions.linst->begin();
+        for( ; iti != (*itb)->instructions.linst->end(); ++iti){
+            const inst i = **iti;
+            in = !out && (in || (i.op == inst::PROLOGUE && !i.arg2->data.sym->getName().compare("main")));
+            if (in) {
+                switch (i.op) {
+                case inst::WRITE:
+                    //spim->append_inst(Spim_Inst::LI);
+                    //spim->append_inst(Spim_Inst::LI);
+                default:
+                    break;
+                }
+                //spim->append_inst(*iti);
+            }
+            out = out || (i.op == inst::EPILOGUE && !i.arg2->data.sym->getName().compare("main"));
+            if (out && in) {
+                // epílogo main
+                //spim->append_inst(Spim_Inst::LI, new opd(10));
+                //spim->append_inst(Spim_Inst::LI);
+            }
+        }
+    }
+    return spim;
 }

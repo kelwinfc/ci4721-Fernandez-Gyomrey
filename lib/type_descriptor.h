@@ -1,5 +1,5 @@
-#ifndef __TYPE_DESCRIPTOR
-#define __TYPE_DESCRIPTOR
+#ifndef TYPE_DESCRIPTOR_H
+#define TYPE_DESCRIPTOR_H
 
 #include "symbol_table.h"
 #include "token.h"
