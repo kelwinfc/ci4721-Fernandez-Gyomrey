@@ -14,11 +14,13 @@ class Spim{
     public:
         Tac* tac;
 
+        Block* block;
+
         vector<inst*> instructions;
 
         Spim(Tac* tac);
 
-        void append_inst(inst* i);
+        void append_inst(quad::OP op, opd *arg0, opd *arg1, opd *arg2, string comment);
 
         void dump(ostream& strm, bool with_comments);
 };

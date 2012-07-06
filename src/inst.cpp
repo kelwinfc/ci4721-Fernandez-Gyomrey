@@ -1,6 +1,4 @@
 #include "inst.h"
-#include <iostream>
-#include <cassert>
 
 using namespace std;
 
@@ -15,15 +13,52 @@ opd::opd(){
     type = O_TEMP;
 }
 
-opd::opd(int s, int label){
-    
+opd::opd(int s, char type){
+
     data.pint = s;
-    
-    if ( label ){
-        type = O_LABEL;
-    } else {
-        type = O_INT;
+    this->type = type;
+    switch (type) {
+        case O_LABEL: case O_INT:
+            data.pint = s;
+            break;
+        case O_SL:
+            data.spim.lab = s;
+            break;
+        case O_SI:
+            data.spim.imm = s;
+            break;
+        default:
+            throw string("") + "Error de implementación, tipo " + itoa_(type) + " de instrucción desconocido";
     }
+}
+
+opd::opd(int s1, int s2, char type){
+
+    this->type = type;
+    switch (type) {
+        case O_SLI:
+            data.spim.lab = s1;
+            data.spim.imm = s2;
+            break;
+        case O_SLR:
+            data.spim.lab = s1;
+            data.spim.reg = s2;
+            break;
+        case O_SIR:
+            data.spim.imm = s1;
+            data.spim.reg = s2;
+            break;
+        default:
+            throw string("") + "Error de implementación, tipo " + itoa_(type) + " de instrucción desconocido";
+    }
+}
+
+opd::opd(int lab, int imm, int reg){
+
+    this->type = O_SLIR;
+    data.spim.lab = lab;
+    data.spim.imm = imm;
+    data.spim.reg = reg;
 }
 
 opd::opd(char c){
@@ -52,28 +87,75 @@ string opd::to_string() {
         case O_FLOAT: out << data.pfloat; return out.str();
         case O_LABEL: out << data.pint; return "L_" + out.str();
     }
-    return ":UKNOWN_TYPE";
-}
 
-inst::inst(){
-    arg0 = 0;
-    arg1 = 0;
-    arg2 = 0;
-}
-
-inst::inst(OP op, opd *arg0, opd *arg1, opd *arg2, string comment){
-    this->op = op;
-    this->arg0 = arg0;
-    this->arg1 = arg1;
-    this->arg2 = arg2;
-    if (comment.compare("")) {
-        comment = "# " + comment + "\n";
+    // registro de spim
+    string r = "";
+    if (type & O_SL) {
+        stringstream out;
+        out << data.spim.lab;
+        r += out.str();
     }
-    this->comment = comment;
+    if (type & O_SI) {
+        if (type & O_SL && data.spim.imm < 0) {
+            r += "+";
+        }
+        stringstream out;
+        out << data.spim.imm;
+        r += out.str();
+    }
+    if (type & O_SR) {
+        bool p = r.compare("");
+        stringstream out;
+        out << data.spim.reg;
+        r += (p ? "(" : "") + out.str() + (p ? ")" : "");
+    }
+
+    return r.compare("") ? r : "UKNOWN_TYPE";
 }
 
 string inst::to_string(bool with_comment){
     return "";
+}
+
+unsigned int inst::get_goal_label(){
+    assert (op == GOTO);
+    if (0 != arg2) {
+        return arg2->data.pint;
+    } else {
+        return -1;
+    }
+}
+
+bool inst::is_jump(){
+    switch ( op ){
+        case GOTO:
+        case IF:
+        case IFEQ:
+        case IFNEQ:
+        case IFL:
+        case IFLEQ:
+        case IFG:
+        case IFGEQ:
+        case RETURN:
+        case CALL:
+        case EPILOGUE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool inst::mandatory_jump(){
+    assert(is_jump());
+    switch ( op ){
+        case GOTO:
+//        case CALL:
+        case RETURN:
+        case EPILOGUE:
+            return true;
+        default:
+            return false;
+    }
 }
 
 
@@ -93,7 +175,7 @@ string quad::to_string(bool with_comment){
     std::stringstream out;
     out << label;
     string r = "", _ = (with_comment ? comment : "" ) + "L" + out.str() + ": ";
-    
+
     opd *opds[] = {arg0, arg1, arg2};
     
     // Modo alternativo de impresion: si es preferible el otro basta con remover
@@ -184,43 +266,40 @@ string quad::to_string(bool with_comment){
     return r;
 }
 
-unsigned int inst::get_goal_label(){
-    assert (op == GOTO);
-    if (0 != arg2) {
-        return arg2->data.pint;
-    } else {
-        return -1;
+Spim_Inst::Spim_Inst(OP op, opd *arg0, opd *arg1, opd *arg2, string comment){
+    this->op = op;
+    this->arg0 = arg0;
+    this->arg1 = arg1;
+    this->arg2 = arg2;
+    if (comment.compare("")) {
+        comment = "# " + comment + "\n";
     }
+    this->comment = comment;
 }
 
-bool inst::is_jump(){
-    switch ( op ){
-        case GOTO:
-        case IF:
-        case IFEQ:
-        case IFNEQ:
-        case IFL:
-        case IFLEQ:
-        case IFG:
-        case IFGEQ:
-        case RETURN:
-        case CALL:
-        case EPILOGUE:
-            return true;
-        default:
-            return false;
-    }
-}
+string Spim_Inst::to_string(bool with_comment){
 
-bool inst::mandatory_jump(){
-    assert(is_jump());
-    switch ( op ){
-        case GOTO:
-//        case CALL:
-        case RETURN:
-        case EPILOGUE:
-            return true;
+    std::stringstream out;
+    out << label;
+    string r = "", _ = (with_comment ? comment : "" ) + "L" + out.str() + ": ";
+    
+    opd *opds[] = {arg0, arg1, arg2};
+    
+    switch (op ){
         default:
-            return false;
+            break;
     }
+    
+    for (int i = 0; i < 3; ++ i) {
+        if (opds[i]) {
+            r += (0 == i ? "" : ", ") + opds[i]->to_string();
+        }
+    }
+    
+    switch (op ){
+        default:
+            break;
+    }
+    
+    return r;
 }

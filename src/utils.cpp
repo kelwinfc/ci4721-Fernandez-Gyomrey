@@ -1,6 +1,4 @@
 #include "utils.h"
-#include <iostream>
-#include <cmath>
 
 using namespace std;
 
@@ -18,4 +16,20 @@ int lcm(int a, int b){
                   // alineacion es de cualquier byte
     }
     return abs((double)a*b)/gcd(a,b);
+}
+
+char* itoa_(int i){
+    char* s = new char[12];
+    int k = 12;
+    s[--k] = 0;
+    while (i > 0) {
+        s[--k] = '0' + (i % 10);
+        i /= 10;
+    }
+    if (0 < k) {
+        for (int i = 0; i + k < 12; ++ i) {
+            s[i] = s[i + k];
+        }
+    }
+    return s;
 }

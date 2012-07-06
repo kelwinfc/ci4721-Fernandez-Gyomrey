@@ -1,6 +1,6 @@
 
 GCC=g++
-#GCC_DEBUG=-ggdb
+GCC_DEBUG=-ggdb
 GCC_FLAGS=-Ilib -Wall -O3 $(GCC_DEBUG)
 GCC_MAIN_FLAGS=-Ilib -O3 $(GCC_DEBUG)
 

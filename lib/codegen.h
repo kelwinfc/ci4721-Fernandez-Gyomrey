@@ -8,6 +8,8 @@
 
 using namespace std;
 
+class quad;
+
 class register_descriptor{
     private:
         int reg_num;
@@ -31,7 +33,7 @@ class register_descriptor{
         void load(symbol* s);
 };
 
-vector<register_descriptor> register_descriptors;
+extern vector<register_descriptor> register_descriptors;
 
 void getReg(quad* i, int* r0, int* r1, int* r2);
 

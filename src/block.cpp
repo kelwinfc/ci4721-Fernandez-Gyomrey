@@ -19,11 +19,6 @@ Block::Block(bool with_vector){
     }
 }
 
-void Block::append_inst(inst::OP op, opd *arg0, opd *arg1, opd *arg2, string comment, bool gen_label) {
-    
-    append_inst(new inst(op, arg0, arg1, arg2), gen_label);
-}
-
 void Block::append_inst(inst *i, bool gen_label) {
 
     int ninst = next_instruction();

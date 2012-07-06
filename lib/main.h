@@ -23,6 +23,7 @@ void yyerror (char const *);
 
 extern FILE *yyin;
 
+vector<register_descriptor> register_descriptors;
 vector<Block*> list_of_blocks;
 
 

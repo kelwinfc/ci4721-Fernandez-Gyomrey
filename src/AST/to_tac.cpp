@@ -70,7 +70,7 @@ opd *AST_op::to_tac(Tac* t){
                     // almacenar en un temporal el valor booleano de la rama izquierda
                     t->backpatch( left->truelist, t->next_instruction() );
                     t->append_quad(inst::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama izquierda de igualdad");
-                    t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
+                    t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, O_LABEL), "salto después de asignar el valor booleano");
 
                     t->backpatch( left->falselist, t->next_instruction() );
                     t->append_quad(inst::CP, l, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama izquierda de igualdad");
@@ -83,7 +83,7 @@ opd *AST_op::to_tac(Tac* t){
                     // almacenar en un temporal el valor booleano de la rama derecha
                     t->backpatch( right->truelist, t->next_instruction() );
                     t->append_quad(inst::CP, r, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama derecha de igualdad");
-                    t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
+                    t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, O_LABEL), "salto después de asignar el valor booleano");
 
                     t->backpatch( right->falselist, t->next_instruction() );
                     t->append_quad(inst::CP, r, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama derecha de igualdad");
@@ -104,7 +104,7 @@ opd *AST_op::to_tac(Tac* t){
                     // almacenar en un temporal el valor booleano de la rama izquierda
                     t->backpatch( left->truelist, t->next_instruction() );
                     t->append_quad(inst::CP, l, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama izquierda de desigualdad");
-                    t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
+                    t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, O_LABEL), "salto después de asignar el valor booleano");
 
                     t->backpatch( left->falselist, t->next_instruction() );
                     t->append_quad(inst::CP, l, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama izquierda de desigualdad");
@@ -117,7 +117,7 @@ opd *AST_op::to_tac(Tac* t){
                     // almacenar en un temporal el valor booleano de la rama derecha
                     t->backpatch( right->truelist, t->next_instruction() );
                     t->append_quad(inst::CP, r, new opd(true), 0, "asignación del valor booleano obtenido (true) a rama derecha de desigualdad");
-                    t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
+                    t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, O_LABEL), "salto después de asignar el valor booleano");
 
                     t->backpatch( right->falselist, t->next_instruction() );
                     t->append_quad(inst::CP, r, new opd(false), 0, "asignación del valor booleano obtenido (false) a rama derecha de desigualdad");
@@ -404,9 +404,9 @@ opd *AST_struct_access::gen_tac_lval(Tac* t, int *sta_base){
         t->append_quad(inst::CP, t1, din_base, new opd(ud->width - 4), "cargando identificador de tipo usado en el union");
         // TODO esto apunta a una instrucción que no existe.
         // se asume que justo después de calcular la posición del campo del struct está la siguiente instrucción que se debe ejecutar.
-        t->append_quad(inst::IFEQ, new opd(0), t2, new opd(t->next_instruction() + 7, 1),
+        t->append_quad(inst::IFEQ, new opd(0), t2, new opd(t->next_instruction() + 7, O_LABEL),
             "permitir la asignación por primera vez a una unión");
-        t->append_quad(inst::IFEQ, t1, t2, new opd(t->next_instruction() + 7, 1),
+        t->append_quad(inst::IFEQ, t1, t2, new opd(t->next_instruction() + 7, O_LABEL),
             "validar que en caso estar actualizado el tipo usado, se mantiene");
         t->append_quad(inst::WRITE, new opd(0), 0, 0, "dirección relativa del string en la tabla \"Se trató de utilizar una propiedad no activa de la unión en (\"");
         t->append_quad(inst::WRITE, new opd(value->line), 0, 0, "número de línea del error");
@@ -444,7 +444,7 @@ opd *AST_conversion::to_tac(Tac* t){
     if (BOOLEAN == expr->type) {
         t->backpatch(expr->truelist, t->next_instruction() );
         t->append_quad(inst::CP, v, new opd(true), 0, "asignación de valor booleano (true) obtenido al lvalue");
-        t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
+        t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, O_LABEL), "salto después de asignar el valor booleano");
 
         t->backpatch( expr->falselist, t->next_instruction() );
         t->append_quad(inst::CP, v, new opd(false), 0, "asignación de valor booleano (false) obtenido al lvalue");
@@ -493,7 +493,7 @@ void AST_parameters_list::to_tac(Tac* t){
             t->append_quad(inst::CP, o, new opd(true), 0,
                                     "argumento de función booleano (true)");
             t->append_quad(inst::GOTO, 0, 0,
-                            new opd(t->next_instruction() + 2, 1),
+                            new opd(t->next_instruction() + 2, O_LABEL),
                                 "salto después de asignar el valor booleano");
 
             t->backpatch( (*it)->falselist, t->next_instruction() );
@@ -646,7 +646,7 @@ void AST_return::to_tac(Tac* t){
             t->backpatch( expr->truelist, t->next_instruction() );
             t->append_quad(inst::CP, r, new opd(true), 0, "returno del valor booleano obtenido (true)");
 
-            t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, 1), "salto después de asignar el valor booleano");
+            t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, O_LABEL), "salto después de asignar el valor booleano");
 
             t->backpatch( expr->falselist, t->next_instruction() );
             t->append_quad(inst::CP, r, new opd(false), 0, "returno de valor booleano obtenido (false)");
@@ -715,7 +715,7 @@ void AST_loop::to_tac(Tac* t){
     // evaluacion de la condicion
     t->backpatch(blck->continue_list, start_instr);
     
-    t->append_quad(inst::GOTO, 0, 0, new opd(start_instr, true), "salto condicional de un loop");
+    t->append_quad(inst::GOTO, 0, 0, new opd(start_instr, O_LABEL), "salto condicional de un loop");
     
     next_list = expr->falselist;
     next_list.splice(next_list.end(), blck->break_list);
@@ -729,16 +729,16 @@ void AST_bounded_loop::to_tac(Tac* t){
     opd* i = new opd(), *os = new opd(sym);
     // prólogo
     t->append_quad(inst::CP, i, new opd(-1), 0, "se asume que se va a restar en cada ciclo");
-    t->append_quad(inst::IFGEQ, l, r, new opd(t->next_instruction() + 2,true), "en este caso, efectivamente, se resta en cada ciclo");
+    t->append_quad(inst::IFGEQ, l, r, new opd(t->next_instruction() + 2, O_LABEL), "en este caso, efectivamente, se resta en cada ciclo");
     t->append_quad(inst::CP, i, new opd(1), 0, "si se alcanzó esta instrucción, se va a sumar en cada ciclo");
     int start_instr = t->next_instruction();
     // comienzo del ciclo
-    t->append_quad(inst::IFEQ, i, new opd(1), new opd(t->next_instruction() + 3,true), "verificar que se suma por ciclo");
-    t->append_quad(inst::IFGEQ, l, r, new opd(t->next_instruction() + 4,true),
+    t->append_quad(inst::IFEQ, i, new opd(1), new opd(t->next_instruction() + 3, O_LABEL), "verificar que se suma por ciclo");
+    t->append_quad(inst::IFGEQ, l, r, new opd(t->next_instruction() + 4, O_LABEL),
         "dado que se resta por ciclo, verificar que no se alcanzó el mínimo derecho");
     next_list.push_back( t->next_instruction() );
     t->append_quad(inst::GOTO, 0, 0, 0, "si se llegó hasta aquí, es porque el ciclo finalizó naturalmente");
-    t->append_quad(inst::IFLEQ, l, r, new opd(t->next_instruction() + 2,true),
+    t->append_quad(inst::IFLEQ, l, r, new opd(t->next_instruction() + 2, O_LABEL),
         "dado que se suma por ciclo, verificar que no se alcanzó el máximo derecho");
     next_list.push_back( t->next_instruction() );
     t->append_quad(inst::GOTO, 0, 0, 0, "si se llegó hasta aquí, es porque el ciclo finalizó naturalmente");
@@ -752,7 +752,7 @@ void AST_bounded_loop::to_tac(Tac* t){
 
     t->append_quad(inst::ADD, os, os, i, "tanto para enteros como para caracteres sumar uno hasta llegars");
     // comenzar de nuevo
-    t->append_quad(inst::GOTO, 0, 0, new opd(start_instr, true), "volver a comenzar el for acotado");
+    t->append_quad(inst::GOTO, 0, 0, new opd(start_instr, O_LABEL), "volver a comenzar el for acotado");
 }
 
 void AST_break::to_tac(Tac* t){
@@ -776,7 +776,7 @@ void AST_print::to_tac(Tac* t){
             t->backpatch( (*it)->truelist, t->next_instruction() );
             t->backpatch( (*it)->falselist, t->next_instruction() + 2 );
             t->append_quad(inst::WRITE, new opd(true), 0, 0, "imprimir bool true a salida estándar");
-            t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, 1), "impreso bool true a salida estándar");
+            t->append_quad(inst::GOTO, 0, 0, new opd(t->next_instruction() + 2, O_LABEL), "impreso bool true a salida estándar");
             t->append_quad(inst::WRITE, new opd(false), 0, 0, "imprimir bool false a salida estándar");
         } else {
             t->append_quad(inst::WRITE, (*it)->to_tac(t), 0, 0, "imprimir a salida estándar");
